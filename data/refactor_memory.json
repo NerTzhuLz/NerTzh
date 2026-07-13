@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-07-13T05:55:00Z",
+  "project": "NertzMetalEngine - _Metrics_",
+  "database": {
+    "before": "SQLite (data/trading.db)",
+    "after": "PostgreSQL 16 via Docker (port 5433)",
+    "connection": "postgresql://metrics:metrics_pass@127.0.0.1:5433/metrics_db",
+    "docker_container": "metrics-pg",
+    "rows_migrated": 146336,
+    "tables_created": 7
+  },
+  "models": {
+    "before": "Duplicated in nertzh.py and models.py",
+    "after": "Unified in src/models.py using DeclarativeBase",
+    "classes": [
+      "MarketData",
+      "Orderbook",
+      "MarketTicker",
+      "Trade",
+      "MetricSnapshot",
+      "BalanceSnapshot",
+      "ThresholdSnapshot"
+    ]
+  },
+  "fixes": [
+    {
+      "file": "src/nertzh.py",
+      "issue": "Duplicate _ensure_sqlite_columns function",
+      "fix": "Removed duplicate definition (was defined twice at lines 96-103 and 140-148)"
+    },
+    {
+      "file": "src/nertzh.py",
+      "issue": "Engine had SQLite/PostgreSQL branching",
+      "fix": "Simplified to PostgreSQL only, removed SQLite fallback code"
+    },
+    {
+      "file": "src/nertzh.py",
+      "issue": "_determine_decision method missing self parameter",
+      "fix": "Marked as @staticmethod (uses module-level config)"
+    },
+    {
+      "file": "src/nertzh.py",
+      "issue": "record_balance recording zero-value balance events on API failure",
+      "fix": "Added retCode check: if API fails (retCode != 0), skip DB snapshot and event"
+    },
+    {
+      "file": "src/bybit_v5.py",
+      "issue": "No async context manager support",
+      "fix": "Added __aenter__ / __aexit__, close guard, closed state check in _get_session"
+    },
+    {
+      "file": ".env",
+      "issue": "Missing DATABASE_URL configuration",
+      "fix": "Added DATABASE_URL and DATABASE_ECHO"
+    },
+    {
+      "file": "pyproject.toml",
+      "issue": "Missing asyncpg and psycopg2 dependencies",
+      "fix": "Added asyncpg>=0.30.0, psycopg2-binary>=2.9.0, sqlalchemy[asyncio]>=2.0.51"
+    }
+  ],
+  "removed_files": [
+    ".env.qwen",
+    "activate_qoder_credits.sh",
+    "BUG_REPORT_METRICS.md",
+    "check_status.sh",
+    "DEMO_TO_MAINNET.md",
+    "fix_qwen_access.sh",
+    "main.https",
+    "MAINNET_SETUP.md",
+    "qoder_activate_now.sh",
+    "qoder_phase2.sh",
+    "QWEN_CLI_SETUP_COMPLETE.md",
+    "setup_qwen_complete.sh",
+    "setup_qwen_global.sh",
+    "setup_qwen_project.py",
+    "sync_qwen_models.py",
+    "test_metrics_fix.py",
+    "toggle_env.sh",
+    "uv.lock",
+    "validate_demo.py",
+    "src/migrate_to_postgres.py"
+  ],
+  "kept_qwen_integration": [
+    "src/qwen_integration.py",
+    ".qwen-config/"
+  ],
+  "pending_improvements": [
+    "Async SQLAlchemy engine (create_async_engine)",
+    "HTTP session pool for BybitV5Client",
+    "WebSocket backoff with exponential delay on API key errors",
+    "Real-time ML model integration (custom development)"
+  ]
+}

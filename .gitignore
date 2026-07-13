@@ -11,10 +11,6 @@ __pycache__/
 *.pyo
 .ruff_cache/
 
-# Runtime data and account/order logs
-logs/*.json
-data/*.json
-
 # IDE
 .idea/
 .explyt/

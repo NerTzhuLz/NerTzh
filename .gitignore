@@ -1,0 +1,32 @@
+# Virtual environment
+.venv/
+venv/
+
+# Environment (real keys)
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ruff_cache/
+
+# Runtime data and account/order logs
+logs/*.json
+data/*.json
+
+# IDE
+.idea/
+.explyt/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# Temp
+*.tmp
+*.bak

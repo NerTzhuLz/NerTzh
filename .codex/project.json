@@ -1,0 +1,12 @@
+{
+  "name": "metrics-nertzmetalengine",
+  "hackathon": "openai-build-week",
+  "devpost": "https://openai.devpost.com/",
+  "notes": [
+    "No required_model — use any Codex/ChatGPT model available on the account.",
+    "No agent lock files in this repo.",
+    "Trading secrets only in .env (Bybit + DATABASE_URL).",
+    "Prefer ENV=demo unless the human asks for mainnet.",
+    "Backlog hints: docs/hackathon/BACKLOG.md"
+  ]
+}

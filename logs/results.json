@@ -1,34 +1,35 @@
 {
     "metadata": {
-        "timestamp": "2026-07-13T10:15:21.494278+00:00",
-        "capital_inicial": 50000.0,
-        "capital_actual": 81221.675448,
-        "capital_final": 81221.675448,
+        "timestamp": "2026-07-13T19:31:01.154111+00:00",
+        "capital_inicial": 81221.675448,
+        "capital_actual": 81061.093278,
+        "capital_final": 81061.093278,
         "capital_source": "bybit_wallet_balance",
-        "capital_pnl": 31221.675448,
-        "total_pnl": 2.47005,
-        "total_trades": 3,
-        "iterations": 0,
+        "capital_pnl": -160.58217,
+        "total_pnl": 1.71656,
+        "total_trades": 10,
+        "iterations": 7,
         "running": true,
-        "balance_timestamp": "2026-07-13T07:58:01.278068+00:00",
-        "balance_total_equity": 81221.67544771,
-        "balance_available_balance": 81032.85880695,
+        "balance_timestamp": "2026-07-13T19:31:01.137143+00:00",
+        "balance_total_equity": 81061.0932777,
+        "balance_available_balance": 80689.73911024,
         "balance_account_type": "UNIFIED",
-        "balance_coin": "USDT"
+        "balance_coin": "USDT",
+        "last_trade_timestamp": "2026-07-13T19:30:00.752900+00:00"
     },
     "summary": {
-        "total_profit": 2.66965,
-        "total_loss": -0.1996,
-        "net_profit": 2.47005,
-        "win_rate": 66.67,
-        "avg_profit_per_trade": 0.82335
+        "total_profit": 7.17063,
+        "total_loss": -5.45407,
+        "net_profit": 1.71656,
+        "win_rate": 50.0,
+        "avg_profit_per_trade": 0.171656
     },
     "by_symbol": {
         "BTCUSDT": {
-            "profit": 2.66965,
-            "loss": -0.1996,
-            "net_profit": 2.47005,
-            "trade_count": 3
+            "profit": 7.17063,
+            "loss": -5.45407,
+            "net_profit": 1.71656,
+            "trade_count": 10
         }
     },
     "trades": {
@@ -322,8 +323,688 @@
                 "pio": 1.9529686080555773,
                 "ogm": 0.7195819822592648,
                 "risk_reward_ratio": 3.0
+            },
+            {
+                "trade_id": 4,
+                "timestamp": "2026-07-13T18:35:00.751206+00:00",
+                "symbol": "BTCUSDT",
+                "action": "sell",
+                "order_id": "2258479203672657152",
+                "entry_price": 61905.3,
+                "exit_price": 61971.3,
+                "tp_price": 61635.8,
+                "sl_price": 61995.2,
+                "quantity": 0.05,
+                "profit_loss": -3.2934,
+                "outcome_status": "final",
+                "outcome_timestamp": "2026-07-13T18:36:00.750241+00:00",
+                "bybit_raw": {
+                    "time": 1783967701334,
+                    "result": {
+                        "orderId": "2258479203672657152",
+                        "orderLinkId": "nertzh-3c00299641184e78905d"
+                    },
+                    "retMsg": "OK",
+                    "retCode": 0,
+                    "retExtInfo": {},
+                    "http_status": 200,
+                    "order_link_id": "nertzh-3c00299641184e78905d",
+                    "order_realtime": {
+                        "qty": "0.050000",
+                        "side": "Sell",
+                        "price": "61905.3",
+                        "symbol": "BTCUSDT",
+                        "orderId": "2258479203672657152",
+                        "orderIv": "",
+                        "smpType": "None",
+                        "avgPrice": "61905.3",
+                        "smpGroup": 0,
+                        "stopLoss": "61995.2",
+                        "basePrice": "61905.3",
+                        "leavesQty": "0",
+                        "orderType": "Limit",
+                        "placeType": "",
+                        "triggerBy": "",
+                        "cancelType": "UNKNOWN",
+                        "cumExecFee": "3.095265",
+                        "cumExecQty": "0.05",
+                        "isLeverage": "0",
+                        "marketUnit": "",
+                        "reduceOnly": false,
+                        "smpOrderId": "",
+                        "takeProfit": "61635.8",
+                        "createdTime": "1783967701334",
+                        "leavesValue": "0.0000000",
+                        "orderLinkId": "nertzh-3c00299641184e78905d",
+                        "orderStatus": "Filled",
+                        "positionIdx": 0,
+                        "slTriggerBy": "",
+                        "timeInForce": "GTC",
+                        "tpTriggerBy": "",
+                        "updatedTime": "1783967701334",
+                        "blockTradeId": "",
+                        "cumExecValue": "3095.2650000",
+                        "cumFeeDetail": {
+                            "USDT": "3.095265"
+                        },
+                        "rejectReason": "EC_NoError",
+                        "slLimitPrice": "0",
+                        "tpLimitPrice": "0",
+                        "triggerPrice": "0.0",
+                        "stopOrderType": "",
+                        "trailingValue": "0",
+                        "closeOnTrigger": false,
+                        "activationPrice": "0",
+                        "triggerDirection": 0,
+                        "lastPriceOnCreated": "",
+                        "trailingPercentage": "0"
+                    }
+                },
+                "decision": "sell",
+                "combined": -15.222830473964258,
+                "ild": -0.4148263180689,
+                "egm": -2.3363998435073317,
+                "rol": -0.6241654735707438,
+                "pio": -1.9452651678998476,
+                "ogm": 1.0839766171488878,
+                "risk_reward_ratio": 3.0
+            },
+            {
+                "trade_id": 5,
+                "timestamp": "2026-07-13T18:40:00.747953+00:00",
+                "symbol": "BTCUSDT",
+                "action": "buy",
+                "order_id": "2258481720112450816",
+                "entry_price": 61972.5,
+                "exit_price": 61976.7,
+                "tp_price": 62202.3,
+                "sl_price": 61895.9,
+                "quantity": 0.05,
+                "profit_loss": 0.2095799999998548,
+                "outcome_status": "final",
+                "outcome_timestamp": "2026-07-13T18:41:01.764369+00:00",
+                "bybit_raw": {
+                    "time": 1783968001318,
+                    "result": {
+                        "orderId": "2258481720112450816",
+                        "orderLinkId": "nertzh-256aa21c1ff24c9fa44d"
+                    },
+                    "retMsg": "OK",
+                    "retCode": 0,
+                    "retExtInfo": {},
+                    "http_status": 200,
+                    "order_link_id": "nertzh-256aa21c1ff24c9fa44d",
+                    "order_realtime": {
+                        "qty": "0.050000",
+                        "side": "Buy",
+                        "price": "61972.5",
+                        "symbol": "BTCUSDT",
+                        "orderId": "2258481720112450816",
+                        "orderIv": "",
+                        "smpType": "None",
+                        "avgPrice": "61972.5",
+                        "smpGroup": 0,
+                        "stopLoss": "61895.9",
+                        "basePrice": "61972.6",
+                        "leavesQty": "0",
+                        "orderType": "Limit",
+                        "placeType": "",
+                        "triggerBy": "",
+                        "cancelType": "UNKNOWN",
+                        "cumExecFee": "0.00005",
+                        "cumExecQty": "0.05",
+                        "isLeverage": "0",
+                        "marketUnit": "",
+                        "reduceOnly": false,
+                        "smpOrderId": "",
+                        "takeProfit": "62202.3",
+                        "createdTime": "1783968001318",
+                        "leavesValue": "0.0000000",
+                        "orderLinkId": "nertzh-256aa21c1ff24c9fa44d",
+                        "orderStatus": "Filled",
+                        "positionIdx": 0,
+                        "slTriggerBy": "",
+                        "timeInForce": "GTC",
+                        "tpTriggerBy": "",
+                        "updatedTime": "1783968014395",
+                        "blockTradeId": "",
+                        "cumExecValue": "3098.6250000",
+                        "cumFeeDetail": {
+                            "BTC": "0.00005"
+                        },
+                        "rejectReason": "EC_NoError",
+                        "slLimitPrice": "0",
+                        "tpLimitPrice": "0",
+                        "triggerPrice": "0.0",
+                        "stopOrderType": "",
+                        "trailingValue": "0",
+                        "closeOnTrigger": false,
+                        "activationPrice": "0",
+                        "triggerDirection": 0,
+                        "lastPriceOnCreated": "",
+                        "trailingPercentage": "0"
+                    }
+                },
+                "decision": "buy",
+                "combined": 16.33820232615154,
+                "ild": 0.8589427481508994,
+                "egm": 2.210363313735403,
+                "rol": 1.3669478457182789,
+                "pio": 1.995464354037271,
+                "ogm": 1.2979781365713625,
+                "risk_reward_ratio": 3.0
+            },
+            {
+                "trade_id": 6,
+                "timestamp": "2026-07-13T18:49:00.749432+00:00",
+                "symbol": "BTCUSDT",
+                "action": "buy",
+                "order_id": "2258486249893661952",
+                "entry_price": 61979.4,
+                "exit_price": 62025.5,
+                "tp_price": 62127.6,
+                "sl_price": 61930.0,
+                "quantity": 0.05,
+                "profit_loss": 2.3003899999999273,
+                "outcome_status": "final",
+                "outcome_timestamp": "2026-07-13T18:50:00.751790+00:00",
+                "bybit_raw": {
+                    "time": 1783968541310,
+                    "result": {
+                        "orderId": "2258486249893661952",
+                        "orderLinkId": "nertzh-db97d4201fef4a599fc2"
+                    },
+                    "retMsg": "OK",
+                    "retCode": 0,
+                    "retExtInfo": {},
+                    "http_status": 200,
+                    "order_link_id": "nertzh-db97d4201fef4a599fc2",
+                    "order_realtime": {
+                        "qty": "0.050000",
+                        "side": "Buy",
+                        "price": "61979.4",
+                        "symbol": "BTCUSDT",
+                        "orderId": "2258486249893661952",
+                        "orderIv": "",
+                        "smpType": "None",
+                        "avgPrice": "61979.4",
+                        "smpGroup": 0,
+                        "stopLoss": "61930",
+                        "basePrice": "61979.4",
+                        "leavesQty": "0",
+                        "orderType": "Limit",
+                        "placeType": "",
+                        "triggerBy": "",
+                        "cancelType": "UNKNOWN",
+                        "cumExecFee": "0.00005",
+                        "cumExecQty": "0.05",
+                        "isLeverage": "0",
+                        "marketUnit": "",
+                        "reduceOnly": false,
+                        "smpOrderId": "",
+                        "takeProfit": "62127.6",
+                        "createdTime": "1783968541309",
+                        "leavesValue": "0.0000000",
+                        "orderLinkId": "nertzh-db97d4201fef4a599fc2",
+                        "orderStatus": "Filled",
+                        "positionIdx": 0,
+                        "slTriggerBy": "",
+                        "timeInForce": "GTC",
+                        "tpTriggerBy": "",
+                        "updatedTime": "1783968541309",
+                        "blockTradeId": "",
+                        "cumExecValue": "3098.9700000",
+                        "cumFeeDetail": {
+                            "BTC": "0.00005"
+                        },
+                        "rejectReason": "EC_NoError",
+                        "slLimitPrice": "0",
+                        "tpLimitPrice": "0",
+                        "triggerPrice": "0.0",
+                        "stopOrderType": "",
+                        "trailingValue": "0",
+                        "closeOnTrigger": false,
+                        "activationPrice": "0",
+                        "triggerDirection": 0,
+                        "lastPriceOnCreated": "",
+                        "trailingPercentage": "0"
+                    }
+                },
+                "decision": "buy",
+                "combined": 22.299230614128874,
+                "ild": 3.6832413640725243,
+                "egm": 2.7929630846279503,
+                "rol": 3.61331755007941,
+                "pio": 3.50980973028299,
+                "ogm": 0.07548414000189486,
+                "risk_reward_ratio": 3.0
+            },
+            {
+                "trade_id": 7,
+                "timestamp": "2026-07-13T18:56:10.295992+00:00",
+                "symbol": "BTCUSDT",
+                "action": "buy",
+                "order_id": "2258489860308602112",
+                "entry_price": 62045.0,
+                "exit_price": 62036.9,
+                "tp_price": 62230.9,
+                "sl_price": 61983.1,
+                "quantity": 0.05,
+                "profit_loss": -0.4041899999999274,
+                "outcome_status": "final",
+                "outcome_timestamp": "2026-07-13T18:57:00.751188+00:00",
+                "bybit_raw": {
+                    "time": 1783968971705,
+                    "result": {
+                        "orderId": "2258489860308602112",
+                        "orderLinkId": "nertzh-51ae574c8ea9467ab1d5"
+                    },
+                    "retMsg": "OK",
+                    "retCode": 0,
+                    "retExtInfo": {},
+                    "http_status": 200,
+                    "order_link_id": "nertzh-51ae574c8ea9467ab1d5",
+                    "order_realtime": {
+                        "qty": "0.050000",
+                        "side": "Buy",
+                        "price": "62045.0",
+                        "symbol": "BTCUSDT",
+                        "orderId": "2258489860308602112",
+                        "orderIv": "",
+                        "smpType": "None",
+                        "avgPrice": "62045.0",
+                        "smpGroup": 0,
+                        "stopLoss": "61983.1",
+                        "basePrice": "62045.1",
+                        "leavesQty": "0",
+                        "orderType": "Limit",
+                        "placeType": "",
+                        "triggerBy": "",
+                        "cancelType": "UNKNOWN",
+                        "cumExecFee": "0.00005",
+                        "cumExecQty": "0.05",
+                        "isLeverage": "0",
+                        "marketUnit": "",
+                        "reduceOnly": false,
+                        "smpOrderId": "",
+                        "takeProfit": "62230.9",
+                        "createdTime": "1783968971704",
+                        "leavesValue": "0.0000000",
+                        "orderLinkId": "nertzh-51ae574c8ea9467ab1d5",
+                        "orderStatus": "Filled",
+                        "positionIdx": 0,
+                        "slTriggerBy": "",
+                        "timeInForce": "GTC",
+                        "tpTriggerBy": "",
+                        "updatedTime": "1783968975705",
+                        "blockTradeId": "",
+                        "cumExecValue": "3102.2500000",
+                        "cumFeeDetail": {
+                            "BTC": "0.00005"
+                        },
+                        "rejectReason": "EC_NoError",
+                        "slLimitPrice": "0",
+                        "tpLimitPrice": "0",
+                        "triggerPrice": "0.0",
+                        "stopOrderType": "",
+                        "trailingValue": "0",
+                        "closeOnTrigger": false,
+                        "activationPrice": "0",
+                        "triggerDirection": 0,
+                        "lastPriceOnCreated": "",
+                        "trailingPercentage": "0"
+                    }
+                },
+                "decision": "buy",
+                "combined": 14.66138254092205,
+                "ild": 2.3916380678454296,
+                "egm": 1.6198919920954633,
+                "rol": 1.9230770147253402,
+                "pio": 2.538985623169436,
+                "ogm": 0.08130269483201222,
+                "risk_reward_ratio": 3.0
+            },
+            {
+                "trade_id": 8,
+                "timestamp": "2026-07-13T19:12:00.747938+00:00",
+                "symbol": "BTCUSDT",
+                "action": "buy",
+                "order_id": "2258497828471180544",
+                "entry_price": 62071.0,
+                "exit_price": 62046.2,
+                "tp_price": 62204.5,
+                "sl_price": 62026.5,
+                "quantity": 0.05,
+                "profit_loss": -1.2375200000001454,
+                "outcome_status": "final",
+                "outcome_timestamp": "2026-07-13T19:13:01.761850+00:00",
+                "bybit_raw": {
+                    "time": 1783969921584,
+                    "result": {
+                        "orderId": "2258497828471180544",
+                        "orderLinkId": "nertzh-af31726992a645d8b78e"
+                    },
+                    "retMsg": "OK",
+                    "retCode": 0,
+                    "retExtInfo": {},
+                    "http_status": 200,
+                    "order_link_id": "nertzh-af31726992a645d8b78e",
+                    "order_realtime": {
+                        "qty": "0.050000",
+                        "side": "Buy",
+                        "price": "62071.0",
+                        "symbol": "BTCUSDT",
+                        "orderId": "2258497828471180544",
+                        "orderIv": "",
+                        "smpType": "None",
+                        "avgPrice": "62071.0",
+                        "smpGroup": 0,
+                        "stopLoss": "62026.5",
+                        "basePrice": "62071",
+                        "leavesQty": "0",
+                        "orderType": "Limit",
+                        "placeType": "",
+                        "triggerBy": "",
+                        "cancelType": "UNKNOWN",
+                        "cumExecFee": "0.00005",
+                        "cumExecQty": "0.05",
+                        "isLeverage": "0",
+                        "marketUnit": "",
+                        "reduceOnly": false,
+                        "smpOrderId": "",
+                        "takeProfit": "62204.5",
+                        "createdTime": "1783969921584",
+                        "leavesValue": "0.0000000",
+                        "orderLinkId": "nertzh-af31726992a645d8b78e",
+                        "orderStatus": "Filled",
+                        "positionIdx": 0,
+                        "slTriggerBy": "",
+                        "timeInForce": "GTC",
+                        "tpTriggerBy": "",
+                        "updatedTime": "1783969921584",
+                        "blockTradeId": "",
+                        "cumExecValue": "3103.5500000",
+                        "cumFeeDetail": {
+                            "BTC": "0.00005"
+                        },
+                        "rejectReason": "EC_NoError",
+                        "slLimitPrice": "0",
+                        "tpLimitPrice": "0",
+                        "triggerPrice": "0.0",
+                        "stopOrderType": "",
+                        "trailingValue": "0",
+                        "closeOnTrigger": false,
+                        "activationPrice": "0",
+                        "triggerDirection": 0,
+                        "lastPriceOnCreated": "",
+                        "trailingPercentage": "0"
+                    }
+                },
+                "decision": "buy",
+                "combined": 16.979320525898956,
+                "ild": -0.39135352519951927,
+                "egm": 3.408482679360729,
+                "rol": -0.08582093398907502,
+                "pio": 1.4271772500749036,
+                "ogm": -0.33926898266100136,
+                "risk_reward_ratio": 3.0
+            },
+            {
+                "trade_id": 9,
+                "timestamp": "2026-07-13T19:14:00.747782+00:00",
+                "symbol": "BTCUSDT",
+                "action": "buy",
+                "order_id": "2258498838308588800",
+                "entry_price": 62076.6,
+                "exit_price": 62070.2,
+                "tp_price": 62210.7,
+                "sl_price": 62031.9,
+                "quantity": 0.05,
+                "profit_loss": -0.31936000000007264,
+                "outcome_status": "final",
+                "outcome_timestamp": "2026-07-13T19:15:01.121494+00:00",
+                "bybit_raw": {
+                    "time": 1783970041966,
+                    "result": {
+                        "orderId": "2258498838308588800",
+                        "orderLinkId": "nertzh-b672cbf86a584d939202"
+                    },
+                    "retMsg": "OK",
+                    "retCode": 0,
+                    "retExtInfo": {},
+                    "http_status": 200,
+                    "order_link_id": "nertzh-b672cbf86a584d939202",
+                    "order_realtime": {
+                        "qty": "0.050000",
+                        "side": "Buy",
+                        "price": "62076.6",
+                        "symbol": "BTCUSDT",
+                        "orderId": "2258498838308588800",
+                        "orderIv": "",
+                        "smpType": "None",
+                        "avgPrice": "62076.6",
+                        "smpGroup": 0,
+                        "stopLoss": "62031.9",
+                        "basePrice": "62076.7",
+                        "leavesQty": "0",
+                        "orderType": "Limit",
+                        "placeType": "",
+                        "triggerBy": "",
+                        "cancelType": "UNKNOWN",
+                        "cumExecFee": "0.00005",
+                        "cumExecQty": "0.05",
+                        "isLeverage": "0",
+                        "marketUnit": "",
+                        "reduceOnly": false,
+                        "smpOrderId": "",
+                        "takeProfit": "62210.7",
+                        "createdTime": "1783970041966",
+                        "leavesValue": "0.0000000",
+                        "orderLinkId": "nertzh-b672cbf86a584d939202",
+                        "orderStatus": "Filled",
+                        "positionIdx": 0,
+                        "slTriggerBy": "",
+                        "timeInForce": "GTC",
+                        "tpTriggerBy": "",
+                        "updatedTime": "1783970045015",
+                        "blockTradeId": "",
+                        "cumExecValue": "3103.8300000",
+                        "cumFeeDetail": {
+                            "BTC": "0.00005"
+                        },
+                        "rejectReason": "EC_NoError",
+                        "slLimitPrice": "0",
+                        "tpLimitPrice": "0",
+                        "triggerPrice": "0.0",
+                        "stopOrderType": "",
+                        "trailingValue": "0",
+                        "closeOnTrigger": false,
+                        "activationPrice": "0",
+                        "triggerDirection": 0,
+                        "lastPriceOnCreated": "",
+                        "trailingPercentage": "0"
+                    }
+                },
+                "decision": "buy",
+                "combined": 18.5028131111967,
+                "ild": 0.8050478635370067,
+                "egm": 2.9939540896546033,
+                "rol": 0.0715074419770823,
+                "pio": 2.4663376676255075,
+                "ogm": -0.8830086175069211,
+                "risk_reward_ratio": 3.0
+            },
+            {
+                "trade_id": 10,
+                "timestamp": "2026-07-13T19:30:00.752900+00:00",
+                "symbol": "BTCUSDT",
+                "action": "buy",
+                "order_id": "2258506898150264064",
+                "entry_price": 62020.2,
+                "exit_price": 62060.1,
+                "tp_price": 62146.8,
+                "sl_price": 61978.0,
+                "quantity": 0.05,
+                "profit_loss": 1.9910100000000728,
+                "outcome_status": "final",
+                "outcome_timestamp": "2026-07-13T19:31:01.149810+00:00",
+                "bybit_raw": {
+                    "time": 1783971002774,
+                    "result": {
+                        "orderId": "2258506898150264064",
+                        "orderLinkId": "nertzh-09a52c70938e4c15ab89"
+                    },
+                    "retMsg": "OK",
+                    "retCode": 0,
+                    "retExtInfo": {},
+                    "http_status": 200,
+                    "order_link_id": "nertzh-09a52c70938e4c15ab89",
+                    "order_realtime": {
+                        "qty": "0.050000",
+                        "side": "Buy",
+                        "price": "62020.2",
+                        "symbol": "BTCUSDT",
+                        "orderId": "2258506898150264064",
+                        "orderIv": "",
+                        "smpType": "None",
+                        "avgPrice": "62020.2",
+                        "smpGroup": 0,
+                        "stopLoss": "61978",
+                        "basePrice": "62020.3",
+                        "leavesQty": "0",
+                        "orderType": "Limit",
+                        "placeType": "",
+                        "triggerBy": "",
+                        "cancelType": "UNKNOWN",
+                        "cumExecFee": "0.00005",
+                        "cumExecQty": "0.05",
+                        "isLeverage": "0",
+                        "marketUnit": "",
+                        "reduceOnly": false,
+                        "smpOrderId": "",
+                        "takeProfit": "62146.8",
+                        "createdTime": "1783971002773",
+                        "leavesValue": "0.0000000",
+                        "orderLinkId": "nertzh-09a52c70938e4c15ab89",
+                        "orderStatus": "Filled",
+                        "positionIdx": 0,
+                        "slTriggerBy": "",
+                        "timeInForce": "GTC",
+                        "tpTriggerBy": "",
+                        "updatedTime": "1783971003315",
+                        "blockTradeId": "",
+                        "cumExecValue": "3101.0100000",
+                        "cumFeeDetail": {
+                            "BTC": "0.00005"
+                        },
+                        "rejectReason": "EC_NoError",
+                        "slLimitPrice": "0",
+                        "tpLimitPrice": "0",
+                        "triggerPrice": "0.0",
+                        "stopOrderType": "",
+                        "trailingValue": "0",
+                        "closeOnTrigger": false,
+                        "activationPrice": "0",
+                        "triggerDirection": 0,
+                        "lastPriceOnCreated": "",
+                        "trailingPercentage": "0"
+                    }
+                },
+                "decision": "buy",
+                "combined": 17.294749900850313,
+                "ild": 3.286012213065095,
+                "egm": 2.8278277716184728,
+                "rol": 2.597697952354913,
+                "pio": 2.532688927596017,
+                "ogm": -0.5090264418889071,
+                "risk_reward_ratio": 3.0
             }
         ]
+    },
+    "last_trade": {
+        "trade_id": 10,
+        "timestamp": "2026-07-13T19:30:00.752900+00:00",
+        "symbol": "BTCUSDT",
+        "action": "buy",
+        "order_id": "2258506898150264064",
+        "entry_price": 62020.2,
+        "exit_price": 62060.1,
+        "tp_price": 62146.8,
+        "sl_price": 61978.0,
+        "quantity": 0.05,
+        "profit_loss": 1.9910100000000728,
+        "outcome_status": "final",
+        "outcome_timestamp": "2026-07-13T19:31:01.149810+00:00",
+        "bybit_raw": {
+            "time": 1783971002774,
+            "result": {
+                "orderId": "2258506898150264064",
+                "orderLinkId": "nertzh-09a52c70938e4c15ab89"
+            },
+            "retMsg": "OK",
+            "retCode": 0,
+            "retExtInfo": {},
+            "http_status": 200,
+            "order_link_id": "nertzh-09a52c70938e4c15ab89",
+            "order_realtime": {
+                "qty": "0.050000",
+                "side": "Buy",
+                "price": "62020.2",
+                "symbol": "BTCUSDT",
+                "orderId": "2258506898150264064",
+                "orderIv": "",
+                "smpType": "None",
+                "avgPrice": "62020.2",
+                "smpGroup": 0,
+                "stopLoss": "61978",
+                "basePrice": "62020.3",
+                "leavesQty": "0",
+                "orderType": "Limit",
+                "placeType": "",
+                "triggerBy": "",
+                "cancelType": "UNKNOWN",
+                "cumExecFee": "0.00005",
+                "cumExecQty": "0.05",
+                "isLeverage": "0",
+                "marketUnit": "",
+                "reduceOnly": false,
+                "smpOrderId": "",
+                "takeProfit": "62146.8",
+                "createdTime": "1783971002773",
+                "leavesValue": "0.0000000",
+                "orderLinkId": "nertzh-09a52c70938e4c15ab89",
+                "orderStatus": "Filled",
+                "positionIdx": 0,
+                "slTriggerBy": "",
+                "timeInForce": "GTC",
+                "tpTriggerBy": "",
+                "updatedTime": "1783971003315",
+                "blockTradeId": "",
+                "cumExecValue": "3101.0100000",
+                "cumFeeDetail": {
+                    "BTC": "0.00005"
+                },
+                "rejectReason": "EC_NoError",
+                "slLimitPrice": "0",
+                "tpLimitPrice": "0",
+                "triggerPrice": "0.0",
+                "stopOrderType": "",
+                "trailingValue": "0",
+                "closeOnTrigger": false,
+                "activationPrice": "0",
+                "triggerDirection": 0,
+                "lastPriceOnCreated": "",
+                "trailingPercentage": "0"
+            }
+        },
+        "decision": "buy",
+        "combined": 17.294749900850313,
+        "ild": 3.286012213065095,
+        "egm": 2.8278277716184728,
+        "rol": 2.597697952354913,
+        "pio": 2.532688927596017,
+        "ogm": -0.5090264418889071,
+        "risk_reward_ratio": 3.0
     },
     "events": [
         {
@@ -3615,6 +4296,1953 @@
                 "combined_sell_threshold": -6.5
             },
             "timestamp": "2026-07-13T07:58:01.293623+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81094.94945524,
+            "available_balance": 80971.11521075,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:27:29.521228+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81094.94945524,
+            "available_balance": 80971.11521075,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:27:29.837259+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81094.94945524,
+            "available_balance": 80971.11521075,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:28:01.123435+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61961.2,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.0,
+                "ild": 0.0,
+                "egm": 0.0,
+                "rol": 0.0,
+                "pio": 0.0,
+                "ogm": 0.0,
+                "volatility": 0.0032810855825904425
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:28:01.143585+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61911.7,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.0,
+                "ild": 0.0,
+                "egm": 0.0,
+                "rol": 0.0,
+                "pio": 0.0,
+                "ogm": 0.0,
+                "volatility": 0.0029025208482402697
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:29:00.751916+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81094.94945524,
+            "available_balance": 80971.11521075,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:30:01.102371+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61940.9,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.0,
+                "ild": 0.0,
+                "egm": 0.0,
+                "rol": 0.0,
+                "pio": 0.0,
+                "ogm": 0.0,
+                "volatility": 0.002901152550253501
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:30:01.110361+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61910.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.0,
+                "ild": 0.0,
+                "egm": 0.0,
+                "rol": 0.0,
+                "pio": 0.0,
+                "ogm": 0.0,
+                "volatility": 0.002902586483993731
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:31:00.752498+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81094.94945524,
+            "available_balance": 80971.11521075,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:32:01.111469+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61960.0,
+            "decision": "hold",
+            "metrics": {
+                "combined": 10.23141530291539,
+                "ild": -1.0832016238724578,
+                "egm": 2.0,
+                "rol": -0.3042651491082403,
+                "pio": 0.6177243839608149,
+                "ogm": 0.26223657678255746,
+                "volatility": 0.0029002582311168025
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:32:01.120477+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61919.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": -10.205010645543634,
+                "ild": 0.9353041187176095,
+                "egm": -1.8776110112143947,
+                "rol": 1.2064778988801195,
+                "pio": -1.034759728221014,
+                "ogm": 0.5614388885808183,
+                "volatility": 0.002902164591653928
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:33:00.752539+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81094.94945524,
+            "available_balance": 80971.11521075,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:34:01.532236+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61943.8,
+            "decision": "hold",
+            "metrics": {
+                "combined": 2.26505901344065,
+                "ild": 0.405926200984836,
+                "egm": 0.6165305255550732,
+                "rol": -0.2033265364769152,
+                "pio": 0.28965094141138253,
+                "ogm": -0.15149192324324348,
+                "volatility": 0.0029010167280663613
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:34:01.540796+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81094.94945524,
+            "available_balance": 80971.11521075,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:35:01.123565+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61905.3,
+            "decision": "sell",
+            "metrics": {
+                "combined": -15.222830473964258,
+                "ild": -0.4148263180689,
+                "egm": -2.3363998435073317,
+                "rol": -0.6241654735707438,
+                "pio": -1.9452651678998476,
+                "ogm": 1.0839766171488878,
+                "volatility": 0.00290282092163348
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:35:01.132093+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61971.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.63298541223108,
+                "ild": 1.269096430779047,
+                "egm": 0.013091708654028705,
+                "rol": 1.0960812063733276,
+                "pio": -0.32803386085508807,
+                "ogm": -0.777089449100054,
+                "volatility": 0.002899729390863143
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:36:00.768191+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81085.91088127,
+            "available_balance": 80962.32491792,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:37:01.111649+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61980.4,
+            "decision": "hold",
+            "metrics": {
+                "combined": 11.24336972634698,
+                "ild": 0.10188305153842295,
+                "egm": 1.753636379247383,
+                "rol": -0.7219269457962321,
+                "pio": 1.3515111953711811,
+                "ogm": 1.5508234650767658,
+                "volatility": 0.002899303650831506
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:37:01.120809+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81080.82702369,
+            "available_balance": 80957.27075421,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:38:01.753035+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61952.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": -8.795535918360928,
+                "ild": -0.012415031527257616,
+                "egm": -0.9348699370504702,
+                "rol": -0.2519401767065916,
+                "pio": -1.086391883056759,
+                "ogm": -1.7376900080767903,
+                "volatility": 0.002900609337799073
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:38:01.763151+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61968.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.20175540487071758,
+                "ild": -0.1618764524663231,
+                "egm": 0.142954290023695,
+                "rol": 0.09825930663922541,
+                "pio": -0.045970300529412145,
+                "ogm": -0.7226301963134456,
+                "volatility": 0.0028998604129516947
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:39:00.752972+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81088.6656071,
+            "available_balance": 80965.08003462,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:40:01.117112+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61972.6,
+            "decision": "buy",
+            "metrics": {
+                "combined": 16.33820232615154,
+                "ild": 0.8589427481508994,
+                "egm": 2.210363313735403,
+                "rol": 1.3669478457182789,
+                "pio": 1.995464354037271,
+                "ogm": 1.2979781365713625,
+                "volatility": 0.002472060233070697
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:40:01.126611+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81079.63924213,
+            "available_balance": 80894.2104887,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:41:01.758300+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61976.7,
+            "decision": "hold",
+            "metrics": {
+                "combined": -8.684020833618732,
+                "ild": -0.48181776842697444,
+                "egm": -1.0176708443301656,
+                "rol": -1.6294622913074173,
+                "pio": -1.094325972557628,
+                "ogm": 0.40038842909609534,
+                "volatility": 0.0024718966966617633
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:41:01.776737+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61969.8,
+            "decision": "hold",
+            "metrics": {
+                "combined": -0.933687405223147,
+                "ild": -2.1921383073606173,
+                "egm": -0.2761775676314093,
+                "rol": -0.9527849314939139,
+                "pio": -0.44224936230327405,
+                "ogm": -0.900910203022395,
+                "volatility": 0.0024721719289072593
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:42:00.752055+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81077.34717377,
+            "available_balance": 80891.94844543,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:43:01.113884+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61960.4,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.039976882967532,
+                "ild": 0.6987257755595757,
+                "egm": -0.316717577315383,
+                "rol": 1.7214286167586792,
+                "pio": -0.3390290995695096,
+                "ogm": -0.4750663127558121,
+                "volatility": 0.0015154840833821953
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:43:01.124800+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61992.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": -7.754367682633255,
+                "ild": 0.37798835963767713,
+                "egm": -0.7972248390442057,
+                "rol": -0.19327637790370972,
+                "pio": -1.0622304680555463,
+                "ogm": 0.3552057162190886,
+                "volatility": 0.00148243739161986
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:44:00.754044+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81074.8054828,
+            "available_balance": 80889.40151242,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:45:01.119598+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62004.1,
+            "decision": "hold",
+            "metrics": {
+                "combined": 13.814156444502164,
+                "ild": -0.48667943780979156,
+                "egm": 1.860203897583568,
+                "rol": -0.45836367589554633,
+                "pio": 1.7295937285999123,
+                "ogm": 0.3574349844654266,
+                "volatility": 0.0015934430142522129
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:45:01.131801+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81076.90524518,
+            "available_balance": 80891.51966303,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:46:01.106961+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61983.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": 1.166661512739479,
+                "ild": -2.0348721472369147,
+                "egm": -0.04567212867840062,
+                "rol": -1.3064337633928693,
+                "pio": -0.09838787809584205,
+                "ogm": 0.0010977854869352207,
+                "volatility": 0.0015939725894793878
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:46:01.116336+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61988.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": 8.811104689425024,
+                "ild": 1.8951586113169552,
+                "egm": 1.3276974662432193,
+                "rol": 2.4711199938717674,
+                "pio": 1.0192460821998088,
+                "ogm": 1.2260456877997807,
+                "volatility": 0.001593849161857893
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:47:00.752170+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81072.4423872,
+            "available_balance": 80887.05836552,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:48:01.119827+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61990.1,
+            "decision": "hold",
+            "metrics": {
+                "combined": -4.883746175310573,
+                "ild": -0.003504514850615421,
+                "egm": -0.4201109365413159,
+                "rol": -1.071946143771698,
+                "pio": -0.5514289523753262,
+                "ogm": -0.15058741700376505,
+                "volatility": 0.0015938028814277705
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:48:01.131002+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81072.17315648,
+            "available_balance": 80886.81752097,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:49:01.118805+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61979.4,
+            "decision": "buy",
+            "metrics": {
+                "combined": 22.299230614128874,
+                "ild": 3.6832413640725243,
+                "egm": 2.7929630846279503,
+                "rol": 3.61331755007941,
+                "pio": 3.50980973028299,
+                "ogm": 0.07548414000189486,
+                "volatility": 0.0015940780323784294
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:49:01.130369+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62025.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": -6.786313491778204,
+                "ild": -0.2582797343676054,
+                "egm": -0.8861227771789084,
+                "rol": -2.791817851751788,
+                "pio": -0.4446283504105137,
+                "ogm": 0.5545613336124248,
+                "volatility": 0.0019379126327074686
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:50:00.765204+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81079.16612999,
+            "available_balance": 80831.82619694,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:51:01.115425+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62013.6,
+            "decision": "hold",
+            "metrics": {
+                "combined": -1.648162361216356,
+                "ild": -0.3555986627597034,
+                "egm": -0.33784528265222274,
+                "rol": -0.03549662679085478,
+                "pio": -0.12201460565136701,
+                "ogm": -1.1669243103544729,
+                "volatility": 0.0019382845053342668
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:51:01.127196+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81080.66704898,
+            "available_balance": 80833.22418064,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:52:01.109411+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62039.9,
+            "decision": "hold",
+            "metrics": {
+                "combined": -0.6099365167910195,
+                "ild": -0.29799700678168584,
+                "egm": -0.18807789881784093,
+                "rol": 0.03323945488414274,
+                "pio": 0.06468090876323619,
+                "ogm": -1.6340037496574622,
+                "volatility": 0.0021695715176845635
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:52:01.120955+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62064.4,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.091298452127577,
+                "ild": -0.6365040801459907,
+                "egm": -0.4156633246608218,
+                "rol": -0.2131558311801682,
+                "pio": -0.37617464263646583,
+                "ogm": 0.21375424936033321,
+                "volatility": 0.0025634663349681707
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:53:00.754558+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81093.03489302,
+            "available_balance": 80845.43270427,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:54:01.111476+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62076.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": -0.824118763081299,
+                "ild": -0.23537467674847504,
+                "egm": -0.2979383844576988,
+                "rol": 0.2597493546627261,
+                "pio": -0.07931498762990014,
+                "ogm": -0.3723950703181812,
+                "volatility": 0.002754674489297848
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:54:01.120307+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81089.76640126,
+            "available_balance": 80842.26123007,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:55:01.155861+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62047.2,
+            "decision": "hold",
+            "metrics": {
+                "combined": -0.17853538069325958,
+                "ild": -0.050113147511434634,
+                "egm": -0.170331067464432,
+                "rol": 0.0959596624421561,
+                "pio": 0.00505683450655052,
+                "ogm": 0.2771453654225019,
+                "volatility": 0.0019968669013267553
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:55:01.166030+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81080.03233131,
+            "available_balance": 80832.58152301,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:56:11.506438+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62045.7,
+            "decision": "buy",
+            "metrics": {
+                "combined": 14.66138254092205,
+                "ild": 2.3916380678454296,
+                "egm": 1.6198919920954633,
+                "rol": 1.9230770147253402,
+                "pio": 2.538985623169436,
+                "ogm": 0.08130269483201222,
+                "volatility": 0.0019969151770388837
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:56:11.518716+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62036.9,
+            "decision": "hold",
+            "metrics": {
+                "combined": -6.050679651473462,
+                "ild": -0.3886297743926187,
+                "egm": -0.8414816227703998,
+                "rol": -2.3061586058314165,
+                "pio": -0.531253311521733,
+                "ogm": 1.1752381258560487,
+                "volatility": 0.0019971984415727002
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:57:00.766243+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81080.02694379,
+            "available_balance": 80770.60661715,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:58:01.111917+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62055.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": -3.7677578286173743,
+                "ild": -0.1538852446360804,
+                "egm": -0.5327578061309173,
+                "rol": 0.16096859569689576,
+                "pio": -0.5779226236467404,
+                "ogm": 0.07874186706938638,
+                "volatility": 0.0018676829612202215
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:58:01.121151+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81069.89773248,
+            "available_balance": 80760.68918979,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T18:59:01.107247+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62013.9,
+            "decision": "hold",
+            "metrics": {
+                "combined": -1.8375292164844366,
+                "ild": -0.5233709068821409,
+                "egm": -0.51980937489477,
+                "rol": -0.15630202815768518,
+                "pio": -0.40871439837128776,
+                "ogm": 1.8647187374102838,
+                "volatility": 0.0018689358353530653
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T18:59:01.119037+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62028.9,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.8445514713613047,
+                "ild": -0.5910711803140046,
+                "egm": -0.4293691318813131,
+                "rol": -0.004411817774728389,
+                "pio": -0.3826017407741168,
+                "ogm": -1.4338623898602358,
+                "volatility": 0.0018684838841250039
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:00:00.753724+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81069.04991715,
+            "available_balance": 80759.8294316,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:01:01.107367+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62015.0,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.6528721957748673,
+                "ild": -0.6615513482912948,
+                "egm": -0.4907789163690403,
+                "rol": 0.010716362269922265,
+                "pio": -0.559551422722016,
+                "ogm": 0.6688051417489219,
+                "volatility": 0.0018689026848343377
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:01:01.117137+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81072.62684879,
+            "available_balance": 80763.38868319,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:02:01.161146+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62016.7,
+            "decision": "hold",
+            "metrics": {
+                "combined": -0.9471361832466928,
+                "ild": -0.3692022528872158,
+                "egm": -0.26779905087551953,
+                "rol": 0.16122769947832244,
+                "pio": -0.18443364230217288,
+                "ogm": -0.05763743813900465,
+                "volatility": 0.0018688514545275943
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:02:01.176626+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62021.2,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.108123748860936,
+                "ild": -0.2513280943969406,
+                "egm": -0.33852466239809154,
+                "rol": 0.16760846364262258,
+                "pio": -0.4618292237648911,
+                "ogm": 0.88216228007463,
+                "volatility": 0.0015623689964077035
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:03:00.754039+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81065.3074024,
+            "available_balance": 80756.19066334,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:04:01.117372+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 61987.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.531466167088851,
+                "ild": -0.49080653920540734,
+                "egm": -0.3406201629363145,
+                "rol": -0.1294843065589352,
+                "pio": -0.4381269480200201,
+                "ogm": -0.28951982887798555,
+                "volatility": 0.001563223434477731
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:04:01.127966+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62017.2,
+            "decision": "hold",
+            "metrics": {
+                "combined": -0.2251880785213528,
+                "ild": -0.3696407759017299,
+                "egm": -0.05552043066558753,
+                "rol": 0.21271246345251876,
+                "pio": -0.18928498676686742,
+                "ogm": 0.051964053242399236,
+                "volatility": 0.001562469766451911
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:05:00.752846+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81078.51138022,
+            "available_balance": 80769.15289399,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:06:01.764290+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62042.7,
+            "decision": "hold",
+            "metrics": {
+                "combined": -1.0037168326148604,
+                "ild": -0.2631792493321746,
+                "egm": -0.10637336682352132,
+                "rol": 0.10563916060575015,
+                "pio": -0.15251686212780843,
+                "ogm": -0.9973577743463412,
+                "volatility": 0.0015618275800376427
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:06:01.773944+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81073.48748616,
+            "available_balance": 80764.2084638,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:07:01.741484+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62019.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": -1.7319389181673273,
+                "ild": -0.001353950542641499,
+                "egm": -0.17508011804755572,
+                "rol": 0.21809694966631907,
+                "pio": -0.2634234026146624,
+                "ogm": -0.482842255477921,
+                "volatility": 0.0015624118220882376
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:07:01.751378+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62009.4,
+            "decision": "hold",
+            "metrics": {
+                "combined": -0.4081868344265893,
+                "ild": -0.17241461320956844,
+                "egm": -0.022095361465215745,
+                "rol": -0.004140330957645138,
+                "pio": -0.08290218831915953,
+                "ogm": -0.44664498290286325,
+                "volatility": 0.0015626663054311356
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:08:00.754357+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81077.80535906,
+            "available_balance": 80768.47412912,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:09:01.114008+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62035.9,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.1880142691456922,
+                "ild": 0.036836292784275394,
+                "egm": 0.01839436080954163,
+                "rol": 0.16479624980354052,
+                "pio": -0.020499115991150497,
+                "ogm": 0.23107079610023415,
+                "volatility": 0.0014346531605086731
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:09:01.124068+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62041.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": -1.3875135938130292,
+                "ild": -0.016699561579195756,
+                "egm": -0.16966722954728436,
+                "rol": 0.03413283938113984,
+                "pio": -0.25839114134768737,
+                "ogm": 0.4501320982869674,
+                "volatility": 0.00143452829002616
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:10:00.753497+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81082.56730508,
+            "available_balance": 80773.17236217,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:11:01.109543+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62043.8,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.7143549485969289,
+                "ild": 0.11799509489872173,
+                "egm": 0.12102799161046975,
+                "rol": 0.14337882425985343,
+                "pio": 0.0732947744306402,
+                "ogm": 0.11011661383173617,
+                "volatility": 0.0014344704869785538
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:11:01.119066+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62071.0,
+            "decision": "buy",
+            "metrics": {
+                "combined": 16.979320525898956,
+                "ild": -0.39135352519951927,
+                "egm": 3.408482679360729,
+                "rol": -0.08582093398907502,
+                "pio": 1.4271772500749036,
+                "ogm": -0.33926898266100136,
+                "volatility": 0.0014338418907380258
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:12:00.753462+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81078.23668863,
+            "available_balance": 80706.90476225,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:13:01.754087+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62046.2,
+            "decision": "hold",
+            "metrics": {
+                "combined": 14.271724811736906,
+                "ild": 0.9232257305674607,
+                "egm": 2.5586086540347504,
+                "rol": 1.0792448575140612,
+                "pio": 1.482027449888251,
+                "ogm": 0.4647381269453111,
+                "volatility": 0.0014344150004351596
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:13:01.775164+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81088.40332224,
+            "available_balance": 80716.8868351,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:14:01.118570+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62076.7,
+            "decision": "buy",
+            "metrics": {
+                "combined": 18.5028131111967,
+                "ild": 0.8050478635370067,
+                "egm": 2.9939540896546033,
+                "rol": 0.0715074419770823,
+                "pio": 2.4663376676255075,
+                "ogm": -0.8830086175069211,
+                "volatility": 0.0014401538741588098
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:14:01.128710+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81081.04138905,
+            "available_balance": 80647.63424223,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:15:01.114631+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62070.2,
+            "decision": "hold",
+            "metrics": {
+                "combined": -6.225862519878804,
+                "ild": 1.5507168466020085,
+                "egm": -0.5743573457886866,
+                "rol": 0.06676474741283156,
+                "pio": -0.3932500499216995,
+                "ogm": -0.9477094707498321,
+                "volatility": 0.0014403046872733484
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:15:01.134795+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62072.0,
+            "decision": "hold",
+            "metrics": {
+                "combined": -15.461468168578067,
+                "ild": -0.5673922880257769,
+                "egm": -1.9400779064032934,
+                "rol": -1.7588586416091943,
+                "pio": -1.8982987546377466,
+                "ogm": -0.38223968785559403,
+                "volatility": 0.0014402629204793495
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:16:00.752819+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81080.17207475,
+            "available_balance": 80646.72640415,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:17:01.121061+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62080.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": -10.318835094773512,
+                "ild": -0.06105109264236047,
+                "egm": -1.221976380256869,
+                "rol": 0.7077508865122657,
+                "pio": -1.5438641958539276,
+                "ogm": -1.009689196272072,
+                "volatility": 0.0015012765683265613
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:17:01.130901+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81085.53222757,
+            "available_balance": 80651.97816494,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:18:01.171443+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62094.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": -10.712233601271844,
+                "ild": -0.6728956275630891,
+                "egm": -1.3982845333639646,
+                "rol": -0.609296797972092,
+                "pio": -1.7832138688505406,
+                "ogm": 2.214071530549883,
+                "volatility": 0.0017231855419901664
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:18:01.182015+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62053.8,
+            "decision": "hold",
+            "metrics": {
+                "combined": -4.16150894807911,
+                "ild": -2.066831348740257,
+                "egm": -0.673640617089936,
+                "rol": -1.137810417954854,
+                "pio": -1.0497622724721616,
+                "ogm": 1.241813048319788,
+                "volatility": 0.0017243101953466186
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:19:00.753967+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81059.40791949,
+            "available_balance": 80626.31092678,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:20:01.117009+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62032.6,
+            "decision": "hold",
+            "metrics": {
+                "combined": -11.319447247792045,
+                "ild": -0.3715495153337941,
+                "egm": -1.6526822599211564,
+                "rol": 1.1370130775596254,
+                "pio": -2.072713582955692,
+                "ogm": 2.5429466094234416,
+                "volatility": 0.0017248994883335537
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:20:01.127707+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81055.3368512,
+            "available_balance": 80746.10495981,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:21:01.120695+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62021.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": -1.0670943538002118,
+                "ild": -1.1050904377234922,
+                "egm": -0.12023031805775519,
+                "rol": -0.21207516071281843,
+                "pio": -0.5008500004679008,
+                "ogm": 0.2037222132123763,
+                "volatility": 0.0017252081939327492
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:21:01.131325+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81051.53357568,
+            "available_balance": 80742.26480373,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:22:01.114766+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62026.8,
+            "decision": "hold",
+            "metrics": {
+                "combined": -3.4490769526661964,
+                "ild": -1.2354283212518644,
+                "egm": -0.46044028652340346,
+                "rol": -0.1199953523599419,
+                "pio": -0.9640028518149886,
+                "ogm": 1.0742192211072168,
+                "volatility": 0.0017250607801788903
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:22:01.124891+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81051.0451158,
+            "available_balance": 80741.85965924,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:23:01.106771+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62016.5,
+            "decision": "hold",
+            "metrics": {
+                "combined": 1.9197327071240533,
+                "ild": -1.8830798250256926,
+                "egm": 0.16641712459878005,
+                "rol": -0.8906276719407998,
+                "pio": -0.05202191333567565,
+                "ogm": -0.558824244518971,
+                "volatility": 0.001725347286609209
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:23:01.116737+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62026.6,
+            "decision": "hold",
+            "metrics": {
+                "combined": 8.186857888488543,
+                "ild": 0.22735043871298632,
+                "egm": 0.9773971423019123,
+                "rol": 1.6375648183508742,
+                "pio": 0.9905814175718154,
+                "ogm": -0.998978155543515,
+                "volatility": 0.0013687675932583998
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:24:00.754730+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81058.5714166,
+            "available_balance": 80749.1776437,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:25:01.108467+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62054.2,
+            "decision": "hold",
+            "metrics": {
+                "combined": 5.114264710113447,
+                "ild": 0.4768828943150803,
+                "egm": 0.6590537104835515,
+                "rol": 0.5086418404124643,
+                "pio": 0.7930712121530218,
+                "ogm": -0.4500687499313013,
+                "volatility": 0.0013681588031108525
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:25:01.118671+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81055.13348602,
+            "available_balance": 80745.75856723,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:26:01.244924+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62033.3,
+            "decision": "hold",
+            "metrics": {
+                "combined": -8.750076079585032,
+                "ild": 0.336462183494364,
+                "egm": -0.6757027638967398,
+                "rol": -0.3885632651970868,
+                "pio": -1.1628639298460663,
+                "ogm": -1.1936471262977617,
+                "volatility": 0.0013686197574528753
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:26:01.255159+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62030.6,
+            "decision": "hold",
+            "metrics": {
+                "combined": -2.047553272968436,
+                "ild": -1.5172705328498024,
+                "egm": -0.2648228462157253,
+                "rol": -1.2219739057360217,
+                "pio": -0.6445614906540792,
+                "ogm": 1.1870201601668309,
+                "volatility": 0.0013686793292343046
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:27:00.753096+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81053.90566811,
+            "available_balance": 80744.63016588,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:28:01.112383+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62027.7,
+            "decision": "hold",
+            "metrics": {
+                "combined": -1.431263280242786,
+                "ild": 0.153319768818619,
+                "egm": -0.06009474922601611,
+                "rol": 1.667211491595517,
+                "pio": -0.5054617322605045,
+                "ogm": -0.8272661515201115,
+                "volatility": 0.0013606824047965901
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:28:01.122658+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62042.1,
+            "decision": "hold",
+            "metrics": {
+                "combined": 2.282177414752891,
+                "ild": -0.8214384794210049,
+                "egm": 0.6887767280752425,
+                "rol": -0.8644967381366482,
+                "pio": -0.06014554622700169,
+                "ogm": 0.23768241510762522,
+                "volatility": 0.0013603665897834124
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:29:00.757209+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81049.09902246,
+            "available_balance": 80739.89602192,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:30:01.845487+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62020.2,
+            "decision": "buy",
+            "metrics": {
+                "combined": 17.294749900850313,
+                "ild": 3.286012213065095,
+                "egm": 2.8278277716184728,
+                "rol": 2.597697952354913,
+                "pio": 2.532688927596017,
+                "ogm": -0.5090264418889071,
+                "volatility": 0.001360846949864745
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:30:01.855245+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81061.0932777,
+            "available_balance": 80689.73911024,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:31:01.142586+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62060.1,
+            "decision": "hold",
+            "metrics": {
+                "combined": 1.3821821090032658,
+                "ild": 0.5733777666073281,
+                "egm": 0.5591858472383181,
+                "rol": -1.5201594490575279,
+                "pio": 0.5708739608794857,
+                "ogm": -0.9681643154017096,
+                "volatility": 0.0013599720271156744
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:31:01.163049+00:00"
+        },
+        {
+            "type": "balance",
+            "account_type": "UNIFIED",
+            "coin": "USDT",
+            "total_equity": 81069.03215696,
+            "available_balance": 80697.52046007,
+            "http_status": 200,
+            "retCode": 0,
+            "retMsg": "OK",
+            "timestamp": "2026-07-13T19:32:17.654369+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62083.0,
+            "decision": "hold",
+            "metrics": {
+                "combined": 4.978827613610182,
+                "ild": -0.5596539624690036,
+                "egm": 0.6362343692381454,
+                "rol": -0.9151099281784181,
+                "pio": 0.7423117669225284,
+                "ogm": -0.3892989215614387,
+                "volatility": 0.0013594703864182056
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:32:17.665707+00:00"
+        },
+        {
+            "type": "metrics",
+            "symbol": "BTCUSDT",
+            "last_price": 62113.7,
+            "decision": "hold",
+            "metrics": {
+                "combined": 0.40500169146237874,
+                "ild": 0.14283675902368917,
+                "egm": -0.033634249429602706,
+                "rol": 1.0338857555131584,
+                "pio": -0.08785201415693245,
+                "ogm": 0.1632157729595162,
+                "volatility": 0.0016711289135890415
+            },
+            "thresholds": {
+                "egm_buy_threshold": 0.02,
+                "egm_sell_threshold": -0.02,
+                "combined_buy_threshold": 6.5,
+                "combined_sell_threshold": -6.5
+            },
+            "timestamp": "2026-07-13T19:33:00.771611+00:00"
         }
     ]
 }

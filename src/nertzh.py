@@ -36,8 +36,8 @@ from utils import (
 )
 from bybit_v5 import BybitV5Client
 
-# Cargar variables desde el archivo .env
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", "..", ".env"), override=True)
+# Cargar variables desde el archivo .env del proyecto (raíz de _Metrics_)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"), override=True)
 
 # Instanciar ConfigSettings
 config = ConfigSettings()

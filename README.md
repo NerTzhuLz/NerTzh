@@ -2,59 +2,79 @@
 
 Sistema de trading algorítmico para Bybit (spot) basado en métricas de orderbook + velas + liquidez.
 
+## OpenAI Build Week (referencia, sin candados)
+
+Participa en **[OpenAI Build Week](https://openai.devpost.com/)** con **Codex** y los **modelos que quieras** de tu plan (sin hardcode de modelo en este repo).
+
+| | |
+|--|--|
+| Evento | https://openai.devpost.com/ |
+| Deadline submit | **Tue Jul 21, 2026 @ 5:00 PM PT** |
+| Créditos Codex | pestaña Resources del evento (ver fechas oficiales) |
+| Modelos | **libres** — elige en Codex TUI / VS Code / `-m` |
+| Locks | **ninguno** (no hay `AGENT_LOCK`) |
+
+### Anexos
+
+| Archivo | Para qué |
+|---------|----------|
+| `AGENTS.md` | Notas abiertas (sin exclusiones) |
+| `docs/hackathon/OPENAI_BUILD_WEEK.md` | Reglas / tracks del evento |
+| `docs/hackathon/SUBMISSION_CHECKLIST.md` | Checklist Devpost |
+| `docs/hackathon/BACKLOG.md` | Ideas de trabajo (P0–P2) |
+| `docs/hackathon/CODEX_CONSOLA.md` | Cómo lanzar Codex en terminal |
+| `scripts/codex_here.sh` | Codex en este repo (modelo libre) |
+| `assets/branding/` | **Tu logo** |
+
+### Arranque
+
+```bash
+cd /home/angel/Documentos/_Metrics_
+make setup          # deps + .env si faltaba
+make db-up          # Postgres :5433
+make check          # readiness
+make codex          # agente — eliges modelo
+make run            # motor + API :8081
+```
+
+| Tú diseñas | Agente programa |
+|------------|-----------------|
+| `assets/branding/logo.png` | código / API / métricas |
+
+`.env`: Bybit + DB. No hace falta hardcodear keys de LLM en el bot.
+
 ## Arquitectura
 
 ```
 src/
 ├── nertzh.py           # Motor principal (WebSocket, trades, ciclo de decisión)
-├── bybit_v5.py         # Cliente HTTP Bybit V5 (con retry, firmas HMAC)
-├── models.py           # Modelos ORM (PostgreSQL via SQLAlchemy)
-├── settings.py         # Config desde .env con validación
-├── utils.py            # Métricas (ILD, EGM, PIO, ROL, OGM, combined), persistencia JSON
-└── qwen_integration.py # Integración Qwen CLI (opcional)
+├── bybit_v5.py         # Cliente HTTP Bybit V5
+├── models.py           # ORM PostgreSQL
+├── settings.py         # Config .env
+├── utils.py            # Métricas ILD/EGM/PIO/ROL/OGM/combined
+└── qwen_integration.py # Opcional / legacy — no es requisito
 ```
 
-## Base de datos
+## Métricas
 
-PostgreSQL 16 via Docker:
-
-```bash
-docker run -d --name metrics-pg \
-  -e POSTGRES_USER=metrics \
-  -e POSTGRES_PASSWORD=metrics_pass \
-  -e POSTGRES_DB=metrics_db \
-  -p 5433:5432 \
-  postgres:16
-```
-
-Config en `.env`: `DATABASE_URL=postgresql://metrics:metrics_pass@127.0.0.1:5433/metrics_db`
-
-## Métricas de trading
-
-| Sigla | Nombre | Descripción |
-|-------|--------|-------------|
-| ILD | Imbalance Liquidity Depth | Desbalance de liquidez en profundidad |
-| EGM | Edge Gradient Momentum | Momentum del gradiente de borde |
-| PIO | Price Imbalance Oscillator | Oscilador de desbalance de precio |
-| ROL | Rate of Liquidity | Tasa de cambio de liquidez |
-| OGM | Orderbook Gap Metric | Métrica de gaps en orderbook |
-| Combined | — | Señal compuesta: `0.45*PIO + 0.30*EGM - 0.15*ILD + 0.10*ROL + 0.05*OGM` escalada ×10 |
+| Sigla | Nombre |
+|-------|--------|
+| ILD | Imbalance Liquidity Depth |
+| EGM | Edge Gradient Momentum |
+| PIO | Price Imbalance Oscillator |
+| ROL | Rate of Liquidity |
+| OGM | Orderbook Gap Metric |
+| Combined | Señal compuesta (ver código / README técnico en backlog) |
 
 ## Config (.env)
 
-Variables principales en `.env` (ver template en `pyproject.toml`):
 - `BYBIT_API_KEY` / `BYBIT_API_SECRET`
-- `ENV`: `demo` | `mainnet`
-- `SYMBOL`: `BTCUSDT`, `ETHUSDT`, `XRPUSDT`
-- `DATABASE_URL`: conexión PostgreSQL
-- Umbrales: `COMBINED_BUY_THRESHOLD`, `COMBINED_SELL_THRESHOLD`, `COMBINED_HOLD_BAND`
+- `ENV`: `demo` \| `mainnet`
+- `SYMBOL`, umbrales, `DATABASE_URL`
+- Ver `.env.example`
 
-## Estado actual (post-refactor)
+## Estado
 
-- ✅ SQLite → PostgreSQL (146,336 filas migradas)
-- ✅ Modelos unificados en `models.py`
-- ✅ Código duplicado eliminado
-- ✅ BybitV5Client con context manager async
-- ✅ Balance: no registra eventos con cero si API falla
-- ✅ Qwen CLI integrado (opcional)
-- Pendiente: motor async SQLAlchemy, pool HTTP, ML en tiempo real
+- Postgres Docker `metrics-pg` :5433
+- Codex CLI en PATH; proyecto trusted sin modelo fijo
+- Logo: a cargo del humano en `assets/branding/`

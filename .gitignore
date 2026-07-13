@@ -4,6 +4,8 @@ venv/
 
 # Environment (real keys)
 .env
+.env.local
+.env.*.local
 
 # Python cache
 __pycache__/
@@ -11,9 +13,12 @@ __pycache__/
 *.pyo
 .ruff_cache/
 
-# IDE
+# IDE / other agents (local noise)
 .idea/
 .explyt/
+.cursor/
+.qwen/
+.qwen-config/
 
 # OS
 .DS_Store
@@ -23,6 +28,14 @@ Thumbs.db
 dist/
 build/
 
+# Runtime logs (keep folder)
+logs/*
+!logs/.gitkeep
+
 # Temp
 *.tmp
 *.bak
+
+# Secrets / dumps
+*.pem
+auth.json

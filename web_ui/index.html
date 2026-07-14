@@ -3,53 +3,144 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Agent Web UI — _Metrics_</title>
+  <title>NerTzh — Demo / Entrega — _Metrics_</title>
   <style>
-    body{font-family: Arial, Helvetica, sans-serif; padding:1rem}
-    #log{white-space:pre-wrap; background:#f7f7f7; padding:1rem; height:60vh; overflow:auto}
-    textarea{width:100%;height:5rem}
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#6ee7b7;--muted:#9aa4b2;--surface:#071025}
+    html,body{height:100%;margin:0}
+    body{font-family:Inter,ui-sans-serif,system-ui,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#071028 0%, #031024 100%);color:#e6eef6;padding:1.5rem}
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;align-items:center;gap:1rem}
+    .brand{font-weight:700;font-size:1.25rem;color:var(--accent)}
+    .subtitle{color:var(--muted);font-size:0.9rem}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:1rem;margin-top:1rem}
+    .card{background:rgba(255,255,255,0.02);padding:1rem;border-radius:8px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .card h3{margin:0 0 .5rem 0;font-size:1rem}
+    pre{white-space:pre-wrap;margin:0;font-family:monospace;font-size:0.9rem;color:#cfeef0}
+    .controls label{display:block;margin-bottom:.5rem}
+    input,textarea,button,select{width:100%;padding:.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    textarea{height:5.2rem}
+    .status-grid{display:flex;gap:.6rem;margin-top:.5rem}
+    .status{flex:1;padding:.5rem;border-radius:6px;background:rgba(255,255,255,0.02);text-align:center}
+    a.button{display:inline-block;padding:.45rem .75rem;border-radius:6px;background:var(--accent);color:#042126;text-decoration:none;font-weight:600}
+    footer{color:var(--muted);font-size:0.86rem;margin-top:1rem}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}.card.sidebar{order:-1}}
   </style>
 </head>
 <body>
-  <h2>Agent Web UI (local)</h2>
-  <div id="log">Cargando...</div>
-  <form id="f">
-    <label>Symbol: <input id="symbol" value="BTCUSDT"></label>
-    <br/>
-    <textarea id="msg" placeholder="Escribe tu mensaje aquí..."></textarea>
-    <br/>
-    <button type="submit">Enviar</button>
-  </form>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="brand">NerTzh · _Metrics_</div>
+        <div class="subtitle">Bybit spot metrics engine — Demo y entrega (OpenAI Build Week)</div>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div><a class="button" href="https://devpost.com/nertzhul?ref_content=user-portfolio&ref_feature=portfolio&ref_medium=global-nav" target="_blank">Ver Devpost</a></div>
+        <div style="margin-top:.4rem"><a class="button" href="/web/" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--accent)">Recargar UI</a></div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main class="card">
+        <h3>Resumen del proyecto</h3>
+        <p style="color:var(--muted)">Este panel muestra el estado del motor, bridge, y endpoints relevantes para la entrega. Incluye controles rápidos para pruebas de chat y entrenamientos ML.</p>
+
+        <section style="margin-top:1rem">
+          <div class="status-grid">
+            <div class="status" id="s-health">Health<br/><strong>cargando…</strong></div>
+            <div class="status" id="s-bridge">Bridge<br/><strong>cargando…</strong></div>
+            <div class="status" id="s-results">Results<br/><strong>cargando…</strong></div>
+          </div>
+        </section>
+
+        <section style="margin-top:1rem">
+          <h3>Contexto / Últimos eventos</h3>
+          <pre id="ctx">Cargando contexto...</pre>
+        </section>
+
+        <section style="margin-top:1rem">
+          <h3>Interacción rápida (chat)</h3>
+          <div class="controls">
+            <label>Símbolo <input id="symbol" value="BTCUSDT"></label>
+            <label>Mensaje <textarea id="msg" placeholder="Pregunta al agente sobre el estado / señales..."></textarea></label>
+            <button id="send">Enviar a /agent/chat</button>
+          </div>
+          <pre id="chatlog">Sin entradas.</pre>
+        </section>
+
+        <section style="margin-top:1rem">
+          <h3>Comandos útiles</h3>
+          <pre>/health  → estado del servicio
+/agent/context → digest + resultados
+/bridge/status → digest completo
+/ml/train (POST) → bootstrap ML desde logs
+Descargar: /logs/results.json</pre>
+        </section>
+      </main>
+
+      <aside class="card sidebar">
+        <h3>Checklist de entrega</h3>
+        <ul>
+          <li>Health endpoint disponible ✅</li>
+          <li>Context Bridge actualizado ✅</li>
+          <li>Resultados guardados en `logs/results.json` ✅</li>
+          <li>Documentación /docs y README ✅</li>
+          <li>Web UI (esta página) ✅</li>
+          <li>Revisar: pruebas end-to-end y assets (screenshots) ⬜</li>
+        </ul>
+
+        <h3 style="margin-top:1rem">Links</h3>
+        <p style="font-size:0.95rem"><a href="/docs" style="color:var(--accent)">API Docs</a><br/><a href="/bridge/status" style="color:var(--muted)">Bridge digest</a><br/><a href="/agent/context" style="color:var(--muted)">Agent context</a></p>
+
+        <h3 style="margin-top:1rem">Instrucciones rápidas</h3>
+        <pre>Local (dev):
+make run
+
+uvicorn api_app:app --app-dir src --host 0.0.0.0 --port 8081</pre>
+      </aside>
+    </div>
+
+    <footer>
+      Panel generado localmente — revisa la entrega en Devpost y completa assets (screenshots, video corto, README final).
+    </footer>
+  </div>
 
   <script>
-    const log = document.getElementById('log');
-    const f = document.getElementById('f');
+    const elHealth = document.getElementById('s-health');
+    const elBridge = document.getElementById('s-bridge');
+    const elResults = document.getElementById('s-results');
+    const elCtx = document.getElementById('ctx');
+    const chatlog = document.getElementById('chatlog');
+    const send = document.getElementById('send');
     const msg = document.getElementById('msg');
     const symbol = document.getElementById('symbol');
 
-    function append(s){ log.textContent += '\n' + s; log.scrollTop = log.scrollHeight }
-
-    async function ping(){
-      try{
-        const r = await fetch('/health');
-        const j = await r.json();
-        log.textContent = 'API: ' + JSON.stringify(j) + '\n---\n';
-      }catch(e){ log.textContent = 'No se pudo conectar a /health: '+e }
+    async function safeFetch(url, opts){
+      try{ const r = await fetch(url, opts); if(!r.ok) throw new Error(r.statusText); return await r.json() }catch(e){ return {error: String(e)} }
     }
-    ping();
 
-    f.addEventListener('submit', async (ev)=>{
+    async function refresh(){
+      const h = await safeFetch('/health');
+      elHealth.innerHTML = 'Health<br/><strong>' + (h.ok? 'OK' : (h.error||'no')) + '</strong>';
+
+      const ctx = await safeFetch('/agent/context?symbol=' + encodeURIComponent(symbol.value||'BTCUSDT'));
+      if(ctx.error) elBridge.innerHTML = 'Bridge<br/><strong>error</strong>'
+      else elBridge.innerHTML = 'Bridge<br/><strong>ok</strong>';
+      elCtx.textContent = ctx.bridge_digest ? ctx.bridge_digest.slice(0,3000) : (ctx.error||JSON.stringify(ctx));
+
+      const res = await fetch('/logs/results.json').then(r=>r.ok? r.text(): Promise.resolve('{"error":"no results"}')).catch(e=>'{"error":"'+e+'"}');
+      try{ const j = JSON.parse(res); elResults.innerHTML = 'Results<br/><strong>' + (j.summary?.net_profit ?? (j.net_profit??'n/a')) + '</strong>'; } catch(e){ elResults.innerHTML = 'Results<br/><strong>no</strong>' }
+    }
+
+    refresh();
+    setInterval(refresh, 15000);
+
+    send.addEventListener('click', async (ev)=>{
       ev.preventDefault();
-      append('\n---\nTú: ' + msg.value);
-      append('Enviando a /agent/chat...');
-      try{
-        const res = await fetch('/agent/chat', {
-          method:'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({message: msg.value, symbol: symbol.value})
-        });
-        const j = await res.json();
-        append('Respuesta (backend='+j.backend+'):\n' + (j.reply||JSON.stringify(j)) );
-      }catch(e){ append('Error fetch: '+e) }
+      chatlog.textContent = 'Enviando...';
+      const payload = {message: msg.value || 'estado', symbol: symbol.value || 'BTCUSDT'};
+      const r = await safeFetch('/agent/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      if(r.error){ chatlog.textContent = 'Error: ' + r.error } else { chatlog.textContent = (r.reply || JSON.stringify(r)).slice(0,8000); }
+      refresh();
     });
   </script>
 </body>

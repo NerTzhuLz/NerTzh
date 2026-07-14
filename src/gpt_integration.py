@@ -22,11 +22,14 @@ import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
 
+from dotenv import load_dotenv
+
 
 # API default; Codex CLI sin -m usa el default de la cuenta ChatGPT (p.ej. gpt-5.6-terra).
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"), override=False)
 DEFAULT_MODEL = (os.getenv("OPENAI_MODEL") or os.getenv("CODEX_MODEL") or "gpt-5").strip()
 API_BASE = (os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1").rstrip("/")
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
 def _env_prefer() -> str:

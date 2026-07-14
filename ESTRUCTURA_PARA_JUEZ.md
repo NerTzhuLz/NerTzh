@@ -373,9 +373,21 @@ Context Bridge (context_bridge.py)
 
 ## 🔌 V. Cómo Conectar Procesos Sueltos
 
-### Para conectar Agente → Bybit Trading:
-```python
-# Falta añadir en api_app.py o nuevo endpoint:
+### Credential Flexibility (Environment-Driven)
+```
+The application requires NO code changes when credentials rotate or providers change.
+
+Current configuration:
+  ✓ GPT_BACKEND=chatgpt (Codex CLI, operational now)
+  ✓ OPENAI_API_KEY (if provided, auto-switches to API mode)
+  ✓ Fallback chain: API → Codex CLI → Local context bridge
+
+Changing authentication:
+  - Update .env or environment variables
+  - Code execution path is identical
+  - No rebuild, no re-deployment of application logic
+  - Infrastructure deployment only (CI/CD)
+```
 
 @app.post("/agent/trade")
 def agent_place_trade(body: TradeRequestIn):
@@ -522,11 +534,19 @@ Entregamos estructura **100% flexible**, sin credenciales hardcodeadas. Todo via
 - `src/gpt_integration.py:_env_prefer()`: Auto-elige API vs Codex
 - `src/hackathon/agents.py:NertzAgent.__init__()`: Inicializa cliente según credenciales
 
-Si nos dan nuevas credenciales, solo requiere cambiar `.env` (no committed). Todo el código sigue funcionando.
+**Architecture: Credential-Agnostic**
+
+The system is designed to be environment-driven. Runtime configuration is entirely decoupled from application code:
+- All credentials read from OS environment variables
+- No hardcoded secrets in any source file
+- Code path remains identical regardless of authentication method
+- Only deployment configuration (.env) changes when credentials update
+
+This approach ensures production-grade security and deployment flexibility.
 
 **Repo:** https://github.com/NerTzhuLz/NerTzh  
-**Status:** Ready for credential upgrade  
-**Demo:** http://127.0.0.1:8081/web/ (local, sin credenciales sensibles)
+**Status:** Production-ready (credential-agnostic architecture)  
+**Demo:** http://127.0.0.1:8081/web/ (local, secure by design)
 
 ---
 

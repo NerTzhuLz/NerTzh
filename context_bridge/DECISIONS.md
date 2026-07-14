@@ -48,3 +48,7 @@
 ## 2026-07-14T02:03:08.265148+00:00 — BTCUSDT: HOLD — señal positiva sin confirmación temporal
 - **Agent:** human
 - **Body:** price=98234; combined=7.2 (> umbral HFT ±4.5); PIO=1.1, ILD=2.3 y EGM=0.8 positivos. El bridge no aporta serie reciente, posición abierta ni confirmación de persistencia; y las dos últimas decisiones con el mismo frame fueron HOLD. Por gestión conservadora, no abrir BUY hasta confirmar varias muestras y riesgo/posición.
+
+## 2026-07-14T19:15:28.356907+00:00 — Build Week: GPT-5.6 reproducible config
+- **Agent:** human
+- **Body:** Verified gpt-5.6 alias in official model guidance. Added OPENAI_MODEL/CODEX_MODEL=gpt-5.6 to local .env and template; GPTClient now loads project .env without overriding shell values. Verified isolated Codex/API resolution and make check. No trading logic, formulas, thresholds, or strategy changed.

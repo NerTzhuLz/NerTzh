@@ -1,36 +1,69 @@
-# Agents — _Metrics_ (sin candados)
+# Agents — NerTzh / `_Metrics_`
 
-Proyecto de hackathon **OpenAI Build Week** ([devpost](https://openai.devpost.com/)), pero **sin locks de modelo ni de herramienta**.
+OpenAI Build Week project. **Context Bridge first** — no browser hacks, no quota bypass.
 
-## Libertad de modelos
+## Regla de oro (anti-Restructured)
 
-- Usa **cualquier modelo** que te ofrezca Codex / ChatGPT (GPT-5.x, o los que vengan en tu plan).
-- No hay `AGENT_LOCK`, no hay modelo fijo en el repo.
-- No fuerces `-m ...` en scripts salvo que **tú** pases `CODEX_MODEL` o `-m` a mano.
+**Ante bugs: NO parches masivos.** Preferir un parámetro / umbral / número de indicador.
 
-## Credenciales del producto (bot)
+Orden: reproducir → causa mínima → **cambio 1–15 líneas** → medir → solo entonces otro micro-fix.
 
-- Solo Bybit + Postgres en `.env` del proyecto (trading).
-- No hardcodees API keys en código ni en `bashrc` desde este repo.
-- Keys de LLM las gestiona Codex/ChatGPT (sesión); no hace falta meter `OPENAI_API_KEY` en `.env` del bot.
+- Prohibido reescribir el motor “por un umbral”.
+- Si es red/API/WS: `python scripts/probe_latencies.py` antes de tocar arquitectura.
+- Skill: `skills/golden-rule-no-patches/SKILL.md`
+- Frase: *Un número bien puesto vale más que un parche de trescientas líneas.*
 
-## Cómo arrancar el agente (libre)
+## Context Bridge (obligatorio al empezar)
+
+```text
+ChatGPT / Codex / Grok / PyCharm
+        │  (paste autorizado o CLI)
+        ▼
+ co                     ntext_bridge/     ← fuente de verdad legible
+ data/context_bridge.duckdb  ← historial (no SQLite)
+```
 
 ```bash
 cd /home/angel/Documentos/_Metrics_
-./scripts/codex_here.sh          # TUI — eliges modelo ahí
-# o
-codex -C /home/angel/Documentos/_Metrics_
-# o con modelo que TÚ elijas en el momento:
-codex -C /home/angel/Documentos/_Metrics_ -m <el-que-quieras>
+./scripts/bridge.py status      # leer antes de codear
+./scripts/bridge.py sync-bot    # snapshot logs/results.json
+./scripts/bridge.py paste assistant "…texto que el humano pegó de ChatGPT…"
 ```
 
-## Notas del evento (informativas, no restrictivas)
+Files: `CURRENT_STATE.md`, `TASK_QUEUE.json`, `DECISIONS.md`, `TODO.md`, `conversation.json`  
+Skill: `skills/context-bridge/SKILL.md`  
+MCP local: `scripts/mcp_context_bridge.py` (registrado en `~/.grok/config.toml`)  
+MCP hackathon (fs + reason): `scripts/mcp_hackathon.py` → `metrics-hackathon`  
+Módulo: `src/hackathon/` · sesión HTTPS: `./scripts/gpt_session_https.sh` / `make gpt-session`
 
-- Submit: ~21 Jul 2026 5 PM PT — ver `docs/hackathon/OPENAI_BUILD_WEEK.md`
-- El form puede pedir Session ID `/feedback` y mencionar GPT/Codex: es del **submission**, no un límite técnico del repo.
-- Backlog sugerido: `docs/hackathon/BACKLOG.md` (prioridades, no prohibiciones)
+## Storage map
 
-## Seguridad trading
+| Data | Store |
+|------|--------|
+| Trading / metrics bot | **PostgreSQL** `metrics-pg:5433` |
+| Market TS (optional) | **QuestDB** when running |
+| Multi-agent memory | **DuckDB** + markdown bridge |
+| ~~SQLite for bridge~~ | **No** |
 
-- Default recomendado: `ENV=demo` en `.env`. Mainnet solo si el humano lo pide.
+## LLM / API discipline
+
+- Do **not** spam OpenAI/Codex API for memory recovery — use the bridge.
+- Codex usage limits are account-side; bridge does not bypass them.
+- Optional analysis: `gpt_integration.py` (API key or Codex when available).
+
+## Trading safety
+
+- Default `ENV=demo`. Mainnet only if human asks.
+
+## Run
+
+```bash
+make check
+make run
+./scripts/codex_here.sh   # when quota allows
+```
+
+## Skills runtime (consola / exchange / WS)
+
+Índice: `skills/SKILLS_INDEX.md`  
+Cargar `console-ops`, `bybit-rest`, `bybit-websocket`, `exchange-safety`, `api-live` en sesiones de runtime.

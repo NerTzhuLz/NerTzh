@@ -4,13 +4,13 @@ import io
 import json
 import logging
 import os
+import re
 import time
 import uuid
-import re
 from collections import deque
 from contextlib import asynccontextmanager
-from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP, ROUND_UP
 from datetime import datetime, timezone, timedelta
+from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP, ROUND_UP
 from typing import Dict, Any, Optional
 
 import aiohttp
@@ -22,9 +22,10 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
+from bybit_v5 import BybitV5Client
+from models import Base, MarketData, Orderbook, MarketTicker, Trade, MetricSnapshot, BalanceSnapshot, ThresholdSnapshot
 # Importaciones corregidas
 from settings import ConfigSettings
-from models import Base, MarketData, Orderbook, MarketTicker, Trade, MetricSnapshot, BalanceSnapshot, ThresholdSnapshot
 from utils import (
     calculate_metrics,
     calculate_discovery_metrics,
@@ -34,7 +35,6 @@ from utils import (
     timestamp_to_datetime,
     calculate_tp_sl,
 )
-from bybit_v5 import BybitV5Client
 
 # Cargar variables desde el archivo .env del proyecto (raíz de _Metrics_)
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"), override=True)
@@ -2555,6 +2555,10 @@ class NertzMetalEngine:
         self._support_task = None
         logger.info("🛑 Bot detenido.")
 
+    @property
+    def agent_last_tick_ts(self):
+        return self._agent_last_tick_ts
+
 
 # FastAPI
 bot = NertzMetalEngine()
@@ -2680,7 +2684,7 @@ async def ml_status():
         "models": bot._ml_models,
         "auto_agent_enabled": bool(getattr(config, "AUTO_AGENT_ENABLED", False)),
         "auto_agent": {
-            "last_tick_ts": bot._agent_last_tick_ts,
+            "last_tick_ts": bot.agent_last_tick_ts,
             "recent_actions": list(bot._agent_events.get("actions") or []),
         },
         "timestamp": datetime.now(timezone.utc).isoformat(),

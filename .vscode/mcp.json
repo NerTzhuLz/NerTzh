@@ -1,0 +1,19 @@
+{
+  "servers": {
+    "nertzh-context-bridge": {
+      "type": "stdio",
+      "command": "/home/angel/Documentos/_Metrics_/.venv/bin/python",
+      "args": ["/home/angel/Documentos/_Metrics_/scripts/mcp_context_bridge.py"]
+    },
+    "metrics-hackathon": {
+      "type": "stdio",
+      "command": "/home/angel/Documentos/_Metrics_/.venv/bin/python",
+      "args": ["/home/angel/Documentos/_Metrics_/scripts/mcp_hackathon.py"]
+    },
+    "bybit": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "bybit-official-trading-server@latest"]
+    }
+  }
+}

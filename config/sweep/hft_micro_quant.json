@@ -1,0 +1,11 @@
+{
+  "name": "hft_micro_quant_crosses",
+  "description": "Alta frecuencia de observación + size micro. Objetivo: multi-ops y cruces de indicadores para análisis cuantitativo en demo.",
+  "symbol": ["BTCUSDT"],
+  "orderbook_depth": [50],
+  "combined_buy_threshold": [3.5, 4.5, 5.5],
+  "combined_sell_threshold": [-3.5, -4.5, -5.5],
+  "combined_hold_band": [0.8, 1.0],
+  "rate_limit_delay_ms": [30],
+  "notes": "Montos de trade se fijan en .env HFT_MICRO_QUANT (MAX_TRADE_SIZE=0.001). Sweep solo mueve umbrales de cruce."
+}

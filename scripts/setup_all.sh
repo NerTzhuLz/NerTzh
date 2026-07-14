@@ -25,6 +25,12 @@ fi
 echo "→ folders"
 mkdir -p logs data assets/branding docs/hackathon
 
+echo "→ hackathon module smoke"
+export PYTHONPATH="${ROOT}/src"
+if [[ -x "${ROOT}/.venv/bin/python" ]]; then
+  "${ROOT}/.venv/bin/python" -c "from hackathon import session_status; print('hackathon OK', session_status().get('project_root','?'))" || true
+fi
+
 echo "→ Postgres"
 if command -v docker >/dev/null 2>&1; then
   docker compose up -d postgres

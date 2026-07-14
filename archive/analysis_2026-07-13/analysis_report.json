@@ -1,0 +1,35 @@
+{
+  "file": "/home/angel/Documentos/_Metrics_/logs/results.json",
+  "bytes": 180863,
+  "metadata": {
+    "timestamp": "2026-07-13T18:57:00.755789+00:00",
+    "capital_inicial": 81221.675448,
+    "capital_actual": 81080.032331,
+    "capital_final": 81080.032331,
+    "capital_source": "bybit_wallet_balance",
+    "capital_pnl": -141.643117,
+    "total_pnl": 1.28243,
+    "total_trades": 7,
+    "iterations": 4,
+    "running": true,
+    "balance_timestamp": "2026-07-13T18:56:11.501545+00:00",
+    "balance_total_equity": 81080.03233131,
+    "balance_available_balance": 80832.58152301,
+    "balance_account_type": "UNIFIED",
+    "balance_coin": "USDT",
+    "last_trade_timestamp": "2026-07-13T18:56:10.295992+00:00"
+  },
+  "summary_stored": {
+    "total_profit": 5.17962,
+    "total_loss": -3.89719,
+    "net_profit": 1.28243,
+    "win_rate": 57.14,
+    "avg_profit_per_trade": 0.183204
+  },
+  "trade_count": 7,
+  "event_count": 257,
+  "event_types": {
+    "balance": 115,
+    "metrics": 142
+  }
+}

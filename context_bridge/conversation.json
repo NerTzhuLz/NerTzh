@@ -1,0 +1,83 @@
+{
+  "updated": "2026-07-14T02:01:24.284310+00:00",
+  "policy": "Human-authorized snippets only. Paste from ChatGPT when you choose.",
+  "messages": [
+    {
+      "id": "c8d48cf8-1a56-42ed-bf86-f4e5a36cf01f",
+      "ts": "2026-07-13T21:10:21.190678+00:00",
+      "role": "assistant",
+      "source": "manual_paste",
+      "content": "…lo que pegaste…"
+    },
+    {
+      "id": "7c2d3750-9dc7-44a8-870d-1ecb3787a418",
+      "ts": "2026-07-14T00:32:08.929719+00:00",
+      "role": "assistant",
+      "source": "manual_paste",
+      "content": "Auditoria ultimo ejercicio hour_20260713T214648Z: run 60min completo (31 ticks, FINAL 2026-07-13T22:46:48Z), pero no publicable sin notas. Hallazgos: crosses.json incluye 29 cruces previos al inicio del run; results.json actual siguio cambiando hasta 23:26Z tras FINAL; Postgres 5433 cayo a las 23:26:08Z causando errores de orderbook; summary positivo net_profit 0.761452 en FINAL pero capital_pnl -28.023279. Accion recomendada: aislar baseline por run_id/timestamp y levantar/validar metrics-pg antes de otra corrida."
+    },
+    {
+      "id": "1dd836e6-cd0a-492c-ba1e-bea4d54f1998",
+      "ts": "2026-07-14T00:39:18.200507+00:00",
+      "role": "assistant",
+      "source": "manual_paste",
+      "content": "Codex auth fix: backup reversible en /home/angel/.codex/backup_auth_reset_20260714T003833Z; auth.json anterior movido a auth.json.bak_20260714T003833Z; config.toml modelo actualizado de gpt-5.5 a gpt-5.6-sol; codex login ahora usa API key local. Nota: esto separa CLI de cuota ChatGPT pero no elimina limites/spend API. Devpost Hackathons no expone tools en esta sesion Codex (tool_search=0); usar desde ChatGPT conectado o instalar plugin en Codex CLI via /plugins y nueva sesion si disponible."
+    },
+    {
+      "id": "3a55ef3d-5ea1-4321-9750-2e80a7161239",
+      "ts": "2026-07-14T01:28:16.735073+00:00",
+      "role": "user",
+      "source": "api",
+      "content": "Hola desde la sesión web en IDE, prueba de chat"
+    },
+    {
+      "id": "5e948cb6-571d-4ee9-9e70-a1a0609e2ae3",
+      "ts": "2026-07-14T01:28:42.639524+00:00",
+      "role": "assistant",
+      "source": "api",
+      "content": "[sin LLM backend: Codex usage limit (cuenta ChatGPT). Upgrade Plus https://chatgpt.com/explore/plus o export OPENAI_API_KEY=sk-... (API platform), o reintenta tras la fecha del mensaje de error.]\n\nContexto local (bridge):\n# Context Bridge Digest\ngenerated: 2026-07-14T01:28:16.780633+00:00\n\n## State (first 40 lines)\n# CURRENT_STATE\n\n_Updated: 2026-07-13T21:05:54.085876+00:00_\n\n## Project\n- Name: NertzMetalEngine (`_Metrics_`)\n- Event: OpenAI Build Week\n- Trading: Bybit demo + PostgreSQL (metrics-pg :5433)\n- Context store: DuckDB `data/context_bridge.duckdb` (not SQLite)\n\n## Runtime\n- Bot: stopped | running\n- Symbol: BTCUSDT\n- Last metrics: (fill when bot runs)\n\n## Agents online\n- [ ] Human\n- [ ] Codex / ChatGPT\n- [ ] Grok\n- [ ] PyCharm AI\n\n## Blockers\n- Codex ChatGPT usage limit until ~2026-08-12 (or Plus / API key)\n- Do not spam OpenAI API; prefer bridge files + local tools\n\n## Next focus\n1. Stabilize demo metrics loop\n2. Judge-ready README + health\n3. Context Bridge discipline (read/write here)\n\n## Bot snapshot (2026-07-14T00:31:14.450178+00:00)\n- capital_actual: 81054.075778\n- capital_pnl: -34.797288\n- total_trades: 32\n- net_profit (trades): 0.664549\n- win_rate: 59.38\n- running: True\n\n## Tasks pending (2)\n- [P0] t1: Health endpoint + stable run path (pending)\n- [P0] t2: Keep Context Bridge CURRENT_STATE fresh (in_progress)\n\n## Latest decisions (tail)\n- **Body:** Y\n\n## 2026-07-13T21:19:34.960556+00:00 — Stack skills+MCP+ML+obs\n- **Agent:** grok\n- **Body:** Bybit MCP, Langfuse optional, Prometheus /metrics, sklearn+xgboost, FastAPI Cloud docs\n\n## 2026-07-13T21:21:17.830801+00:00 — Skills console+exchange+WS\n- **Agent:** grok\n- **Body:** Generados skills: console-ops api-live fastapi-ops bybit-rest bybit-websocket websocket-ops exchange-safety (+ existentes MCP/ML/obs/cloud/bridge). Runtime solo consola/APIs/WS.\n\n## 2026-07-13T21:24:27.563315+00:00 — Regla de oro anti-parches\n- **Agent:** grok\n- **Body:** No parches masivos (lección Restructured). Preferir 1 param/umbral. Probe latencias MCP+WS: REST pub p50~362ms, private~993ms ret0, WS first book~1.7s, MCP 302 tools list~3s, getServerTime call~365ms. make probe.\n\n## 2026-07-13T21:27:58.749154+00:00 — Repo organized for sweep hour\n- **Agent:** grok\n- **Body:** archive/ for historical; docs/ops runbook; config/sweep matrix; logs/runs snapshots; check_tools OK; dry sweep 6/6 ok\n\n## 2026-07-13T21:44:14.928740+00:00 — HFT micro quant + event OpenAI key\n- **Agent:** grok\n- **Body:** Perfil HFT_MICRO_QUANT en .env (size 0.001, sleep 2s, combined ±4.5). OPENAI_API_KEY sk-proj aplicada (117 models API). Objetivo: multi-ops micro + registro cruces indicadores. Docs: docs/ops/HFT_MICRO_QUANT.md\n\n## 2026-07-13T21:47:10.265014+00:00 — "
+    },
+    {
+      "id": "3d036b1b-ecaf-4e08-9645-bfb1da84c875",
+      "ts": "2026-07-14T01:30:44.305770+00:00",
+      "role": "user",
+      "source": "api",
+      "content": "hola\n"
+    },
+    {
+      "id": "36a7dee5-f251-476d-8bad-f2deb4f27713",
+      "ts": "2026-07-14T01:31:07.321714+00:00",
+      "role": "assistant",
+      "source": "api",
+      "content": "[sin LLM backend: Codex usage limit (cuenta ChatGPT). Upgrade Plus https://chatgpt.com/explore/plus o export OPENAI_API_KEY=sk-... (API platform), o reintenta tras la fecha del mensaje de error.]\n\nContexto local (bridge):\n# Context Bridge Digest\ngenerated: 2026-07-14T01:30:44.348428+00:00\n\n## State (first 40 lines)\n# CURRENT_STATE\n\n_Updated: 2026-07-13T21:05:54.085876+00:00_\n\n## Project\n- Name: NertzMetalEngine (`_Metrics_`)\n- Event: OpenAI Build Week\n- Trading: Bybit demo + PostgreSQL (metrics-pg :5433)\n- Context store: DuckDB `data/context_bridge.duckdb` (not SQLite)\n\n## Runtime\n- Bot: stopped | running\n- Symbol: BTCUSDT\n- Last metrics: (fill when bot runs)\n\n## Agents online\n- [ ] Human\n- [ ] Codex / ChatGPT\n- [ ] Grok\n- [ ] PyCharm AI\n\n## Blockers\n- Codex ChatGPT usage limit until ~2026-08-12 (or Plus / API key)\n- Do not spam OpenAI API; prefer bridge files + local tools\n\n## Next focus\n1. Stabilize demo metrics loop\n2. Judge-ready README + health\n3. Context Bridge discipline (read/write here)\n\n## Bot snapshot (2026-07-14T00:31:14.450178+00:00)\n- capital_actual: 81054.075778\n- capital_pnl: -34.797288\n- total_trades: 32\n- net_profit (trades): 0.664549\n- win_rate: 59.38\n- running: True\n\n## Tasks pending (2)\n- [P0] t1: Health endpoint + stable run path (pending)\n- [P0] t2: Keep Context Bridge CURRENT_STATE fresh (in_progress)\n\n## Latest decisions (tail)\n- **Body:** Y\n\n## 2026-07-13T21:19:34.960556+00:00 — Stack skills+MCP+ML+obs\n- **Agent:** grok\n- **Body:** Bybit MCP, Langfuse optional, Prometheus /metrics, sklearn+xgboost, FastAPI Cloud docs\n\n## 2026-07-13T21:21:17.830801+00:00 — Skills console+exchange+WS\n- **Agent:** grok\n- **Body:** Generados skills: console-ops api-live fastapi-ops bybit-rest bybit-websocket websocket-ops exchange-safety (+ existentes MCP/ML/obs/cloud/bridge). Runtime solo consola/APIs/WS.\n\n## 2026-07-13T21:24:27.563315+00:00 — Regla de oro anti-parches\n- **Agent:** grok\n- **Body:** No parches masivos (lección Restructured). Preferir 1 param/umbral. Probe latencias MCP+WS: REST pub p50~362ms, private~993ms ret0, WS first book~1.7s, MCP 302 tools list~3s, getServerTime call~365ms. make probe.\n\n## 2026-07-13T21:27:58.749154+00:00 — Repo organized for sweep hour\n- **Agent:** grok\n- **Body:** archive/ for historical; docs/ops runbook; config/sweep matrix; logs/runs snapshots; check_tools OK; dry sweep 6/6 ok\n\n## 2026-07-13T21:44:14.928740+00:00 — HFT micro quant + event OpenAI key\n- **Agent:** grok\n- **Body:** Perfil HFT_MICRO_QUANT en .env (size 0.001, sleep 2s, combined ±4.5). OPENAI_API_KEY sk-proj aplicada (117 models API). Objetivo: multi-ops micro + registro cruces indicadores. Docs: docs/ops/HFT_MICRO_QUANT.md\n\n## 2026-07-13T21:47:10.265014+00:00 — "
+    },
+    {
+      "id": "8af70dff-787e-401a-9a77-d4cee47ab27d",
+      "ts": "2026-07-14T01:55:11.133063+00:00",
+      "role": "user",
+      "source": "api",
+      "content": "Basándome en combined=7.2, ¿cuál sería tu recomendación de trading?"
+    },
+    {
+      "id": "1416b727-cf8f-4151-93bf-f42f1f56d070",
+      "ts": "2026-07-14T01:55:24.575571+00:00",
+      "role": "assistant",
+      "source": "api",
+      "content": "[sin LLM backend: Codex usage limit (cuenta ChatGPT). Upgrade Plus https://chatgpt.com/explore/plus o export OPENAI_API_KEY=sk-... (API platform), o reintenta tras la fecha del mensaje de error.]\n\nContexto local (bridge):\n# Context Bridge Digest\ngenerated: 2026-07-14T01:55:11.174544+00:00\n\n## State (first 40 lines)\n# CURRENT_STATE\n\n_Updated: 2026-07-13T21:05:54.085876+00:00_\n\n## Project\n- Name: NertzMetalEngine (`_Metrics_`)\n- Event: OpenAI Build Week\n- Trading: Bybit demo + PostgreSQL (metrics-pg :5433)\n- Context store: DuckDB `data/context_bridge.duckdb` (not SQLite)\n\n## Runtime\n- Bot: stopped | running\n- Symbol: BTCUSDT\n- Last metrics: (fill when bot runs)\n\n## Agents online\n- [ ] Human\n- [ ] Codex / ChatGPT\n- [ ] Grok\n- [ ] PyCharm AI\n\n## Blockers\n- Codex ChatGPT usage limit until ~2026-08-12 (or Plus / API key)\n- Do not spam OpenAI API; prefer bridge files + local tools\n\n## Next focus\n1. Stabilize demo metrics loop\n2. Judge-ready README + health\n3. Context Bridge discipline (read/write here)\n\n## Bot snapshot (2026-07-14T00:31:14.450178+00:00)\n- capital_actual: 81054.075778\n- capital_pnl: -34.797288\n- total_trades: 32\n- net_profit (trades): 0.664549\n- win_rate: 59.38\n- running: True\n\n## Tasks pending (2)\n- [P0] t1: Health endpoint + stable run path (pending)\n- [P0] t2: Keep Context Bridge CURRENT_STATE fresh (in_progress)\n\n## Latest decisions (tail)\n- **Body:** Y\n\n## 2026-07-13T21:19:34.960556+00:00 — Stack skills+MCP+ML+obs\n- **Agent:** grok\n- **Body:** Bybit MCP, Langfuse optional, Prometheus /metrics, sklearn+xgboost, FastAPI Cloud docs\n\n## 2026-07-13T21:21:17.830801+00:00 — Skills console+exchange+WS\n- **Agent:** grok\n- **Body:** Generados skills: console-ops api-live fastapi-ops bybit-rest bybit-websocket websocket-ops exchange-safety (+ existentes MCP/ML/obs/cloud/bridge). Runtime solo consola/APIs/WS.\n\n## 2026-07-13T21:24:27.563315+00:00 — Regla de oro anti-parches\n- **Agent:** grok\n- **Body:** No parches masivos (lección Restructured). Preferir 1 param/umbral. Probe latencias MCP+WS: REST pub p50~362ms, private~993ms ret0, WS first book~1.7s, MCP 302 tools list~3s, getServerTime call~365ms. make probe.\n\n## 2026-07-13T21:27:58.749154+00:00 — Repo organized for sweep hour\n- **Agent:** grok\n- **Body:** archive/ for historical; docs/ops runbook; config/sweep matrix; logs/runs snapshots; check_tools OK; dry sweep 6/6 ok\n\n## 2026-07-13T21:44:14.928740+00:00 — HFT micro quant + event OpenAI key\n- **Agent:** grok\n- **Body:** Perfil HFT_MICRO_QUANT en .env (size 0.001, sleep 2s, combined ±4.5). OPENAI_API_KEY sk-proj aplicada (117 models API). Objetivo: multi-ops micro + registro cruces indicadores. Docs: docs/ops/HFT_MICRO_QUANT.md\n\n## 2026-07-13T21:47:10.265014+00:00 — "
+    },
+    {
+      "id": "8971a82a-a4b0-400f-9ce1-3d36a9984a9d",
+      "ts": "2026-07-14T02:01:06.763746+00:00",
+      "role": "user",
+      "source": "api",
+      "content": "Analiza BTCUSDT con Combined=7.2, ¿BUY o HOLD?"
+    },
+    {
+      "id": "5f37f03f-2452-44de-a84d-a10c8bad3681",
+      "ts": "2026-07-14T02:01:24.284297+00:00",
+      "role": "assistant",
+      "source": "api",
+      "content": "[sin LLM backend: Codex usage limit (cuenta ChatGPT). Upgrade Plus https://chatgpt.com/explore/plus o export OPENAI_API_KEY=sk-... (API platform), o reintenta tras la fecha del mensaje de error.]\n\nContexto local (bridge):\n# Context Bridge Digest\ngenerated: 2026-07-14T02:01:06.804675+00:00\n\n## State (first 40 lines)\n# CURRENT_STATE\n\n_Updated: 2026-07-13T21:05:54.085876+00:00_\n\n## Project\n- Name: NertzMetalEngine (`_Metrics_`)\n- Event: OpenAI Build Week\n- Trading: Bybit demo + PostgreSQL (metrics-pg :5433)\n- Context store: DuckDB `data/context_bridge.duckdb` (not SQLite)\n\n## Runtime\n- Bot: stopped | running\n- Symbol: BTCUSDT\n- Last metrics: (fill when bot runs)\n\n## Agents online\n- [ ] Human\n- [ ] Codex / ChatGPT\n- [ ] Grok\n- [ ] PyCharm AI\n\n## Blockers\n- Codex ChatGPT usage limit until ~2026-08-12 (or Plus / API key)\n- Do not spam OpenAI API; prefer bridge files + local tools\n\n## Next focus\n1. Stabilize demo metrics loop\n2. Judge-ready README + health\n3. Context Bridge discipline (read/write here)\n\n## Bot snapshot (2026-07-14T00:31:14.450178+00:00)\n- capital_actual: 81054.075778\n- capital_pnl: -34.797288\n- total_trades: 32\n- net_profit (trades): 0.664549\n- win_rate: 59.38\n- running: True\n\n## Tasks pending (2)\n- [P0] t1: Health endpoint + stable run path (pending)\n- [P0] t2: Keep Context Bridge CURRENT_STATE fresh (in_progress)\n\n## Latest decisions (tail)\n- **Body:** Bybit MCP, Langfuse optional, Prometheus /metrics, sklearn+xgboost, FastAPI Cloud docs\n\n## 2026-07-13T21:21:17.830801+00:00 — Skills console+exchange+WS\n- **Agent:** grok\n- **Body:** Generados skills: console-ops api-live fastapi-ops bybit-rest bybit-websocket websocket-ops exchange-safety (+ existentes MCP/ML/obs/cloud/bridge). Runtime solo consola/APIs/WS.\n\n## 2026-07-13T21:24:27.563315+00:00 — Regla de oro anti-parches\n- **Agent:** grok\n- **Body:** No parches masivos (lección Restructured). Preferir 1 param/umbral. Probe latencias MCP+WS: REST pub p50~362ms, private~993ms ret0, WS first book~1.7s, MCP 302 tools list~3s, getServerTime call~365ms. make probe.\n\n## 2026-07-13T21:27:58.749154+00:00 — Repo organized for sweep hour\n- **Agent:** grok\n- **Body:** archive/ for historical; docs/ops runbook; config/sweep matrix; logs/runs snapshots; check_tools OK; dry sweep 6/6 ok\n\n## 2026-07-13T21:44:14.928740+00:00 — HFT micro quant + event OpenAI key\n- **Agent:** grok\n- **Body:** Perfil HFT_MICRO_QUANT en .env (size 0.001, sleep 2s, combined ±4.5). OPENAI_API_KEY sk-proj aplicada (117 models API). Objetivo: multi-ops micro + registro cruces indicadores. Docs: docs/ops/HFT_MICRO_QUANT.md\n\n## 2026-07-13T21:47:10.265014+00:00 — Hour validation run started\n- **Agent:** grok\n- **Body:** Engine pid + monitor hour_20260713T21"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "updated": "2026-07-13T21:05:54.085968+00:00",
+  "queue": [
+    {
+      "id": "t1",
+      "title": "Health endpoint + stable run path",
+      "status": "pending",
+      "priority": "P0",
+      "owner": "any"
+    },
+    {
+      "id": "t2",
+      "title": "Keep Context Bridge CURRENT_STATE fresh",
+      "status": "in_progress",
+      "priority": "P0",
+      "owner": "human+agents"
+    }
+  ]
+}

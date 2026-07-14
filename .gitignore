@@ -39,3 +39,16 @@ logs/*
 # Secrets / dumps
 *.pem
 auth.json
+
+# Context Bridge local store
+data/context_bridge.duckdb
+data/*.duckdb
+
+# Sweep snapshots can be large; keep structure
+logs/runs/**
+!logs/runs/.gitkeep
+logs/probes/**
+!logs/probes/.gitkeep
+.env.production
+secrets.env
+config/private.env

@@ -1,0 +1,151 @@
+{
+  "codex_block": {
+    "message": "usage limit",
+    "retry_at_pt_approx": "2026-08-12 12:02",
+    "unrelated_to_results_json": true
+  },
+  "metadata": {
+    "timestamp": "2026-07-13T18:57:00.755789+00:00",
+    "capital_inicial": 81221.675448,
+    "capital_actual": 81080.032331,
+    "capital_final": 81080.032331,
+    "capital_source": "bybit_wallet_balance",
+    "capital_pnl": -141.643117,
+    "total_pnl": 1.28243,
+    "total_trades": 7,
+    "iterations": 4,
+    "running": true,
+    "balance_timestamp": "2026-07-13T18:56:11.501545+00:00",
+    "balance_total_equity": 81080.03233131,
+    "balance_available_balance": 80832.58152301,
+    "balance_account_type": "UNIFIED",
+    "balance_coin": "USDT",
+    "last_trade_timestamp": "2026-07-13T18:56:10.295992+00:00"
+  },
+  "summary_stored": {
+    "total_profit": 5.17962,
+    "total_loss": -3.89719,
+    "net_profit": 1.28243,
+    "win_rate": 57.14,
+    "avg_profit_per_trade": 0.183204
+  },
+  "recomputed": {
+    "sum_profit_loss": "1.2824299999998550",
+    "sum_profit_loss_5dp": "1.28243",
+    "sum_positives": "5.1796199999997824",
+    "sum_negatives": "-3.8971899999999274",
+    "wins": 4,
+    "losses": 3,
+    "win_rate_exact": "57.142857142857142857142857142857142857142857142857",
+    "win_rate_2dp": "57.14",
+    "avg_pl": "0.1832042857142650",
+    "profit_factor_gross": "1.3290653008962557355789286814772702973738194057317",
+    "capital_return_pct": "-0.17439078450269498311617739432180544594569319355122",
+    "wallet_vs_trade_gap": "-142.925547"
+  },
+  "trades_table": [
+    {
+      "id": 1,
+      "action": "buy",
+      "entry": 62782.0,
+      "exit": 62797.4,
+      "qty": 0.05,
+      "gross": 0.77,
+      "profit_loss": 0.7684600000000728,
+      "residual_pl_minus_gross": -0.0015399999999272,
+      "combined": 15.651254839559094,
+      "outcome": "final",
+      "timestamp": "2026-07-13T07:06:00.739336+00:00"
+    },
+    {
+      "id": 2,
+      "action": "buy",
+      "entry": 62953.0,
+      "exit": 62991.1,
+      "qty": 0.05,
+      "gross": 1.905,
+      "profit_loss": 1.9011899999999275,
+      "residual_pl_minus_gross": -0.0038100000000725,
+      "combined": 13.361908309446415,
+      "outcome": "final",
+      "timestamp": "2026-07-13T07:28:00.839599+00:00"
+    },
+    {
+      "id": 3,
+      "action": "buy",
+      "entry": 62997.2,
+      "exit": 62993.2,
+      "qty": 0.05,
+      "gross": -0.2,
+      "profit_loss": -0.1996,
+      "residual_pl_minus_gross": 0.0004,
+      "combined": 14.71525510196644,
+      "outcome": "final",
+      "timestamp": "2026-07-13T07:47:00.772103+00:00"
+    },
+    {
+      "id": 4,
+      "action": "sell",
+      "entry": 61905.3,
+      "exit": 61971.3,
+      "qty": 0.05,
+      "gross": -3.3,
+      "profit_loss": -3.2934,
+      "residual_pl_minus_gross": 0.0066,
+      "combined": -15.222830473964258,
+      "outcome": "final",
+      "timestamp": "2026-07-13T18:35:00.751206+00:00"
+    },
+    {
+      "id": 5,
+      "action": "buy",
+      "entry": 61972.5,
+      "exit": 61976.7,
+      "qty": 0.05,
+      "gross": 0.21,
+      "profit_loss": 0.2095799999998548,
+      "residual_pl_minus_gross": -0.0004200000001452,
+      "combined": 16.33820232615154,
+      "outcome": "final",
+      "timestamp": "2026-07-13T18:40:00.747953+00:00"
+    },
+    {
+      "id": 6,
+      "action": "buy",
+      "entry": 61979.4,
+      "exit": 62025.5,
+      "qty": 0.05,
+      "gross": 2.305,
+      "profit_loss": 2.3003899999999273,
+      "residual_pl_minus_gross": -0.0046100000000727,
+      "combined": 22.299230614128874,
+      "outcome": "final",
+      "timestamp": "2026-07-13T18:49:00.749432+00:00"
+    },
+    {
+      "id": 7,
+      "action": "buy",
+      "entry": 62045.0,
+      "exit": 62036.9,
+      "qty": 0.05,
+      "gross": -0.405,
+      "profit_loss": -0.4041899999999274,
+      "residual_pl_minus_gross": 0.0008100000000726,
+      "combined": 14.66138254092205,
+      "outcome": "final",
+      "timestamp": "2026-07-13T18:56:10.295992+00:00"
+    }
+  ],
+  "events": {
+    "total": 257,
+    "metrics": 142,
+    "balance": 115,
+    "balance_equity_zero": 36,
+    "balance_retcode_errors": 9,
+    "decisions": {
+      "hold": 131,
+      "buy": 6,
+      "sell": 5
+    }
+  }
+}

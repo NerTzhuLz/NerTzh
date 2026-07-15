@@ -52,3 +52,7 @@
 ## 2026-07-14T19:15:28.356907+00:00 — Build Week: GPT-5.6 reproducible config
 - **Agent:** human
 - **Body:** Verified gpt-5.6 alias in official model guidance. Added OPENAI_MODEL/CODEX_MODEL=gpt-5.6 to local .env and template; GPTClient now loads project .env without overriding shell values. Verified isolated Codex/API resolution and make check. No trading logic, formulas, thresholds, or strategy changed.
+
+## 2026-07-15T04:35:39.292704+00:00 — Devpost submission completed
+- **Agent:** assistant
+- **Body:** Successfully registered project NerTzh for OpenAI Build Week and submitted it via Devpost MCP server (submission id 1078682). Added video placeholder explanation regarding prompt token limits.

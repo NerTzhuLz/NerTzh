@@ -28,10 +28,10 @@ _Updated: 2026-07-13T21:05:54.085876+00:00_
 2. Judge-ready README + health
 3. Context Bridge discipline (read/write here)
 
-## Bot snapshot (2026-07-14T00:31:14.450178+00:00)
-- capital_actual: 81054.075778
-- capital_pnl: -34.797288
-- total_trades: 32
-- net_profit (trades): 0.664549
-- win_rate: 59.38
+## Bot snapshot (2026-07-15T04:30:51.433331+00:00)
+- capital_actual: 81322.51505
+- capital_pnl: 233.641984
+- total_trades: 330
+- net_profit (trades): 0.916996
+- win_rate: 51.21
 - running: True

@@ -4,6 +4,15 @@
 **Deadline:** 2026-07-21 @ 5:00 PM PT  
 **Tiempo restante:** 7 días
 
+## Estado Verificado (2026-07-14)
+
+| Área | Estado | Evidencia / siguiente paso |
+|------|--------|----------------------------|
+| GitHub | ✅ Publicado | `NerTzhuLz/NerTzh` es público y `main` contiene la integración GPT-5/multiagente. |
+| Registro Build Week | ⏳ Por verificar | El conector Devpost requiere reautenticación antes de poder comprobarlo desde Codex. |
+| Proyecto en Devpost | ⏳ Por verificar | Confirmar que existe un borrador o envío para **NertzMetalEngine** tras reconectar Devpost. |
+| Créditos Codex | ⏳ En revisión | Solicitud de USD 100 enviada; esperar hasta 24 horas y no enviar otra solicitud. |
+
 ---
 
 ## 🟢 YA LISTO (copiar a Devpost)
@@ -29,7 +38,10 @@
 |------|--------|-----------|--------|
 | ⏳ Video demo (< 3 min) | NOT RECORDED | 🔴 URGENTE | Grabar antes del 20 de julio |
 | ⏳ YouTube link | PENDING | 🔴 URGENTE | Subir video a YouTube (public/unlisted) |
-| ⏳ Repository link | PENDING | 🔴 URGENTE | Confirmar que repo es **public** en GitHub |
+| ✅ Repository link | READY | — | `https://github.com/NerTzhuLz/NerTzh` es público |
+| ⏳ Registro Devpost | VERIFY | 🔴 URGENTE | Reautenticar el plugin y comprobar el registro en OpenAI Build Week |
+| ⏳ Proyecto Devpost | VERIFY | 🔴 URGENTE | Confirmar borrador, campos obligatorios y estado de envío |
+| ⏳ Créditos Codex | IN REVIEW | 🟡 | Esperar la resolución del formulario; no reenviar mientras esté en revisión |
 
 ---
 
@@ -65,7 +77,7 @@ PRE-SUBMISSION (do this 1 day before deadline):
     [ ] Repository URL (GitHub public)
     [ ] Demo URL (YouTube video)
     [ ] Your contribution (1 párrafo)
-    [ ] Track: "OpenAI — Trading Intelligence"
+    [ ] Category: "Developer tools"
     
 ☐ 6. Links verificados:
     [ ] GitHub repo accesible
@@ -152,7 +164,9 @@ PRE-SUBMISSION (do this 1 day before deadline):
 
 | Date | Milestone | Status |
 |------|-----------|--------|
-| 2026-07-14 (hoy) | Code complete + docs ready | ✅ |
+| 2026-07-14 (hoy) | GitHub público + docs listas | ✅ |
+| 2026-07-14 (hoy) | Verificar registro y borrador Devpost | ⏳ |
+| 2026-07-14 (hoy) | Solicitud de créditos Codex en revisión | ⏳ |
 | 2026-07-17 | ⏳ **DEADLINE: Video ready** | ⏳ |
 | 2026-07-18 | ⏳ **Devpost form 90% complete** | ⏳ |
 | 2026-07-20 | ⏳ **Final checks** | ⏳ |
@@ -204,5 +218,4 @@ make api
 **Ready to submit:** 2026-07-21
 
 Good luck! 🎯
-
 

@@ -1,0 +1,4 @@
+credential_status=present
+key_type=standard
+http_status=000
+response_shape=unexpected_response

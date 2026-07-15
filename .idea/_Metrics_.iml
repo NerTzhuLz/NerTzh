@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$/..">
+      <sourceFolder url="file://$MODULE_DIR$/../src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../tests" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/../.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../logs" />
+      <excludeFolder url="file://$MODULE_DIR$/../data" />
+      <excludeFolder url="file://$MODULE_DIR$/../.ruff_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/../Pro_/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../V_z/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../linerar_metrics/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/Adjudicator-bybit-bot-v2/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/Adjudicator-bybit-bot2/Adjudicator-bybit-bot/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/Adjudicator-bybit-bot6/Adjudicator-bybit-bot/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/Adjudicator-bybit-bot_01/Adjudicator-bybit-bot/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/Adjudicator-bybit-bot_V2/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/Adjudicator-bybit-botv3/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/MDiMPORTANTE/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/NerTzhuL/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/NerTzhuL/NerTzhuL/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/Trd-BT/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/V5_api_Doc/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/adj56/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../projets/panzha/PH2/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/../restructured_v2/.venv" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.14 (_Metrics_)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

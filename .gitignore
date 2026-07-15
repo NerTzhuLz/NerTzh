@@ -14,7 +14,13 @@ __pycache__/
 .ruff_cache/
 
 # IDE / other agents (local noise)
-.idea/
+.idea/*
+!.idea/runConfigurations/
+!.idea/runConfigurations/**
+!.idea/dataSources.xml
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/_Metrics_.iml
 .explyt/
 .cursor/
 .qwen/

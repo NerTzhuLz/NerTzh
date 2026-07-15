@@ -328,11 +328,12 @@ class NertzMetalEngine:
             return None
         horizon = self._outcome_horizon_seconds()
         cutoff = datetime.now(timezone.utc) - timedelta(seconds=horizon)
+        # Solo órdenes no ejecutadas (pending/partial). filled espera sell real en exchange.
         pending = (
             db.query(Trade)
             .filter(Trade.symbol == symbol)
             .filter(Trade.timestamp <= cutoff)
-            .filter(~Trade.outcome_status.in_(["final", "cancelled", "invalid_entry"]))
+            .filter(Trade.outcome_status.in_(["pending", "partial"]))
             .order_by(Trade.timestamp.asc())
             .limit(50)
             .all()
@@ -1551,6 +1552,20 @@ class NertzMetalEngine:
                 if active_trade is not None:
                     return
 
+                open_long = (
+                    db.query(Trade)
+                    .filter(Trade.symbol == symbol)
+                    .filter(Trade.action == "buy")
+                    .filter(Trade.outcome_status == "filled")
+                    .order_by(Trade.trade_id.desc())
+                    .first()
+                )
+                if decision == "buy" and open_long is not None:
+                    logger.debug(
+                        f"⏸️ Buy omitido para {symbol}: long abierto trade #{open_long.trade_id} (esperar sell)"
+                    )
+                    return
+
                 rules = await self._get_instrument_rules(symbol)
                 tick_size = float(rules.get("tick_size") or 0.01)
                 qty_step = float(rules.get("qty_step") or float(config.MIN_TRADE_SIZE))
@@ -1573,6 +1588,10 @@ class NertzMetalEngine:
 
                 quantity = risk_per_trade / (volatility * last_price)
                 quantity = max(min(quantity, config.MAX_TRADE_SIZE), config.MIN_TRADE_SIZE)
+                if decision == "sell" and open_long is not None:
+                    held_qty = float(getattr(open_long, "quantity", 0.0) or 0.0)
+                    if held_qty > 0:
+                        quantity = min(quantity, held_qty)
 
                 order_type_raw = config.ORDER_TYPE or "Limit"
                 order_type = {

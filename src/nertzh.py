@@ -859,22 +859,17 @@ class NertzMetalEngine:
         egm = float(metrics.get("egm", 0.0) or 0.0)
         pio = float(metrics.get("pio", 0.0) or 0.0)
         combined = float(metrics.get("combined", 0.0) or 0.0)
-        buy_th = float(getattr(config, "COMBINED_BUY_THRESHOLD", 25.0) or 25.0)
-        sell_th = float(getattr(config, "COMBINED_SELL_THRESHOLD", -25.0) or -25.0)
-        hold_band = float(getattr(config, "COMBINED_HOLD_BAND", 12.0) or 12.0)
 
-        volatility = float(metrics.get("volatility", 0.0) or 0.0)
-        if volatility > 0:
-            base_vol = 0.01
-            if volatility < base_vol:
-                scale = (base_vol / volatility) ** 0.5
-                if scale > 2.5:
-                    scale = 2.5
-                if scale < 1.0:
-                    scale = 1.0
-                buy_th = buy_th * scale
-                sell_th = -abs(sell_th) * scale
-                hold_band = hold_band * min(2.0, scale)
+        regime = metrics.get("regime") if isinstance(metrics.get("regime"), dict) else {}
+        regime_thr = regime.get("thresholds") if isinstance(regime.get("thresholds"), dict) else {}
+        if regime_thr:
+            buy_th = float(regime_thr.get("combined_buy_threshold") or getattr(config, "COMBINED_BUY_THRESHOLD", 4.5))
+            sell_th = float(regime_thr.get("combined_sell_threshold") or getattr(config, "COMBINED_SELL_THRESHOLD", -4.5))
+            hold_band = float(regime_thr.get("combined_hold_band") or getattr(config, "COMBINED_HOLD_BAND", 1.5))
+        else:
+            buy_th = float(getattr(config, "COMBINED_BUY_THRESHOLD", 4.5) or 4.5)
+            sell_th = float(getattr(config, "COMBINED_SELL_THRESHOLD", -4.5) or -4.5)
+            hold_band = float(getattr(config, "COMBINED_HOLD_BAND", 1.5) or 1.5)
 
         if abs(combined) < hold_band:
             return "hold"

@@ -1,0 +1,60 @@
+{
+  "source": "restructured_v2 historical_full_validation.json — optimize_by_regime",
+  "vol_regime_thresholds": {
+    "low_max": 0.0022969718744285782,
+    "high_min": 0.004563922493108188
+  },
+  "profiles": {
+    "low_vol": {
+      "thresholds": {
+        "combined_buy_threshold": 3.738957899244055,
+        "combined_sell_threshold": -3.738957899244055,
+        "combined_hold_band": 1.5103206916387344
+      },
+      "weights": {
+        "pio": 0.18192004264844963,
+        "egm": 0.032528755500399964,
+        "ild": -0.10352649554179136,
+        "rol": 0.14072299116890222,
+        "ogm": 0.1471395870191127,
+        "mom": 0.163357624474045,
+        "tfi": 0.23080450364729915,
+        "scale": 9.646319718129075
+      }
+    },
+    "mid_vol": {
+      "thresholds": {
+        "combined_buy_threshold": 6.935157522063785,
+        "combined_sell_threshold": -6.935157522063785,
+        "combined_hold_band": 1.3144575853349239
+      },
+      "weights": {
+        "pio": -0.05485274096597995,
+        "egm": 0.060378014132744684,
+        "ild": 0.24643792606994916,
+        "rol": -0.13976406510060654,
+        "ogm": -0.4387148618520724,
+        "mom": -0.005974339828516379,
+        "tfi": -0.053878052050130715,
+        "scale": 10.660496590159582
+      }
+    },
+    "high_vol": {
+      "thresholds": {
+        "combined_buy_threshold": 4.5,
+        "combined_sell_threshold": -4.5,
+        "combined_hold_band": 1.5
+      },
+      "weights": {
+        "pio": 0.1984126984126984,
+        "egm": 0.23809523809523808,
+        "ild": -0.11904761904761904,
+        "rol": 0.07936507936507937,
+        "ogm": 0.03968253968253969,
+        "mom": 0.12698412698412698,
+        "tfi": 0.1984126984126984,
+        "scale": 10.0
+      }
+    }
+  }
+}

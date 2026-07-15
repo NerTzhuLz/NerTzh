@@ -19,6 +19,13 @@ def build_spot_order_body(
     tp_order_type: Optional[str] = None,
     sl_order_type: Optional[str] = None,
     market_unit: Optional[str] = None,
+    trigger_price: Optional[str] = None,
+    trigger_direction: Optional[int] = None,
+    tp_limit_price: Optional[str] = None,
+    sl_limit_price: Optional[str] = None,
+    order_filter: Optional[str] = None,
+    trigger_by: Optional[str] = None,
+    tpsl_mode: Optional[str] = None,
 ) -> Dict[str, Any]:
     body: Dict[str, Any] = {
         "category": "spot",
@@ -42,6 +49,20 @@ def build_spot_order_body(
         body["slOrderType"] = sl_order_type
     if market_unit is not None:
         body["marketUnit"] = market_unit
+    if trigger_price is not None:
+        body["triggerPrice"] = trigger_price
+    if trigger_direction is not None:
+        body["triggerDirection"] = trigger_direction
+    if tp_limit_price is not None:
+        body["tpLimitPrice"] = tp_limit_price
+    if sl_limit_price is not None:
+        body["slLimitPrice"] = sl_limit_price
+    if order_filter is not None:
+        body["orderFilter"] = order_filter
+    if trigger_by is not None:
+        body["triggerBy"] = trigger_by
+    if tpsl_mode is not None:
+        body["tpslMode"] = tpsl_mode
     return body
 
 

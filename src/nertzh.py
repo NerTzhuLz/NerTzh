@@ -1559,6 +1559,9 @@ class NertzMetalEngine:
                         f"⏸️ Buy omitido para {symbol}: long abierto trade #{open_long.trade_id} (esperar sell)"
                     )
                     return
+                if decision == "sell" and open_long is None:
+                    logger.debug(f"⏸️ Sell omitido para {symbol}: sin long filled que cerrar")
+                    return
 
                 rules = await self._get_instrument_rules(symbol)
                 tick_size = float(rules.get("tick_size") or 0.01)
@@ -1582,10 +1585,12 @@ class NertzMetalEngine:
 
                 quantity = risk_per_trade / (volatility * last_price)
                 quantity = max(min(quantity, config.MAX_TRADE_SIZE), config.MIN_TRADE_SIZE)
-                if decision == "sell" and open_long is not None:
+                if decision == "sell":
                     held_qty = float(getattr(open_long, "quantity", 0.0) or 0.0)
-                    if held_qty > 0:
-                        quantity = min(quantity, held_qty)
+                    if held_qty <= 0:
+                        logger.debug(f"⏸️ Sell omitido para {symbol}: held_qty inválida")
+                        return
+                    quantity = held_qty
 
                 order_type_raw = config.ORDER_TYPE or "Limit"
                 order_type = {
@@ -1638,23 +1643,20 @@ class NertzMetalEngine:
                         logger.warning(f"⚠️ Cantidad ajustada ({quantity}) por debajo del mínimo. Saltando trade.")
                         return
 
-                tp, sl = calculate_tp_sl(entry_price, volatility, decision, config.TP_PERCENTAGE, config.SL_PERCENTAGE)
-                tp_dec = self._quantize_to_step(tp, tick_size, ROUND_HALF_UP)
-                sl_dec = self._quantize_to_step(sl, tick_size, ROUND_HALF_UP)
-                entry_dec = self._d(entry_price)
-                tick_dec = self._d(tick_size)
+                tp: Optional[float] = None
+                sl: Optional[float] = None
                 if decision == "buy":
+                    tp, sl = calculate_tp_sl(entry_price, volatility, decision, config.TP_PERCENTAGE, config.SL_PERCENTAGE)
+                    tp_dec = self._quantize_to_step(tp, tick_size, ROUND_HALF_UP)
+                    sl_dec = self._quantize_to_step(sl, tick_size, ROUND_HALF_UP)
+                    entry_dec = self._d(entry_price)
+                    tick_dec = self._d(tick_size)
                     if tp_dec <= entry_dec:
                         tp_dec = entry_dec + tick_dec
                     if sl_dec >= entry_dec:
                         sl_dec = entry_dec - tick_dec
-                else:
-                    if tp_dec >= entry_dec:
-                        tp_dec = entry_dec - tick_dec
-                    if sl_dec <= entry_dec:
-                        sl_dec = entry_dec + tick_dec
-                tp = float(tp_dec)
-                sl = float(sl_dec)
+                    tp = float(tp_dec)
+                    sl = float(sl_dec)
 
                 order_result = await self._place_order(symbol, decision, quantity, entry_price, tp, sl)
                 if not order_result.get("success", False):
@@ -1680,8 +1682,8 @@ class NertzMetalEngine:
                     bybit_raw=bybit_raw,
                     entry_price=entry_price,
                     exit_price=0.0,
-                    tp_price=float(tp),
-                    sl_price=float(sl),
+                    tp_price=(float(tp) if tp is not None else None),
+                    sl_price=(float(sl) if sl is not None else None),
                     quantity=quantity,
                     profit_loss=0.0,
                     outcome_status="pending",
@@ -2319,8 +2321,8 @@ class NertzMetalEngine:
 
         return {"success": True, "balance": {"total_equity": total_equity, "available_balance": available_balance}, "raw": payload}
 
-    async def _place_order(self, symbol: str, action: str, quantity: float, price: float, tp: float,
-                            sl: float) -> Dict:
+    async def _place_order(self, symbol: str, action: str, quantity: float, price: float, tp: Optional[float],
+                            sl: Optional[float]) -> Dict:
             if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)):
                 order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
                 order_id = f"demo-{uuid.uuid4().hex}"
@@ -2384,8 +2386,6 @@ class NertzMetalEngine:
                         time_in_force = "IOC"
 
                     qty_str = self._format_decimal(self._quantize_to_step(quantity, qty_step, ROUND_DOWN))
-                    tp_str = self._format_decimal(self._quantize_to_step(tp, tick_size, ROUND_HALF_UP))
-                    sl_str = self._format_decimal(self._quantize_to_step(sl, tick_size, ROUND_HALF_UP))
                     order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
 
                     spot_kwargs: Dict[str, Any] = {
@@ -2398,15 +2398,26 @@ class NertzMetalEngine:
                     }
                     if order_type == "Limit":
                         price_str = self._format_decimal(self._quantize_to_step(price, tick_size, ROUND_HALF_UP))
+                        spot_kwargs["price"] = price_str
                         spot_kwargs.update(
                             {
-                                "price": price_str,
-                                "take_profit": tp_str,
-                                "stop_loss": sl_str,
-                                "tp_order_type": "Market",
-                                "sl_order_type": "Market",
+                                "trigger_price": "0.0",
+                                "trigger_direction": 0,
+                                "tp_limit_price": "0",
+                                "sl_limit_price": "0",
                             }
                         )
+                        if tp is not None and sl is not None and tp > 0 and sl > 0:
+                            tp_str = self._format_decimal(self._quantize_to_step(tp, tick_size, ROUND_HALF_UP))
+                            sl_str = self._format_decimal(self._quantize_to_step(sl, tick_size, ROUND_HALF_UP))
+                            spot_kwargs.update(
+                                {
+                                    "take_profit": tp_str,
+                                    "stop_loss": sl_str,
+                                    "tp_order_type": "Market",
+                                    "sl_order_type": "Market",
+                                }
+                            )
                     elif order_type == "Market":
                         spot_kwargs["market_unit"] = "baseCoin"
                     body_params = build_spot_order_body(**spot_kwargs)
@@ -2415,8 +2426,13 @@ class NertzMetalEngine:
                     ret_code = result.get("retCode")
                     if http_status == 200 and ret_code == 0:
                         order_id = ((result.get("result") or {}).get("orderId")) or ""
+                        tp_sl_msg = (
+                            f", TP={tp:.2f}, SL={sl:.2f}"
+                            if tp is not None and sl is not None
+                            else ""
+                        )
                         logger.info(
-                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}, TP={tp:.2f}, SL={sl:.2f}, OrderID={order_id}"
+                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}{tp_sl_msg}, OrderID={order_id}"
                         )
                         return {"success": True, "order_id": order_id, "order_link_id": order_link_id, "raw": result}
 

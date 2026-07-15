@@ -257,6 +257,102 @@ class NertzMetalEngine:
             return value
         return "legacy"
 
+    def _outcome_horizon_seconds(self) -> int:
+        try:
+            return max(10, int(config.DEFAULT_SLEEP_TIME))
+        except Exception:
+            return 10
+
+    def _resolve_trade_entry_qty(self, trade: Trade) -> tuple[float, float]:
+        entry = self._safe_float(getattr(trade, "entry_price", 0.0))
+        qty = self._safe_float(getattr(trade, "quantity", 0.0))
+        raw = getattr(trade, "bybit_raw", None)
+        if isinstance(raw, dict):
+            order_info = raw.get("order_realtime") or raw.get("order_history") or {}
+            if isinstance(order_info, dict):
+                try:
+                    avg_price = float(order_info.get("avgPrice") or 0.0)
+                except Exception:
+                    avg_price = 0.0
+                try:
+                    cum_exec_qty = float(order_info.get("cumExecQty") or 0.0)
+                except Exception:
+                    cum_exec_qty = 0.0
+                if avg_price > 0:
+                    entry = self._safe_float(avg_price)
+                if cum_exec_qty > 0:
+                    qty = self._safe_float(cum_exec_qty)
+        return entry, qty
+
+    def _apply_trade_outcome_final(self, trade: Trade, exit_price: float, now: datetime) -> bool:
+        if exit_price <= 0:
+            return False
+        entry, qty = self._resolve_trade_entry_qty(trade)
+        if entry <= 0 or qty <= 0:
+            trade.outcome_status = "invalid_entry"
+            trade.outcome_timestamp = now
+            return True
+        fee_factor = 1.0 - float(config.FEE_RATE)
+        if str(trade.action or "").lower() == "buy":
+            pnl = (exit_price - entry) * qty * fee_factor
+        else:
+            pnl = (entry - exit_price) * qty * fee_factor
+        trade.exit_price = float(exit_price)
+        trade.profit_loss = float(pnl)
+        trade.outcome_status = "final"
+        trade.outcome_timestamp = now
+        return True
+
+    def _try_finalize_opposite_entry(self, db: Session, closing: Trade, exit_price: float) -> Optional[Trade]:
+        if exit_price <= 0:
+            return None
+        opp_action = "buy" if str(closing.action or "").lower() == "sell" else "sell"
+        entry_trade = (
+            db.query(Trade)
+            .filter(Trade.symbol == closing.symbol)
+            .filter(Trade.action == opp_action)
+            .filter(Trade.outcome_status == "filled")
+            .filter(Trade.trade_id < closing.trade_id)
+            .order_by(Trade.trade_id.desc())
+            .first()
+        )
+        if entry_trade is None:
+            return None
+        now = datetime.now(timezone.utc)
+        if self._apply_trade_outcome_final(entry_trade, exit_price, now):
+            return entry_trade
+        return None
+
+    async def _finalize_due_outcomes(self, db: Session, symbol: str, exit_price: float) -> Optional[Trade]:
+        if exit_price <= 0:
+            return None
+        horizon = self._outcome_horizon_seconds()
+        cutoff = datetime.now(timezone.utc) - timedelta(seconds=horizon)
+        pending = (
+            db.query(Trade)
+            .filter(Trade.symbol == symbol)
+            .filter(Trade.timestamp <= cutoff)
+            .filter(~Trade.outcome_status.in_(["final", "cancelled", "invalid_entry"]))
+            .order_by(Trade.timestamp.asc())
+            .limit(50)
+            .all()
+        )
+        if not pending:
+            return None
+
+        last_finalized: Optional[Trade] = None
+        now = datetime.now(timezone.utc)
+        for t in pending:
+            status = self._normalize_outcome_status(getattr(t, "outcome_status", None))
+            if status == "final":
+                continue
+            if self._apply_trade_outcome_final(t, exit_price, now):
+                last_finalized = t
+
+        if last_finalized is not None:
+            db.commit()
+        return last_finalized
+
     @staticmethod
     def _ml_sigmoid(z: np.ndarray) -> np.ndarray:
         zc = np.clip(z, -50.0, 50.0)
@@ -1416,6 +1512,10 @@ class NertzMetalEngine:
                     except Exception:
                         last_price = 0.0
 
+                finalized = await self._finalize_due_outcomes(db, symbol, last_price)
+                if finalized is not None:
+                    await self._save_results(symbol, finalized)
+
                 await self._record_metrics_snapshot(db, symbol, last_price, metrics, decision)
 
                 await self._auto_tune_thresholds_if_due()
@@ -1439,10 +1539,12 @@ class NertzMetalEngine:
                 if decision == "hold" or collect_only or in_cooldown:
                     return
 
+                # Solo bloquear mientras hay orden viva en exchange (pending/partial).
+                # filled = ejecutada, Bybit sin orden abierta → la DB/métricas mandan la siguiente.
                 active_trade = (
                     db.query(Trade)
                     .filter(Trade.symbol == symbol)
-                    .filter(Trade.outcome_status.in_(["pending", "partial", "filled"]))
+                    .filter(Trade.outcome_status.in_(["pending", "partial"]))
                     .order_by(Trade.timestamp.desc())
                     .first()
                 )
@@ -1845,7 +1947,7 @@ class NertzMetalEngine:
 
                     if is_bot_order and seconds_elapsed >= float(timeout_seconds):
                         if order_status in {"filled", "cancelled", "rejected", "deactivated"}:
-                            if await self._update_trade_from_bybit(trade, order):
+                            if await self._update_trade_from_bybit(db, trade, order):
                                 results["updated"] += 1
                                 changed = True
                             continue
@@ -1887,7 +1989,7 @@ class NertzMetalEngine:
                             results["errors"] += 1
                         continue
 
-                    if await self._update_trade_from_bybit(trade, order):
+                    if await self._update_trade_from_bybit(db, trade, order):
                         results["updated"] += 1
                         changed = True
 
@@ -1920,7 +2022,7 @@ class NertzMetalEngine:
 
             return {"success": True, "results": results}
 
-    async def _update_trade_from_bybit(self, trade: Trade, bybit_order: Dict[str, Any]) -> bool:
+    async def _update_trade_from_bybit(self, db: Session, trade: Trade, bybit_order: Dict[str, Any]) -> bool:
         try:
             order_status = str(bybit_order.get("orderStatus") or "").lower()
             avg_price = float(bybit_order.get("avgPrice") or 0.0)
@@ -1939,6 +2041,7 @@ class NertzMetalEngine:
             prev_status = str(getattr(trade, "outcome_status", "") or "")
             prev_entry = float(getattr(trade, "entry_price", 0.0) or 0.0)
             prev_qty = float(getattr(trade, "quantity", 0.0) or 0.0)
+            paired_finalized = False
             if order_status in {"new"}:
                 trade.outcome_status = "pending"
             elif order_status in {"partially_filled"}:
@@ -1957,6 +2060,13 @@ class NertzMetalEngine:
                     trade.quantity = float(cum_exec_qty)
                 trade.exit_price = 0.0
                 trade.profit_loss = float(-cum_fee) if cum_fee > 0 else 0.0
+                exit_for_pair = float(avg_price) if avg_price > 0 else 0.0
+                paired = self._try_finalize_opposite_entry(db, trade, exit_for_pair)
+                if paired is not None:
+                    paired_finalized = True
+                    logger.info(
+                        f"✅ Round-trip finalizado: entry #{paired.trade_id} cerrado por #{trade.trade_id} @ {exit_for_pair}"
+                    )
             elif order_status in {"cancelled", "rejected", "deactivated"}:
                 trade.outcome_status = order_status
                 trade.outcome_timestamp = now
@@ -1966,7 +2076,8 @@ class NertzMetalEngine:
                 trade.outcome_status = order_status or prev_status or "pending"
 
             return (
-                prev_status != str(trade.outcome_status or "")
+                paired_finalized
+                or prev_status != str(trade.outcome_status or "")
                 or prev_entry != float(getattr(trade, "entry_price", 0.0) or 0.0)
                 or prev_qty != float(getattr(trade, "quantity", 0.0) or 0.0)
             )

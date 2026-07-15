@@ -25,11 +25,15 @@ import numpy as np
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
-from bybit_v5 import BybitV5Client
+from bybit_v5 import BybitV5Client, build_linear_order_body, build_spot_order_body
 from models import Base, MarketData, Orderbook, MarketTicker, Trade, MetricSnapshot, BalanceSnapshot, ThresholdSnapshot
 # Importaciones corregidas
 from settings import ConfigSettings
@@ -2266,150 +2270,163 @@ class NertzMetalEngine:
         return {"success": True, "balance": {"total_equity": total_equity, "available_balance": available_balance}, "raw": payload}
 
     async def _place_order(self, symbol: str, action: str, quantity: float, price: float, tp: float,
-                           sl: float) -> Dict:
-        if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)):
-            order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
-            order_id = f"demo-{uuid.uuid4().hex}"
-            fee = float(quantity) * float(price) * float(getattr(config, "FEE_RATE", 0.0) or 0.0)
-            return {
-                "success": True,
-                "order_id": order_id,
-                "order_link_id": order_link_id,
-                "raw": {
-                    "mode": "disabled" if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)) else "live",
-                    "network": config.BYBIT_ENV,
-                    "retCode": 0,
-                    "retMsg": "OK",
-                    "result": {"orderId": order_id, "orderLinkId": order_link_id},
-                    "order_realtime": {
-                        "orderId": order_id,
-                        "orderLinkId": order_link_id,
-                        "symbol": symbol,
-                        "side": "Buy" if action.lower() == "buy" else "Sell",
-                        "orderType": str(getattr(config, "ORDER_TYPE", "Limit")),
-                        "orderStatus": "Filled",
-                        "avgPrice": str(price),
-                        "cumExecQty": str(quantity),
-                        "cumExecFee": str(fee),
-                    },
-                },
-            }
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                client = self._bybit_client()
-                if client is None:
-                    logger.error("❌ Credenciales de API no configuradas. No se puede colocar la orden.")
-                    return {"success": False, "message": "Credenciales BYBIT_API_KEY/BYBIT_API_SECRET no configuradas"}
-
-                rules = await self._get_instrument_rules(symbol)
-                tick_size = float(rules.get("tick_size") or 0.01)
-                qty_step = float(rules.get("qty_step") or float(config.MIN_TRADE_SIZE))
-
-                side = "Buy" if action.lower() == "buy" else "Sell"
-
-                order_type_raw = config.ORDER_TYPE or "Limit"
-                order_type = {
-                    "limit": "Limit",
-                    "Limit": "Limit",
-                    "market": "Market",
-                    "Market": "Market",
-                }.get(order_type_raw, "Limit")
-
-                tif_raw = config.TIME_IN_FORCE or "GTC"
-                time_in_force = {
-                    "GoodTillCancel": "GTC",
-                    "GTC": "GTC",
-                    "ImmediateOrCancel": "IOC",
-                    "IOC": "IOC",
-                    "FillOrKill": "FOK",
-                    "FOK": "FOK",
-                    "PostOnly": "PostOnly",
-                }.get(tif_raw, "GTC")
-                if order_type == "Market":
-                    time_in_force = "IOC"
-
-                qty_str = self._format_decimal(self._quantize_to_step(quantity, qty_step, ROUND_DOWN))
-                tp_str = self._format_decimal(self._quantize_to_step(tp, tick_size, ROUND_HALF_UP))
-                sl_str = self._format_decimal(self._quantize_to_step(sl, tick_size, ROUND_HALF_UP))
+                            sl: float) -> Dict:
+            if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)):
                 order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
-
-                body_params = {
-                    "category": "spot",
-                    "symbol": symbol,
-                    "side": side,
-                    "orderType": order_type,
-                    "qty": qty_str,
-                    "timeInForce": time_in_force,
-                    "orderLinkId": order_link_id,
+                order_id = f"demo-{uuid.uuid4().hex}"
+                fee = float(quantity) * float(price) * float(getattr(config, "FEE_RATE", 0.0) or 0.0)
+                return {
+                    "success": True,
+                    "order_id": order_id,
+                    "order_link_id": order_link_id,
+                    "raw": {
+                        "mode": "disabled" if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)) else "live",
+                        "network": config.BYBIT_ENV,
+                        "retCode": 0,
+                        "retMsg": "OK",
+                        "result": {"orderId": order_id, "orderLinkId": order_link_id},
+                        "order_realtime": {
+                            "orderId": order_id,
+                            "orderLinkId": order_link_id,
+                            "symbol": symbol,
+                            "side": "Buy" if action.lower() == "buy" else "Sell",
+                            "orderType": str(getattr(config, "ORDER_TYPE", "Limit")),
+                            "orderStatus": "Filled",
+                            "avgPrice": str(price),
+                            "cumExecQty": str(quantity),
+                            "cumExecFee": str(fee),
+                        },
+                    },
                 }
-                if order_type == "Limit":
-                    price_str = self._format_decimal(self._quantize_to_step(price, tick_size, ROUND_HALF_UP))
-                    body_params["price"] = price_str
-                    body_params["takeProfit"] = tp_str
-                    body_params["stopLoss"] = sl_str
-                    body_params["tpOrderType"] = "Market"
-                    body_params["slOrderType"] = "Market"
-                if order_type == "Market":
-                    body_params["marketUnit"] = "baseCoin"
-                result = await client.create_order(body_params)
-                http_status = result.get("http_status")
-                ret_code = result.get("retCode")
-                if http_status == 200 and ret_code == 0:
-                    order_id = ((result.get("result") or {}).get("orderId")) or ""
-                    logger.info(
-                        f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}, TP={tp:.2f}, SL={sl:.2f}, OrderID={order_id}"
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    client = self._bybit_client()
+                    if client is None:
+                        logger.error("❌ Credenciales de API no configuradas. No se puede colocar la orden.")
+                        return {"success": False, "message": "Credenciales BYBIT_API_KEY/BYBIT_API_SECRET no configuradas"}
+
+                    rules = await self._get_instrument_rules(symbol)
+                    tick_size = float(rules.get("tick_size") or 0.01)
+                    qty_step = float(rules.get("qty_step") or float(config.MIN_TRADE_SIZE))
+
+                    side = "Buy" if action.lower() == "buy" else "Sell"
+
+                    order_type_raw = config.ORDER_TYPE or "Limit"
+                    order_type = {
+                        "limit": "Limit",
+                        "Limit": "Limit",
+                        "market": "Market",
+                        "Market": "Market",
+                    }.get(order_type_raw, "Limit")
+
+                    tif_raw = config.TIME_IN_FORCE or "GTC"
+                    time_in_force = {
+                        "GoodTillCancel": "GTC",
+                        "GTC": "GTC",
+                        "ImmediateOrCancel": "IOC",
+                        "IOC": "IOC",
+                        "FillOrKill": "FOK",
+                        "FOK": "FOK",
+                        "PostOnly": "PostOnly",
+                    }.get(tif_raw, "GTC")
+                    if order_type == "Market":
+                        time_in_force = "IOC"
+
+                    qty_str = self._format_decimal(self._quantize_to_step(quantity, qty_step, ROUND_DOWN))
+                    tp_str = self._format_decimal(self._quantize_to_step(tp, tick_size, ROUND_HALF_UP))
+                    sl_str = self._format_decimal(self._quantize_to_step(sl, tick_size, ROUND_HALF_UP))
+                    order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
+
+                    spot_kwargs: Dict[str, Any] = {
+                        "symbol": symbol,
+                        "side": side,
+                        "order_type": order_type,
+                        "qty": qty_str,
+                        "time_in_force": time_in_force,
+                        "order_link_id": order_link_id,
+                        # Spot acepta TP/SL y condicionales (UI: Limite, TP/SL, Conditional).
+                        # Valores neutros en campos compartidos con linear; Bybit los ignora en spot.
+                        "reduce_only": False,
+                        "close_on_trigger": False,
+                        "trigger_price": "0.0",
+                        "trigger_direction": 0,
+                        "position_idx": 0,
+                        "tp_limit_price": "0",
+                        "sl_limit_price": "0",
+                    }
+                    if order_type == "Limit":
+                        price_str = self._format_decimal(self._quantize_to_step(price, tick_size, ROUND_HALF_UP))
+                        spot_kwargs.update(
+                            {
+                                "price": price_str,
+                                "take_profit": tp_str,
+                                "stop_loss": sl_str,
+                                "tp_order_type": "Market",
+                                "sl_order_type": "Market",
+                            }
+                        )
+                    elif order_type == "Market":
+                        spot_kwargs["market_unit"] = "baseCoin"
+                    body_params = build_spot_order_body(**spot_kwargs)
+                    result = await client.create_order(body_params)
+                    http_status = result.get("http_status")
+                    ret_code = result.get("retCode")
+                    if http_status == 200 and ret_code == 0:
+                        order_id = ((result.get("result") or {}).get("orderId")) or ""
+                        logger.info(
+                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}, TP={tp:.2f}, SL={sl:.2f}, OrderID={order_id}"
+                        )
+                        return {"success": True, "order_id": order_id, "order_link_id": order_link_id, "raw": result}
+
+                    if http_status == 429:
+                        logger.warning(f"⚠️ Rate limit alcanzado. Reintentando en {2 ** attempt}s...")
+                        await asyncio.sleep(2 ** attempt)
+                        continue
+
+                    if order_type == "Limit" and http_status == 200 and ret_code in {170193, 170194}:
+                        msg = str(result.get("retMsg") or "")
+                        nums = []
+                        cur = ""
+                        for ch in msg:
+                            if ch.isdigit() or ch == ".":
+                                cur += ch
+                            else:
+                                if cur:
+                                    nums.append(cur)
+                                    cur = ""
+                        if cur:
+                            nums.append(cur)
+
+                        if nums:
+                            try:
+                                limit_price = float(nums[-1])
+                                if limit_price > 0:
+                                    current_price = float(body_params.get("price") or 0.0)
+                                    if ret_code == 170193:
+                                        new_price = min(current_price, limit_price)
+                                    else:
+                                        new_price = max(current_price, limit_price)
+                                    new_price = float(self._quantize_to_step(new_price, tick_size, ROUND_HALF_UP))
+                                    price = new_price
+                                    body_params["price"] = self._format_decimal(self._d(new_price))
+                                    await asyncio.sleep(0)
+                                    continue
+                            except Exception:
+                                pass
+
+                    error_msg = result.get("retMsg", "Error desconocido")
+                    logger.error(
+                        f"❌ Error al colocar orden (HTTP {http_status}): retCode={ret_code}, retMsg={error_msg}"
                     )
-                    return {"success": True, "order_id": order_id, "order_link_id": order_link_id, "raw": result}
-
-                if http_status == 429:
-                    logger.warning(f"⚠️ Rate limit alcanzado. Reintentando en {2 ** attempt}s...")
-                    await asyncio.sleep(2 ** attempt)
-                    continue
-
-                if order_type == "Limit" and http_status == 200 and ret_code in {170193, 170194}:
-                    msg = str(result.get("retMsg") or "")
-                    nums = []
-                    cur = ""
-                    for ch in msg:
-                        if ch.isdigit() or ch == ".":
-                            cur += ch
-                        else:
-                            if cur:
-                                nums.append(cur)
-                                cur = ""
-                    if cur:
-                        nums.append(cur)
-
-                    if nums:
-                        try:
-                            limit_price = float(nums[-1])
-                            if limit_price > 0:
-                                current_price = float(body_params.get("price") or 0.0)
-                                if ret_code == 170193:
-                                    new_price = min(current_price, limit_price)
-                                else:
-                                    new_price = max(current_price, limit_price)
-                                new_price = float(self._quantize_to_step(new_price, tick_size, ROUND_HALF_UP))
-                                price = new_price
-                                body_params["price"] = self._format_decimal(self._d(new_price))
-                                await asyncio.sleep(0)
-                                continue
-                        except Exception:
-                            pass
-
-                error_msg = result.get("retMsg", "Error desconocido")
-                logger.error(
-                    f"❌ Error al colocar orden (HTTP {http_status}): retCode={ret_code}, retMsg={error_msg}"
-                )
-                return {"success": False, "message": error_msg, "raw": result}
-            except Exception as e:
-                logger.error(f"❌ Error en intento {attempt + 1}/{max_retries}: {str(e)}")
-                if attempt < max_retries - 1:
-                    await asyncio.sleep(2 ** attempt)
-                else:
-                    return {"success": False, "message": f"Error tras {max_retries} intentos: {str(e)}"}
-        return {"success": False, "message": f"Falló tras {max_retries} intentos"}
+                    return {"success": False, "message": error_msg, "raw": result}
+                except Exception as e:
+                    logger.error(f"❌ Error en intento {attempt + 1}/{max_retries}: {str(e)}")
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(2 ** attempt)
+                    else:
+                        return {"success": False, "message": f"Error tras {max_retries} intentos: {str(e)}"}
+            return {"success": False, "message": f"Falló tras {max_retries} intentos"}
 
     def reset_trades(self):
         self.positions = {symbol: [] for symbol in self.symbols}
@@ -2614,6 +2631,103 @@ async def lifespan(_: FastAPI):
         bot.stop()
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+ROOT = Path(__file__).resolve().parent.parent
+ROOT_WEB = ROOT / "web_ui"
+if ROOT_WEB.exists():
+    app.mount("/web", StaticFiles(directory=str(ROOT_WEB), html=True), name="web")
+
+
+class ChatIn(BaseModel):
+    message: str = Field(..., min_length=1)
+    symbol: str = "BTCUSDT"
+
+
+@app.get("/")
+async def root():
+    return {
+        "message": "NertzMetalEngine",
+        "docs": "/docs",
+        "health": "/health",
+        "web": "/web/",
+        "agent_chat": "/agent/chat",
+    }
+
+
+@app.get("/web")
+async def web_ui_redirect():
+    from fastapi.responses import RedirectResponse
+
+    return RedirectResponse(url="/web/")
+
+
+@app.get("/agent/chat")
+async def agent_chat_get():
+    return {
+        "ok": False,
+        "hint": "Usa POST /agent/chat con JSON: {\"message\": \"...\", \"symbol\": \"BTCUSDT\"}",
+    }
+
+
+@app.get("/agent/context")
+async def agent_context(symbol: str = "BTCUSDT"):
+    from context_bridge import digest, ensure_layout
+
+    ensure_layout()
+    results = ROOT / "logs" / "results.json"
+    summary = {}
+    if results.exists():
+        try:
+            data = json.loads(results.read_text(encoding="utf-8"))
+            summary = {
+                "metadata": data.get("metadata"),
+                "summary": data.get("summary"),
+                "last_trade": data.get("last_trade"),
+            }
+        except Exception as e:
+            summary = {"error": str(e)}
+    return {
+        "symbol": symbol,
+        "bridge_digest": digest()[:4000],
+        "results": summary,
+        "bybit_env": os.getenv("ENV", "demo"),
+    }
+
+
+@app.get("/bridge/status", response_class=PlainTextResponse)
+async def bridge_status() -> str:
+    from context_bridge import digest
+
+    return digest()
+
+
+@app.post("/agent/chat")
+async def agent_chat(body: ChatIn):
+    from context_bridge import append_conversation, digest
+    from gpt_integration import GPTClient
+
+    append_conversation("user", body.message, source="api", agent="engine")
+    context = digest()[:6000]
+    reply = None
+    backend = "none"
+    try:
+        client = GPTClient()
+        backend = client.mode
+        reply = client.chat(
+            f"Symbol={body.symbol}\n\nBridge context:\n{context}\n\nUser: {body.message}\n\n"
+            "Responde en español con: razonamiento breve, decisión y contexto local."
+        )
+    except Exception as e:
+        reply = f"[sin LLM backend: {e}]\n\nContexto local (bridge):\n{context[:2500]}"
+    append_conversation("assistant", reply or "", source="api", agent="engine")
+    return {"ok": True, "backend": backend, "reply": reply, "symbol": body.symbol}
 
 
 @app.get("/settings")

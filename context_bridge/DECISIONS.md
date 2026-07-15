@@ -56,3 +56,15 @@
 ## 2026-07-15T04:35:39.292704+00:00 — Devpost submission completed
 - **Agent:** assistant
 - **Body:** Successfully registered project NerTzh for OpenAI Build Week and submitted it via Devpost MCP server (submission id 1078682). Added video placeholder explanation regarding prompt token limits.
+
+## 2026-07-15T05:02:56.264251+00:00 — Devpost version 8 updated
+- **Agent:** assistant
+- **Body:** Registered project NerTzh for OpenAI Build Week and submitted it via Devpost MCP server (submission id 1078682) using new JWT. Included real trading results: 330 trades, 51.2% win rate, and +233.64 USDT capital gain.
+
+## 2026-07-15T09:27:00.789560+00:00 — fix: spot order sin campos linear
+- **Agent:** human
+- **Body:** causa=payload spot llevaba reduceOnly/triggerPrice/positionIdx de linear; cambio=_place_order solo pasa price/tp/sl/marketUnit via build_spot_order_body; diff≈20 líneas; tests=2/2 OK
+
+## 2026-07-15T09:31:10.850160+00:00 — revert: restaurar payload spot completo
+- **Agent:** human
+- **Body:** causa=removí campos que spot sí usa (TP/SL/conditional); evidencia=results.json 330 trades Filled con triggerPrice/tpLimitPrice; restaurado payload previo via build_spot_order_body

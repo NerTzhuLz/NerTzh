@@ -4,6 +4,176 @@ import random
 import time
 from typing import Any, Dict, Optional, Tuple
 
+
+def build_spot_order_body(
+    *,
+    symbol: str,
+    side: str,
+    order_type: str,
+    qty: str,
+    time_in_force: str = "GTC",
+    order_link_id: Optional[str] = None,
+    price: Optional[str] = None,
+    take_profit: Optional[str] = None,
+    stop_loss: Optional[str] = None,
+    tp_order_type: Optional[str] = None,
+    sl_order_type: Optional[str] = None,
+    market_unit: Optional[str] = None,
+    reduce_only: Optional[bool] = None,
+    close_on_trigger: Optional[bool] = None,
+    trigger_price: Optional[str] = None,
+    trigger_direction: Optional[int] = None,
+    position_idx: Optional[int] = None,
+    tp_limit_price: Optional[str] = None,
+    sl_limit_price: Optional[str] = None,
+    trigger_by: Optional[str] = None,
+    order_filter: Optional[str] = None,
+    smp_type: Optional[str] = None,
+    mmp: Optional[bool] = None,
+    tpsl_mode: Optional[str] = None,
+    bbo_side_type: Optional[str] = None,
+    bbo_level: Optional[str] = None,
+    rpi_taker_access: Optional[bool] = None,
+) -> Dict[str, Any]:
+    body: Dict[str, Any] = {
+        "category": "spot",
+        "symbol": symbol,
+        "side": side,
+        "orderType": order_type,
+        "qty": qty,
+        "timeInForce": time_in_force,
+    }
+    if order_link_id is not None:
+        body["orderLinkId"] = order_link_id
+    if price is not None:
+        body["price"] = price
+    if take_profit is not None:
+        body["takeProfit"] = take_profit
+    if stop_loss is not None:
+        body["stopLoss"] = stop_loss
+    if tp_order_type is not None:
+        body["tpOrderType"] = tp_order_type
+    if sl_order_type is not None:
+        body["slOrderType"] = sl_order_type
+    if market_unit is not None:
+        body["marketUnit"] = market_unit
+    if reduce_only is not None:
+        body["reduceOnly"] = reduce_only
+    if close_on_trigger is not None:
+        body["closeOnTrigger"] = close_on_trigger
+    if trigger_price is not None:
+        body["triggerPrice"] = trigger_price
+    if trigger_direction is not None:
+        body["triggerDirection"] = trigger_direction
+    if position_idx is not None:
+        body["positionIdx"] = position_idx
+    if tp_limit_price is not None:
+        body["tpLimitPrice"] = tp_limit_price
+    if sl_limit_price is not None:
+        body["slLimitPrice"] = sl_limit_price
+    if trigger_by is not None:
+        body["triggerBy"] = trigger_by
+    if order_filter is not None:
+        body["orderFilter"] = order_filter
+    if smp_type is not None:
+        body["smpType"] = smp_type
+    if mmp is not None:
+        body["mmp"] = mmp
+    if tpsl_mode is not None:
+        body["tpslMode"] = tpsl_mode
+    if bbo_side_type is not None:
+        body["bboSideType"] = bbo_side_type
+    if bbo_level is not None:
+        body["bboLevel"] = bbo_level
+    if rpi_taker_access is not None:
+        body["rpiTakerAccess"] = rpi_taker_access
+    return body
+
+
+def build_linear_order_body(
+    *,
+    symbol: str,
+    side: str,
+    order_type: str,
+    qty: str,
+    time_in_force: str = "GTC",
+    order_link_id: Optional[str] = None,
+    price: Optional[str] = None,
+    take_profit: Optional[str] = None,
+    stop_loss: Optional[str] = None,
+    tp_order_type: Optional[str] = None,
+    sl_order_type: Optional[str] = None,
+    market_unit: Optional[str] = None,
+    reduce_only: Optional[bool] = None,
+    close_on_trigger: Optional[bool] = None,
+    trigger_price: Optional[str] = None,
+    trigger_direction: Optional[int] = None,
+    position_idx: Optional[int] = None,
+    tp_limit_price: Optional[str] = None,
+    sl_limit_price: Optional[str] = None,
+    trigger_by: Optional[str] = None,
+    order_filter: Optional[str] = None,
+    smp_type: Optional[str] = None,
+    mmp: Optional[bool] = None,
+    tpsl_mode: Optional[str] = None,
+    bbo_side_type: Optional[str] = None,
+    bbo_level: Optional[str] = None,
+    rpi_taker_access: Optional[bool] = None,
+) -> Dict[str, Any]:
+    body: Dict[str, Any] = {
+        "category": "linear",
+        "symbol": symbol,
+        "side": side,
+        "orderType": order_type,
+        "qty": qty,
+        "timeInForce": time_in_force,
+    }
+    if order_link_id is not None:
+        body["orderLinkId"] = order_link_id
+    if price is not None:
+        body["price"] = price
+    if take_profit is not None:
+        body["takeProfit"] = take_profit
+    if stop_loss is not None:
+        body["stopLoss"] = stop_loss
+    if tp_order_type is not None:
+        body["tpOrderType"] = tp_order_type
+    if sl_order_type is not None:
+        body["slOrderType"] = sl_order_type
+    if market_unit is not None:
+        body["marketUnit"] = market_unit
+    if reduce_only is not None:
+        body["reduceOnly"] = reduce_only
+    if close_on_trigger is not None:
+        body["closeOnTrigger"] = close_on_trigger
+    if trigger_price is not None:
+        body["triggerPrice"] = trigger_price
+    if trigger_direction is not None:
+        body["triggerDirection"] = trigger_direction
+    if position_idx is not None:
+        body["positionIdx"] = position_idx
+    if tp_limit_price is not None:
+        body["tpLimitPrice"] = tp_limit_price
+    if sl_limit_price is not None:
+        body["slLimitPrice"] = sl_limit_price
+    if trigger_by is not None:
+        body["triggerBy"] = trigger_by
+    if order_filter is not None:
+        body["orderFilter"] = order_filter
+    if smp_type is not None:
+        body["smpType"] = smp_type
+    if mmp is not None:
+        body["mmp"] = mmp
+    if tpsl_mode is not None:
+        body["tpslMode"] = tpsl_mode
+    if bbo_side_type is not None:
+        body["bboSideType"] = bbo_side_type
+    if bbo_level is not None:
+        body["bboLevel"] = bbo_level
+    if rpi_taker_access is not None:
+        body["rpiTakerAccess"] = rpi_taker_access
+    return body
+
 import aiohttp
 
 from utils import generate_signature
@@ -313,5 +483,5 @@ class BybitV5Client:
             "http_status": http_status,
             "retCode": ret_code,
             "retMsg": ret_msg,
-            "result": {"list": list(merged.values())},
+            "result": {"list": list[Dict[str, Any]](merged.values())},
         }

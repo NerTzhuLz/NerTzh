@@ -19,21 +19,6 @@ def build_spot_order_body(
     tp_order_type: Optional[str] = None,
     sl_order_type: Optional[str] = None,
     market_unit: Optional[str] = None,
-    reduce_only: Optional[bool] = None,
-    close_on_trigger: Optional[bool] = None,
-    trigger_price: Optional[str] = None,
-    trigger_direction: Optional[int] = None,
-    position_idx: Optional[int] = None,
-    tp_limit_price: Optional[str] = None,
-    sl_limit_price: Optional[str] = None,
-    trigger_by: Optional[str] = None,
-    order_filter: Optional[str] = None,
-    smp_type: Optional[str] = None,
-    mmp: Optional[bool] = None,
-    tpsl_mode: Optional[str] = None,
-    bbo_side_type: Optional[str] = None,
-    bbo_level: Optional[str] = None,
-    rpi_taker_access: Optional[bool] = None,
 ) -> Dict[str, Any]:
     body: Dict[str, Any] = {
         "category": "spot",
@@ -57,36 +42,6 @@ def build_spot_order_body(
         body["slOrderType"] = sl_order_type
     if market_unit is not None:
         body["marketUnit"] = market_unit
-    if reduce_only is not None:
-        body["reduceOnly"] = reduce_only
-    if close_on_trigger is not None:
-        body["closeOnTrigger"] = close_on_trigger
-    if trigger_price is not None:
-        body["triggerPrice"] = trigger_price
-    if trigger_direction is not None:
-        body["triggerDirection"] = trigger_direction
-    if position_idx is not None:
-        body["positionIdx"] = position_idx
-    if tp_limit_price is not None:
-        body["tpLimitPrice"] = tp_limit_price
-    if sl_limit_price is not None:
-        body["slLimitPrice"] = sl_limit_price
-    if trigger_by is not None:
-        body["triggerBy"] = trigger_by
-    if order_filter is not None:
-        body["orderFilter"] = order_filter
-    if smp_type is not None:
-        body["smpType"] = smp_type
-    if mmp is not None:
-        body["mmp"] = mmp
-    if tpsl_mode is not None:
-        body["tpslMode"] = tpsl_mode
-    if bbo_side_type is not None:
-        body["bboSideType"] = bbo_side_type
-    if bbo_level is not None:
-        body["bboLevel"] = bbo_level
-    if rpi_taker_access is not None:
-        body["rpiTakerAccess"] = rpi_taker_access
     return body
 
 

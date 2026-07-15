@@ -2395,13 +2395,6 @@ class NertzMetalEngine:
                         "qty": qty_str,
                         "time_in_force": time_in_force,
                         "order_link_id": order_link_id,
-                        "reduce_only": False,
-                        "close_on_trigger": False,
-                        "trigger_price": "0.0",
-                        "trigger_direction": 0,
-                        "position_idx": 0,
-                        "tp_limit_price": "0",
-                        "sl_limit_price": "0",
                     }
                     if order_type == "Limit":
                         price_str = self._format_decimal(self._quantize_to_step(price, tick_size, ROUND_HALF_UP))

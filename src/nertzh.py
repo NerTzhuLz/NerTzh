@@ -29,11 +29,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from pydantic import BaseModel, Field
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
-from bybit_v5 import BybitV5Client, build_linear_order_body, build_spot_order_body
+from agent_routes import router as agent_router
+from bybit_v5 import BybitV5Client, build_spot_order_body
 from models import Base, MarketData, Orderbook, MarketTicker, Trade, MetricSnapshot, BalanceSnapshot, ThresholdSnapshot
 # Importaciones corregidas
 from settings import ConfigSettings
@@ -44,7 +44,7 @@ from utils import (
     append_results_event,
     load_results_json,
     timestamp_to_datetime,
-    calculate_tp_sl,
+
 )
 
 # Cargar variables desde el archivo .env del proyecto (raíz de _Metrics_)
@@ -252,12 +252,6 @@ class NertzMetalEngine:
             logger.error(f"❌ Error al obtener el capital inicial de Bybit: {e}")
             self.capital = 0.0
 
-    def _outcome_horizon_seconds(self) -> int:
-        try:
-            return max(10, int(config.DEFAULT_SLEEP_TIME))
-        except Exception:
-            return 10
-
     def _normalize_outcome_status(self, value: Any) -> str:
         if isinstance(value, str) and value.strip():
             return value
@@ -429,66 +423,6 @@ class NertzMetalEngine:
                         "samples": ((res.get("model") or {}).get("samples") if isinstance(res.get("model"), dict) else None),
                     }
                 )
-
-    async def _finalize_due_outcomes(self, db: Session, symbol: str, exit_price: float) -> Optional[Trade]:
-        if exit_price <= 0:
-            return None
-        horizon = self._outcome_horizon_seconds()
-        cutoff = datetime.now(timezone.utc) - timedelta(seconds=horizon)
-        pending = (
-            db.query(Trade)
-            .filter(Trade.symbol == symbol)
-            .filter(Trade.timestamp <= cutoff)
-            .filter(~Trade.outcome_status.in_(["final", "cancelled", "invalid_entry"]))
-            .order_by(Trade.timestamp.asc())
-            .limit(50)
-            .all()
-        )
-        if not pending:
-            return None
-
-        last_finalized: Optional[Trade] = None
-        fee_factor = 1 - float(config.FEE_RATE)
-        now = datetime.now(timezone.utc)
-        for t in pending:
-            status = self._normalize_outcome_status(getattr(t, "outcome_status", None))
-            if status == "final":
-                continue
-            entry = self._safe_float(getattr(t, "entry_price", 0.0))
-            qty = self._safe_float(getattr(t, "quantity", 0.0))
-            raw = getattr(t, "bybit_raw", None)
-            if isinstance(raw, dict):
-                order_info = raw.get("order_realtime") or raw.get("order_history") or {}
-                if isinstance(order_info, dict):
-                    try:
-                        avg_price = float(order_info.get("avgPrice") or 0.0)
-                    except Exception:
-                        avg_price = 0.0
-                    try:
-                        cum_exec_qty = float(order_info.get("cumExecQty") or 0.0)
-                    except Exception:
-                        cum_exec_qty = 0.0
-                    if avg_price > 0:
-                        entry = self._safe_float(avg_price)
-                    if cum_exec_qty > 0:
-                        qty = self._safe_float(cum_exec_qty)
-            if entry <= 0 or qty <= 0:
-                t.outcome_status = "invalid_entry"
-                t.outcome_timestamp = now
-                continue
-            if t.action == "buy":
-                pnl = (exit_price - entry) * qty * fee_factor
-            else:
-                pnl = (entry - exit_price) * qty * fee_factor
-            t.exit_price = float(exit_price)
-            t.profit_loss = float(pnl)
-            t.outcome_status = "final"
-            t.outcome_timestamp = now
-            last_finalized = t
-
-        if last_finalized is not None:
-            db.commit()
-        return last_finalized
 
     def schedule_start(self) -> bool:
         if self._start_task and not self._start_task.done():
@@ -1487,9 +1421,6 @@ class NertzMetalEngine:
                     except Exception:
                         last_price = 0.0
 
-                finalized = await self._finalize_due_outcomes(db, symbol, last_price)
-                if finalized is not None:
-                    await self._save_results(symbol, finalized)
                 await self._record_metrics_snapshot(db, symbol, last_price, metrics, decision)
 
                 await self._auto_tune_thresholds_if_due()
@@ -1597,25 +1528,7 @@ class NertzMetalEngine:
                         logger.warning(f"⚠️ Cantidad ajustada ({quantity}) por debajo del mínimo. Saltando trade.")
                         return
 
-                tp, sl = calculate_tp_sl(entry_price, volatility, decision, config.TP_PERCENTAGE, config.SL_PERCENTAGE)
-                tp_dec = self._quantize_to_step(tp, tick_size, ROUND_HALF_UP)
-                sl_dec = self._quantize_to_step(sl, tick_size, ROUND_HALF_UP)
-                entry_dec = self._d(entry_price)
-                tick_dec = self._d(tick_size)
-                if decision == "buy":
-                    if tp_dec <= entry_dec:
-                        tp_dec = entry_dec + tick_dec
-                    if sl_dec >= entry_dec:
-                        sl_dec = entry_dec - tick_dec
-                else:
-                    if tp_dec >= entry_dec:
-                        tp_dec = entry_dec - tick_dec
-                    if sl_dec <= entry_dec:
-                        sl_dec = entry_dec + tick_dec
-                tp = float(tp_dec)
-                sl = float(sl_dec)
-
-                order_result = await self._place_order(symbol, decision, quantity, entry_price, tp, sl)
+                order_result = await self._place_order(symbol, decision, quantity, entry_price)
                 if not order_result.get("success", False):
                     logger.error(
                         f"❌ Fallo al colocar orden para {symbol}: {order_result.get('message', 'Error desconocido')}")
@@ -1639,8 +1552,8 @@ class NertzMetalEngine:
                     bybit_raw=bybit_raw,
                     entry_price=entry_price,
                     exit_price=0.0,
-                    tp_price=float(tp),
-                    sl_price=float(sl),
+                    tp_price=None,
+                    sl_price=None,
                     quantity=quantity,
                     profit_loss=0.0,
                     outcome_status="pending",
@@ -1690,7 +1603,7 @@ class NertzMetalEngine:
                     }
 
                 logger.info(
-                    f"💰 Orden colocada: {decision.upper()} {quantity:.4f} {symbol} @ {entry_price:.2f}, TP={tp:.2f}, SL={sl:.2f}, OrderID={order_id}")
+                    f"💰 Orden colocada: {decision.upper()} {quantity:.4f} {symbol} @ {entry_price:.2f}, OrderID={order_id}")
 
                 self.iterations += 1
                 if self.iterations >= config.MAX_ITERATIONS > 0:
@@ -2269,8 +2182,7 @@ class NertzMetalEngine:
 
         return {"success": True, "balance": {"total_equity": total_equity, "available_balance": available_balance}, "raw": payload}
 
-    async def _place_order(self, symbol: str, action: str, quantity: float, price: float, tp: float,
-                            sl: float) -> Dict:
+    async def _place_order(self, symbol: str, action: str, quantity: float, price: float) -> Dict:
             if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)):
                 order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
                 order_id = f"demo-{uuid.uuid4().hex}"
@@ -2334,8 +2246,6 @@ class NertzMetalEngine:
                         time_in_force = "IOC"
 
                     qty_str = self._format_decimal(self._quantize_to_step(quantity, qty_step, ROUND_DOWN))
-                    tp_str = self._format_decimal(self._quantize_to_step(tp, tick_size, ROUND_HALF_UP))
-                    sl_str = self._format_decimal(self._quantize_to_step(sl, tick_size, ROUND_HALF_UP))
                     order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
 
                     spot_kwargs: Dict[str, Any] = {
@@ -2345,27 +2255,10 @@ class NertzMetalEngine:
                         "qty": qty_str,
                         "time_in_force": time_in_force,
                         "order_link_id": order_link_id,
-                        # Spot acepta TP/SL y condicionales (UI: Limite, TP/SL, Conditional).
-                        # Valores neutros en campos compartidos con linear; Bybit los ignora en spot.
-                        "reduce_only": False,
-                        "close_on_trigger": False,
-                        "trigger_price": "0.0",
-                        "trigger_direction": 0,
-                        "position_idx": 0,
-                        "tp_limit_price": "0",
-                        "sl_limit_price": "0",
                     }
                     if order_type == "Limit":
                         price_str = self._format_decimal(self._quantize_to_step(price, tick_size, ROUND_HALF_UP))
-                        spot_kwargs.update(
-                            {
-                                "price": price_str,
-                                "take_profit": tp_str,
-                                "stop_loss": sl_str,
-                                "tp_order_type": "Market",
-                                "sl_order_type": "Market",
-                            }
-                        )
+                        spot_kwargs["price"] = price_str
                     elif order_type == "Market":
                         spot_kwargs["market_unit"] = "baseCoin"
                     body_params = build_spot_order_body(**spot_kwargs)
@@ -2375,7 +2268,7 @@ class NertzMetalEngine:
                     if http_status == 200 and ret_code == 0:
                         order_id = ((result.get("result") or {}).get("orderId")) or ""
                         logger.info(
-                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}, TP={tp:.2f}, SL={sl:.2f}, OrderID={order_id}"
+                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}, OrderID={order_id}"
                         )
                         return {"success": True, "order_id": order_id, "order_link_id": order_link_id, "raw": result}
 
@@ -2644,10 +2537,7 @@ ROOT_WEB = ROOT / "web_ui"
 if ROOT_WEB.exists():
     app.mount("/web", StaticFiles(directory=str(ROOT_WEB), html=True), name="web")
 
-
-class ChatIn(BaseModel):
-    message: str = Field(..., min_length=1)
-    symbol: str = "BTCUSDT"
+app.include_router(agent_router)
 
 
 @app.get("/")
@@ -2666,68 +2556,6 @@ async def web_ui_redirect():
     from fastapi.responses import RedirectResponse
 
     return RedirectResponse(url="/web/")
-
-
-@app.get("/agent/chat")
-async def agent_chat_get():
-    return {
-        "ok": False,
-        "hint": "Usa POST /agent/chat con JSON: {\"message\": \"...\", \"symbol\": \"BTCUSDT\"}",
-    }
-
-
-@app.get("/agent/context")
-async def agent_context(symbol: str = "BTCUSDT"):
-    from context_bridge import digest, ensure_layout
-
-    ensure_layout()
-    results = ROOT / "logs" / "results.json"
-    summary = {}
-    if results.exists():
-        try:
-            data = json.loads(results.read_text(encoding="utf-8"))
-            summary = {
-                "metadata": data.get("metadata"),
-                "summary": data.get("summary"),
-                "last_trade": data.get("last_trade"),
-            }
-        except Exception as e:
-            summary = {"error": str(e)}
-    return {
-        "symbol": symbol,
-        "bridge_digest": digest()[:4000],
-        "results": summary,
-        "bybit_env": os.getenv("ENV", "demo"),
-    }
-
-
-@app.get("/bridge/status", response_class=PlainTextResponse)
-async def bridge_status() -> str:
-    from context_bridge import digest
-
-    return digest()
-
-
-@app.post("/agent/chat")
-async def agent_chat(body: ChatIn):
-    from context_bridge import append_conversation, digest
-    from gpt_integration import GPTClient
-
-    append_conversation("user", body.message, source="api", agent="engine")
-    context = digest()[:6000]
-    reply = None
-    backend = "none"
-    try:
-        client = GPTClient()
-        backend = client.mode
-        reply = client.chat(
-            f"Symbol={body.symbol}\n\nBridge context:\n{context}\n\nUser: {body.message}\n\n"
-            "Responde en español con: razonamiento breve, decisión y contexto local."
-        )
-    except Exception as e:
-        reply = f"[sin LLM backend: {e}]\n\nContexto local (bridge):\n{context[:2500]}"
-    append_conversation("assistant", reply or "", source="api", agent="engine")
-    return {"ok": True, "backend": backend, "reply": reply, "symbol": body.symbol}
 
 
 @app.get("/settings")

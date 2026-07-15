@@ -871,19 +871,14 @@ def calculate_metrics(candle_data: List[Dict[str, float]], orderbook_data: Dict[
         egm_raw = (pio_z * (1.0 + abs(asymmetry))) + bonus
         egm_z = _z(egm_raw, "egm")
 
-        from regime_config import classify_vol_regime, combined_from_weights, get_regime_profile
-
-        regime_label = classify_vol_regime(volatility)
-        regime_profile = get_regime_profile(regime_label)
-        regime_weights = regime_profile.get("weights") or {}
-        combined, combined_z = combined_from_weights(
-            pio_z=pio_z,
-            egm_z=egm_z,
-            ild_z=ild_z,
-            rol_z=rol_z,
-            ogm_z=ogm_z,
-            weights=regime_weights,
+        combined_z = (
+            0.45 * pio_z
+            + 0.30 * egm_z
+            - 0.15 * ild_z
+            + 0.10 * rol_z
+            + 0.05 * ogm_z
         )
+        combined = float(combined_z * 10.0)
 
         formulas = ticker_data.get("formulas") or {}
         if isinstance(formulas, str) and formulas.strip():
@@ -949,12 +944,6 @@ def calculate_metrics(candle_data: List[Dict[str, float]], orderbook_data: Dict[
             "pio": float(pio_z),
             "ogm": float(ogm_z),
             "volatility": float(volatility),
-            "regime": {
-                "label": regime_label,
-                "thresholds": dict(regime_profile.get("thresholds") or {}),
-                "weights": dict(regime_weights),
-            },
-            "combined_weights": dict(regime_weights),
             "pio_raw": float(pio_raw),
             "ild_raw": float(ild_raw),
             "egm_raw": float(egm_raw),
@@ -966,6 +955,22 @@ def calculate_metrics(candle_data: List[Dict[str, float]], orderbook_data: Dict[
     except Exception as e:
         logger.error(f"Error en calculate_metrics: {e}", exc_info=True)
         return {"combined": 0.0, "ild": 0.0, "egm": 0.0, "rol": 0.0, "pio": 0.0, "ogm": 0.0, "volatility": 0.0}
+
+def calculate_tp_sl(price: float, volatility: float, action: str, tp_factor: float = 1.5, sl_factor: float = 1.0) -> Tuple[float, float]:
+    """Calcula Take Profit y Stop Loss dinámicos basados en volatilidad."""
+    try:
+        price_range = volatility * price
+        if action.lower() == "buy":
+            tp = price + (price_range * tp_factor)
+            sl = price - (price_range * sl_factor)
+        else:
+            tp = price - (price_range * tp_factor)
+            sl = price + (price_range * sl_factor)
+        return round(tp, 2), round(sl, 2)
+    except Exception as e:
+        logger.error(f"❌ Error en calculate_tp_sl: {e}")
+        return 0.0, 0.0
+
 
 def calculate_rolling_volatility(prices: List[float], window: int) -> float:
     """

@@ -40,6 +40,7 @@ from settings import ConfigSettings
 from utils import (
     calculate_metrics,
     calculate_discovery_metrics,
+    calculate_tp_sl,
     save_results,
     append_results_event,
     load_results_json,
@@ -957,16 +958,9 @@ class NertzMetalEngine:
         pio = float(metrics.get("pio", 0.0) or 0.0)
         combined = float(metrics.get("combined", 0.0) or 0.0)
 
-        regime = metrics.get("regime") if isinstance(metrics.get("regime"), dict) else {}
-        regime_thr = regime.get("thresholds") if isinstance(regime.get("thresholds"), dict) else {}
-        if regime_thr:
-            buy_th = float(regime_thr.get("combined_buy_threshold") or getattr(config, "COMBINED_BUY_THRESHOLD", 4.5))
-            sell_th = float(regime_thr.get("combined_sell_threshold") or getattr(config, "COMBINED_SELL_THRESHOLD", -4.5))
-            hold_band = float(regime_thr.get("combined_hold_band") or getattr(config, "COMBINED_HOLD_BAND", 1.5))
-        else:
-            buy_th = float(getattr(config, "COMBINED_BUY_THRESHOLD", 4.5) or 4.5)
-            sell_th = float(getattr(config, "COMBINED_SELL_THRESHOLD", -4.5) or -4.5)
-            hold_band = float(getattr(config, "COMBINED_HOLD_BAND", 1.5) or 1.5)
+        buy_th = float(getattr(config, "COMBINED_BUY_THRESHOLD", 4.5) or 4.5)
+        sell_th = float(getattr(config, "COMBINED_SELL_THRESHOLD", -4.5) or -4.5)
+        hold_band = float(getattr(config, "COMBINED_HOLD_BAND", 1.5) or 1.5)
 
         if abs(combined) < hold_band:
             return "hold"
@@ -1644,7 +1638,25 @@ class NertzMetalEngine:
                         logger.warning(f"⚠️ Cantidad ajustada ({quantity}) por debajo del mínimo. Saltando trade.")
                         return
 
-                order_result = await self._place_order(symbol, decision, quantity, entry_price)
+                tp, sl = calculate_tp_sl(entry_price, volatility, decision, config.TP_PERCENTAGE, config.SL_PERCENTAGE)
+                tp_dec = self._quantize_to_step(tp, tick_size, ROUND_HALF_UP)
+                sl_dec = self._quantize_to_step(sl, tick_size, ROUND_HALF_UP)
+                entry_dec = self._d(entry_price)
+                tick_dec = self._d(tick_size)
+                if decision == "buy":
+                    if tp_dec <= entry_dec:
+                        tp_dec = entry_dec + tick_dec
+                    if sl_dec >= entry_dec:
+                        sl_dec = entry_dec - tick_dec
+                else:
+                    if tp_dec >= entry_dec:
+                        tp_dec = entry_dec - tick_dec
+                    if sl_dec <= entry_dec:
+                        sl_dec = entry_dec + tick_dec
+                tp = float(tp_dec)
+                sl = float(sl_dec)
+
+                order_result = await self._place_order(symbol, decision, quantity, entry_price, tp, sl)
                 if not order_result.get("success", False):
                     logger.error(
                         f"❌ Fallo al colocar orden para {symbol}: {order_result.get('message', 'Error desconocido')}")
@@ -1668,8 +1680,8 @@ class NertzMetalEngine:
                     bybit_raw=bybit_raw,
                     entry_price=entry_price,
                     exit_price=0.0,
-                    tp_price=None,
-                    sl_price=None,
+                    tp_price=float(tp),
+                    sl_price=float(sl),
                     quantity=quantity,
                     profit_loss=0.0,
                     outcome_status="pending",
@@ -2307,7 +2319,8 @@ class NertzMetalEngine:
 
         return {"success": True, "balance": {"total_equity": total_equity, "available_balance": available_balance}, "raw": payload}
 
-    async def _place_order(self, symbol: str, action: str, quantity: float, price: float) -> Dict:
+    async def _place_order(self, symbol: str, action: str, quantity: float, price: float, tp: float,
+                            sl: float) -> Dict:
             if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)):
                 order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
                 order_id = f"demo-{uuid.uuid4().hex}"
@@ -2371,6 +2384,8 @@ class NertzMetalEngine:
                         time_in_force = "IOC"
 
                     qty_str = self._format_decimal(self._quantize_to_step(quantity, qty_step, ROUND_DOWN))
+                    tp_str = self._format_decimal(self._quantize_to_step(tp, tick_size, ROUND_HALF_UP))
+                    sl_str = self._format_decimal(self._quantize_to_step(sl, tick_size, ROUND_HALF_UP))
                     order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
 
                     spot_kwargs: Dict[str, Any] = {
@@ -2380,10 +2395,25 @@ class NertzMetalEngine:
                         "qty": qty_str,
                         "time_in_force": time_in_force,
                         "order_link_id": order_link_id,
+                        "reduce_only": False,
+                        "close_on_trigger": False,
+                        "trigger_price": "0.0",
+                        "trigger_direction": 0,
+                        "position_idx": 0,
+                        "tp_limit_price": "0",
+                        "sl_limit_price": "0",
                     }
                     if order_type == "Limit":
                         price_str = self._format_decimal(self._quantize_to_step(price, tick_size, ROUND_HALF_UP))
-                        spot_kwargs["price"] = price_str
+                        spot_kwargs.update(
+                            {
+                                "price": price_str,
+                                "take_profit": tp_str,
+                                "stop_loss": sl_str,
+                                "tp_order_type": "Market",
+                                "sl_order_type": "Market",
+                            }
+                        )
                     elif order_type == "Market":
                         spot_kwargs["market_unit"] = "baseCoin"
                     body_params = build_spot_order_body(**spot_kwargs)
@@ -2393,7 +2423,7 @@ class NertzMetalEngine:
                     if http_status == 200 and ret_code == 0:
                         order_id = ((result.get("result") or {}).get("orderId")) or ""
                         logger.info(
-                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}, OrderID={order_id}"
+                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}, TP={tp:.2f}, SL={sl:.2f}, OrderID={order_id}"
                         )
                         return {"success": True, "order_id": order_id, "order_link_id": order_link_id, "raw": result}
 

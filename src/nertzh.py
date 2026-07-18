@@ -24,9 +24,9 @@ import aiohttp
 import numpy as np
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, Query
+from fastapi import FastAPI, Depends, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from sqlalchemy import create_engine, text
@@ -34,6 +34,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from agent_routes import router as agent_router
 from bybit_v5 import BybitV5Client, build_spot_order_body
+from control_access import control_token_is_valid
 from models import Base, MarketData, Orderbook, MarketTicker, Trade, MetricSnapshot, BalanceSnapshot, ThresholdSnapshot
 # Importaciones corregidas
 from settings import ConfigSettings
@@ -72,9 +73,6 @@ pg_url = _DATABASE_URL.replace("+asyncpg", "")
 engine = create_engine(pg_url, echo=config.DATABASE_ECHO)
 
 logger.info(f"🗄️  PostgreSQL → {_DATABASE_URL}")
-
-# Crear tablas automáticamente (solo si no existen)
-Base.metadata.create_all(bind=engine, checkfirst=True)
 
 def _persist_thresholds_to_env(env_path: str) -> Dict[str, Any]:
     before = {
@@ -201,7 +199,7 @@ def _update_orderbook(bid_dict, ask_dict, data):
 
 
 class NertzMetalEngine:
-    def __init__(self) -> None:
+    def __init__(self, *, load_state: bool = True) -> None:
         self.timeframe = config.TIMEFRAME
         self.symbols = config.SYMBOL.split(",")
         self.capital = 0.0
@@ -213,9 +211,10 @@ class NertzMetalEngine:
         self.ticker_data = {symbol: {"last_price": 0.0, "volume_24h": 0.0, "high_24h": 0.0, "low_24h": 0.0} for symbol
                             in self.symbols}
         self.candles = {symbol: [] for symbol in self.symbols}
-        self.trade_id_counter = self._load_initial_trade_id()
-        self._load_positions()
+        self.trade_id_counter = 1
         self.last_orderbook_log = 0
+        self._last_orderbook_persist_ts: Dict[str, float] = {symbol: 0.0 for symbol in self.symbols}
+        self._last_ticker_persist_ts: Dict[str, float] = {symbol: 0.0 for symbol in self.symbols}
         self.last_trade_time = {symbol: datetime.min.replace(tzinfo=timezone.utc) for symbol in self.symbols}
         self.hft_tasks: Dict[str, asyncio.Task] = {}
         self._last_tune_ts = 0.0
@@ -235,6 +234,9 @@ class NertzMetalEngine:
         self.recent_trades: Dict[str, Any] = {symbol: deque(maxlen=500) for symbol in self.symbols}
         self._bybit: Optional[BybitV5Client] = None
         self._ml_models: Dict[str, Dict[str, Any]] = {}
+
+        if load_state:
+            self.load_database_state()
         self._ml_last_train_ts: Dict[str, float] = {}
         self._ml_lock = asyncio.Lock()
         self._agent_last_tick_ts = 0.0
@@ -305,9 +307,9 @@ class NertzMetalEngine:
         return True
 
     def _try_finalize_opposite_entry(self, db: Session, closing: Trade, exit_price: float) -> Optional[Trade]:
-        if exit_price <= 0:
+        if exit_price <= 0 or str(closing.action or "").lower() != "sell":
             return None
-        opp_action = "buy" if str(closing.action or "").lower() == "sell" else "sell"
+        opp_action = "buy"
         entry_trade = (
             db.query(Trade)
             .filter(Trade.symbol == closing.symbol)
@@ -319,9 +321,55 @@ class NertzMetalEngine:
         )
         if entry_trade is None:
             return None
-        now = datetime.now(timezone.utc)
+        now = getattr(closing, "outcome_timestamp", None) or datetime.now(timezone.utc)
         if self._apply_trade_outcome_final(entry_trade, exit_price, now):
+            # SessionLocal usa autoflush=False: sin flush la siguiente venta del
+            # mismo sync todavía ve esta compra como "filled" y la reutiliza.
+            db.flush()
+            closing.outcome_status = "closed_entry"
+            closing.profit_loss = 0.0
+            closing_raw = dict(closing.bybit_raw) if isinstance(getattr(closing, "bybit_raw", None), dict) else {}
+            closing_raw["reconciliation"] = {
+                "role": "closing_fill",
+                "closed_trade_id": entry_trade.trade_id,
+                "reconciled_at": datetime.now(timezone.utc).isoformat(),
+            }
+            closing.bybit_raw = closing_raw
             return entry_trade
+        return None
+
+    def _apply_native_tpsl_exit(self, trade: Trade, exit_order: Dict[str, Any], now: datetime) -> bool:
+        """Finalize a protected spot buy from the exchange's TP/SL execution."""
+        exit_price = self._safe_float(exit_order.get("avgPrice"))
+        exit_qty = self._safe_float(exit_order.get("cumExecQty"))
+        if exit_price <= 0 or exit_qty <= 0:
+            return False
+        entry_price, entry_qty = self._resolve_trade_entry_qty(trade)
+        exit_fee = self._safe_float(exit_order.get("cumExecFee"))
+        trade.exit_price = exit_price
+        trade.profit_loss = (exit_price * exit_qty) - (entry_price * entry_qty) - exit_fee
+        trade.outcome_status = "final"
+        trade.outcome_timestamp = now
+        raw = dict(trade.bybit_raw) if isinstance(trade.bybit_raw, dict) else {}
+        raw["native_tpsl_exit"] = exit_order
+        trade.bybit_raw = raw
+        return True
+
+    def _matching_native_tpsl_exit(self, trade: Trade, orders: list[dict]) -> Optional[dict]:
+        if str(trade.action or "").lower() != "buy" or str(trade.outcome_status or "") != "filled":
+            return None
+        triggers = {self._safe_float(trade.tp_price), self._safe_float(trade.sl_price)}
+        raw = trade.bybit_raw if isinstance(trade.bybit_raw, dict) else {}
+        parent = raw.get("order_history") or raw.get("order_realtime") or {}
+        parent_time = self._safe_float(parent.get("createdTime"))
+        for order in orders:
+            trigger_price = self._safe_float(order.get("triggerPrice"))
+            if (str(order.get("stopOrderType") or "") == "BidirectionalTpslOrder"
+                    and str(order.get("orderStatus") or "").lower() == "filled"
+                    and str(order.get("side") or "").lower() == "sell"
+                    and any(abs(trigger_price - trigger) < 1e-8 for trigger in triggers if trigger > 0)
+                    and self._safe_float(order.get("createdTime")) >= parent_time):
+                return order
         return None
 
     async def _finalize_due_outcomes(self, db: Session, symbol: str, exit_price: float) -> Optional[Trade]:
@@ -409,7 +457,13 @@ class NertzMetalEngine:
 
         feats: list[np.ndarray] = []
         labels: list[float] = []
+        skipped_unverified = 0
         for t in trades:
+            raw = getattr(t, "bybit_raw", None)
+            order = (raw.get("order_realtime") or raw.get("order_history") or {}) if isinstance(raw, dict) else {}
+            if not getattr(t, "order_id", None) or self._safe_float(order.get("cumExecQty")) <= 0:
+                skipped_unverified += 1
+                continue
             pl = float(getattr(t, "profit_loss", 0.0) or 0.0)
             y = 1.0 if pl > 0 else 0.0
             x = np.array(
@@ -431,7 +485,7 @@ class NertzMetalEngine:
             labels.append(y)
 
         if len(feats) < ms:
-            return {"success": False, "message": "insufficient_clean_samples", "samples": len(feats)}
+            return {"success": False, "message": "insufficient_verified_samples", "samples": len(feats), "skipped_unverified": skipped_unverified}
 
         X = np.vstack(feats)
         yv = np.array(labels, dtype=np.float64)
@@ -464,7 +518,7 @@ class NertzMetalEngine:
             "trained_at": datetime.now(timezone.utc).isoformat(),
         }
         self._ml_last_train_ts[key] = time.time()
-        return {"success": True, "key": key, "model": self._ml_models[key]}
+        return {"success": True, "key": key, "model": self._ml_models[key], "skipped_unverified": skipped_unverified}
 
     def ml_predict_proba(self, *, symbol: str, action: str, metrics: Dict[str, Any]) -> Optional[float]:
         key = symbol if symbol in self._ml_models else "__all__"
@@ -534,6 +588,10 @@ class NertzMetalEngine:
         with SessionLocal() as db:
             last_trade = db.query(Trade.trade_id).order_by(Trade.trade_id.desc()).first()
             return last_trade[0] + 1 if last_trade else 1
+
+    def load_database_state(self) -> None:
+        self.trade_id_counter = self._load_initial_trade_id()
+        self._load_positions()
 
     def _load_positions(self):
         with SessionLocal() as db:
@@ -846,6 +904,9 @@ class NertzMetalEngine:
 
     async def _store_orderbook(self, symbol: str, db: Session):
         try:
+            now_ts = time.time()
+            if now_ts - self._last_orderbook_persist_ts.get(symbol, 0.0) < config.MARKET_PERSIST_INTERVAL_SECONDS:
+                return
             orderbook = Orderbook(
                 timestamp=datetime.now(timezone.utc), symbol=symbol,
                 bids=self.orderbook_data[symbol]["bids"],
@@ -853,7 +914,8 @@ class NertzMetalEngine:
             )
             db.add(orderbook)
             db.commit()
-            if time.time() - self.last_orderbook_log >= 5:
+            self._last_orderbook_persist_ts[symbol] = now_ts
+            if now_ts - self.last_orderbook_log >= 5:
                 logger.info(
                     f"🤘 Orderbook guardado para {symbol}: Bids={len(self.orderbook_data[symbol]['bids'])}, Asks={len(self.orderbook_data[symbol]['asks'])}")
                 self.last_orderbook_log = time.time()
@@ -936,6 +998,9 @@ class NertzMetalEngine:
                 "usd_index_price": ticker_values["usdIndexPrice"]
             }
 
+            now_ts = time.time()
+            if now_ts - self._last_ticker_persist_ts.get(symbol, 0.0) < config.MARKET_PERSIST_INTERVAL_SECONDS:
+                return
             market_ticker = MarketTicker(
                 timestamp=datetime.now(timezone.utc),
                 symbol=symbol,
@@ -946,6 +1011,7 @@ class NertzMetalEngine:
             )
             db.add(market_ticker)
             db.commit()
+            self._last_ticker_persist_ts[symbol] = now_ts
 
             logger.debug(
                 f"⚡ Ticker actualizado para {symbol}: Last={self.ticker_data[symbol]['last_price']}, USDIndex={self.ticker_data[symbol]['usd_index_price']}")
@@ -1345,7 +1411,15 @@ class NertzMetalEngine:
 
     def reset_results_json(self) -> str:
         log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
-        payload = {"events": [], "metadata": {"timestamp": datetime.now(timezone.utc).isoformat(), "reset": True}}
+        payload = {
+            "events": [],
+            "metadata": {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "reset": True,
+                "session": "fresh_start",
+                "session_started_at": datetime.now(timezone.utc).isoformat(),
+            },
+        }
         save_results(payload, log_dir=log_dir)
         return os.path.join(os.path.abspath(log_dir), "results.json")
 
@@ -1404,7 +1478,15 @@ class NertzMetalEngine:
         save_results(payload, log_dir=log_dir)
         self._last_tune_ts = now_ts
 
-    async def _core_cycle(self, symbol: str, db: Session, collect_only: bool = False, force_trade: bool = False) -> None:
+    async def _core_cycle(
+        self,
+        symbol: str,
+        db: Session,
+        collect_only: bool = False,
+        force_trade: bool = False,
+        forced_decision: Optional[str] = None,
+        virtual_exit_reason: Optional[str] = None,
+    ) -> None:
         lock = self._core_cycle_locks.setdefault(symbol, asyncio.Lock())
         async with lock:
             try:
@@ -1499,7 +1581,8 @@ class NertzMetalEngine:
                 logger.debug(
                     f"📊 Métricas calculadas para {symbol}: pio={metrics.get('pio', 0)}, ild={metrics.get('ild', 0)}, egm={metrics.get('egm', 0)}, rol={metrics.get('rol', 0)}, combined={metrics.get('combined', 0)}")
 
-                decision = self._determine_decision(symbol, metrics)
+                signal_decision = self._determine_decision(symbol, metrics)
+                decision = forced_decision if forced_decision in {"buy", "sell"} else signal_decision
                 last_price = float(ticker.get("last_price", 0.0) or 0.0)
                 if last_price <= 0 and candles:
                     try:
@@ -1531,7 +1614,7 @@ class NertzMetalEngine:
                     if p is not None and p < th:
                         decision = "hold"
 
-                if decision == "hold" or collect_only or in_cooldown:
+                if decision == "hold" or collect_only or (in_cooldown and virtual_exit_reason is None):
                     return
 
                 # Solo bloquear mientras hay orden viva en exchange (pending/partial).
@@ -1562,7 +1645,6 @@ class NertzMetalEngine:
                 if decision == "sell" and open_long is None:
                     logger.debug(f"⏸️ Sell omitido para {symbol}: sin long filled que cerrar")
                     return
-
                 rules = await self._get_instrument_rules(symbol)
                 tick_size = float(rules.get("tick_size") or 0.01)
                 qty_step = float(rules.get("qty_step") or float(config.MIN_TRADE_SIZE))
@@ -1658,7 +1740,15 @@ class NertzMetalEngine:
                     tp = float(tp_dec)
                     sl = float(sl_dec)
 
-                order_result = await self._place_order(symbol, decision, quantity, entry_price, tp, sl)
+                order_result = await self._place_order(
+                    symbol,
+                    decision,
+                    quantity,
+                    entry_price,
+                    tp,
+                    sl,
+                    force_market=virtual_exit_reason is not None,
+                )
                 if not order_result.get("success", False):
                     logger.error(
                         f"❌ Fallo al colocar orden para {symbol}: {order_result.get('message', 'Error desconocido')}")
@@ -1671,6 +1761,9 @@ class NertzMetalEngine:
                 if isinstance(bybit_raw, dict) and order_link_id:
                     merged_raw = dict(bybit_raw)
                     merged_raw["order_link_id"] = order_link_id
+                    if virtual_exit_reason is not None:
+                        merged_raw["virtual_exit_reason"] = virtual_exit_reason
+                        merged_raw["signal_decision"] = signal_decision
                     bybit_raw = merged_raw
 
                 trade = Trade(
@@ -1787,11 +1880,56 @@ class NertzMetalEngine:
             try:
                 with SessionLocal() as db:
                     await self.sync_open_orders(db)
+                    await self._monitor_virtual_exits(db)
                     if bool(getattr(config, "AUTO_AGENT_ENABLED", False)):
                         await self._agent_tick(db)
             except Exception as e:
                 logger.error(f"❌ Error en support loop: {e}")
             await asyncio.sleep(self._support_interval_s)
+
+    async def _monitor_virtual_exits(self, db: Session) -> None:
+        """Close a filled spot buy when its locally tracked TP/SL is crossed."""
+        for symbol in self.symbols:
+            last_price = self._safe_float((self.ticker_data.get(symbol) or {}).get("last_price"))
+            if last_price <= 0:
+                continue
+            pending = (
+                db.query(Trade)
+                .filter(Trade.symbol == symbol)
+                .filter(Trade.outcome_status.in_(["pending", "partial"]))
+                .first()
+            )
+            if pending is not None:
+                continue
+            entry = (
+                db.query(Trade)
+                .filter(Trade.symbol == symbol)
+                .filter(Trade.action == "buy")
+                .filter(Trade.outcome_status == "filled")
+                .order_by(Trade.trade_id.desc())
+                .first()
+            )
+            if entry is None:
+                continue
+            tp = self._safe_float(getattr(entry, "tp_price", None))
+            sl = self._safe_float(getattr(entry, "sl_price", None))
+            reason = "take_profit" if tp > 0 and last_price >= tp else "stop_loss" if sl > 0 and last_price <= sl else None
+            if reason is None:
+                continue
+            append_results_event(
+                {
+                    "type": "virtual_tpsl_trigger",
+                    "symbol": symbol,
+                    "trade_id": entry.trade_id,
+                    "reason": reason,
+                    "last_price": last_price,
+                    "tp_price": tp,
+                    "sl_price": sl,
+                },
+                log_dir=os.path.join(os.path.dirname(__file__), "..", "logs"),
+            )
+            logger.info("🎯 TP/SL virtual %s para %s trade #%s @ %.8f", reason, symbol, entry.trade_id, last_price)
+            await self._core_cycle(symbol, db, forced_decision="sell", virtual_exit_reason=reason)
 
     async def sync_open_orders(
         self,
@@ -1854,13 +1992,21 @@ class NertzMetalEngine:
                             "raw": o,
                         }
 
+                history_orders: list[dict] = []
+                try:
+                    history_payload = await client.order_history(category="spot", symbol=sym, limit=int(limit))
+                    if history_payload.get("retCode") == 0:
+                        history_orders = list(((history_payload.get("result", {}) or {}).get("list", []) or []))
+                except Exception:
+                    history_orders = []
+
                 trades = (
                     db.query(Trade)
                     .filter(Trade.symbol == sym)
                     .filter(Trade.order_id.isnot(None))
                     .filter(Trade.order_id != "")
-                    .filter(~Trade.outcome_status.in_(["final", "cancelled"]))
-                    .order_by(Trade.timestamp.desc())
+                    .filter(Trade.outcome_status.in_(["pending", "partial"]))
+                    .order_by(Trade.timestamp.asc())
                     .limit(300)
                     .all()
                 )
@@ -1947,7 +2093,7 @@ class NertzMetalEngine:
                         ts = ts.replace(tzinfo=timezone.utc)
                     seconds_elapsed = (now - ts).total_seconds() if isinstance(ts, datetime) else 0.0
 
-                    if is_bot_order and seconds_elapsed >= float(update_after_seconds) and order_status in {"new", "partially_filled"}:
+                    if is_bot_order and float(update_after_seconds) <= seconds_elapsed < float(timeout_seconds) and order_status in {"new", "partially_filled"}:
                         try:
                             order_type = str(order.get("orderType") or "")
                             if order_type.lower() == "limit":
@@ -2025,6 +2171,11 @@ class NertzMetalEngine:
                     if await self._update_trade_from_bybit(db, trade, order):
                         results["updated"] += 1
                         changed = True
+                    if bool(getattr(config, "NATIVE_TPSL_ENABLED", False)):
+                        native_exit = self._matching_native_tpsl_exit(trade, history_orders)
+                        if native_exit is not None and self._apply_native_tpsl_exit(trade, native_exit, now):
+                            results["updated"] += 1
+                            changed = True
 
                 for oid, orphan in open_by_id.items():
                     link = orphan.get("orderLinkId")
@@ -2062,6 +2213,14 @@ class NertzMetalEngine:
             cum_exec_qty = float(bybit_order.get("cumExecQty") or 0.0)
             cum_fee = float(bybit_order.get("cumExecFee") or 0.0)
             now = datetime.now(timezone.utc)
+            exchange_updated_ms = self._safe_float(
+                bybit_order.get("updatedTime") or bybit_order.get("createdTime")
+            )
+            outcome_time = (
+                datetime.fromtimestamp(exchange_updated_ms / 1000, timezone.utc)
+                if exchange_updated_ms > 0
+                else now
+            )
 
             current_raw: Any = getattr(trade, "bybit_raw", None)
             if isinstance(current_raw, dict):
@@ -2072,6 +2231,8 @@ class NertzMetalEngine:
                 trade.bybit_raw = {"order_realtime": bybit_order}
 
             prev_status = str(getattr(trade, "outcome_status", "") or "")
+            if prev_status == "final" and order_status == "filled":
+                return False
             prev_entry = float(getattr(trade, "entry_price", 0.0) or 0.0)
             prev_qty = float(getattr(trade, "quantity", 0.0) or 0.0)
             paired_finalized = False
@@ -2086,7 +2247,7 @@ class NertzMetalEngine:
                     trade.profit_loss = float(-cum_fee) if cum_fee > 0 else 0.0
             elif order_status in {"filled"}:
                 trade.outcome_status = "filled"
-                trade.outcome_timestamp = now
+                trade.outcome_timestamp = outcome_time
                 if avg_price > 0:
                     trade.entry_price = float(avg_price)
                 if cum_exec_qty > 0:
@@ -2100,9 +2261,20 @@ class NertzMetalEngine:
                     logger.info(
                         f"✅ Round-trip finalizado: entry #{paired.trade_id} cerrado por #{trade.trade_id} @ {exit_for_pair}"
                     )
+                elif str(getattr(trade, "action", "") or "").lower() == "sell":
+                    trade.outcome_status = "unmatched_exit"
+                    trade.profit_loss = 0.0
+                    raw = dict(trade.bybit_raw) if isinstance(trade.bybit_raw, dict) else {}
+                    raw["reconciliation"] = {
+                        "role": "unmatched_exit",
+                        "reason": "no_filled_buy_to_close",
+                        "reconciled_at": datetime.now(timezone.utc).isoformat(),
+                    }
+                    trade.bybit_raw = raw
+                    logger.error("⚠️ Venta sin compra abierta: trade #%s marcada unmatched_exit", trade.trade_id)
             elif order_status in {"cancelled", "rejected", "deactivated"}:
                 trade.outcome_status = order_status
-                trade.outcome_timestamp = now
+                trade.outcome_timestamp = outcome_time
                 trade.exit_price = 0.0
                 trade.profit_loss = 0.0
             else:
@@ -2322,7 +2494,7 @@ class NertzMetalEngine:
         return {"success": True, "balance": {"total_equity": total_equity, "available_balance": available_balance}, "raw": payload}
 
     async def _place_order(self, symbol: str, action: str, quantity: float, price: float, tp: Optional[float],
-                            sl: Optional[float]) -> Dict:
+                            sl: Optional[float], force_market: bool = False) -> Dict:
             if not bool(getattr(config, "LIVE_TRADING_ENABLED", False)):
                 order_link_id = f"nertzh-{uuid.uuid4().hex[:20]}"
                 order_id = f"demo-{uuid.uuid4().hex}"
@@ -2364,7 +2536,7 @@ class NertzMetalEngine:
 
                     side = "Buy" if action.lower() == "buy" else "Sell"
 
-                    order_type_raw = config.ORDER_TYPE or "Limit"
+                    order_type_raw = "Market" if force_market else (config.ORDER_TYPE or "Limit")
                     order_type = {
                         "limit": "Limit",
                         "Limit": "Limit",
@@ -2399,40 +2571,27 @@ class NertzMetalEngine:
                     if order_type == "Limit":
                         price_str = self._format_decimal(self._quantize_to_step(price, tick_size, ROUND_HALF_UP))
                         spot_kwargs["price"] = price_str
-                        spot_kwargs.update(
-                            {
-                                "trigger_price": "0.0",
-                                "trigger_direction": 0,
-                                "tp_limit_price": "0",
-                                "sl_limit_price": "0",
-                            }
-                        )
-                        if tp is not None and sl is not None and tp > 0 and sl > 0:
-                            tp_str = self._format_decimal(self._quantize_to_step(tp, tick_size, ROUND_HALF_UP))
-                            sl_str = self._format_decimal(self._quantize_to_step(sl, tick_size, ROUND_HALF_UP))
-                            spot_kwargs.update(
-                                {
-                                    "take_profit": tp_str,
-                                    "stop_loss": sl_str,
-                                    "tp_order_type": "Market",
-                                    "sl_order_type": "Market",
-                                }
-                            )
                     elif order_type == "Market":
                         spot_kwargs["market_unit"] = "baseCoin"
                     body_params = build_spot_order_body(**spot_kwargs)
-                    result = await client.create_order(body_params)
+                    submit_started_ms = int(time.time() * 1000)
+                    result = dict(await client.create_order(body_params) or {})
+                    result["client_trace"] = {
+                        "order_link_id": order_link_id,
+                        "submit_started_ms": submit_started_ms,
+                        "accepted_at_ms": int(time.time() * 1000),
+                    }
                     http_status = result.get("http_status")
                     ret_code = result.get("retCode")
                     if http_status == 200 and ret_code == 0:
                         order_id = ((result.get("result") or {}).get("orderId")) or ""
-                        tp_sl_msg = (
-                            f", TP={tp:.2f}, SL={sl:.2f}"
+                        virtual_tpsl_msg = (
+                            f", TP/SL virtual={tp:.2f}/{sl:.2f}"
                             if tp is not None and sl is not None
                             else ""
                         )
                         logger.info(
-                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}{tp_sl_msg}, OrderID={order_id}"
+                            f"✅ Orden colocada: {symbol} {side} {quantity:.6f} @ {price if order_type == 'Limit' else 'Market'}{virtual_tpsl_msg}, OrderID={order_id}"
                         )
                         return {"success": True, "order_id": order_id, "order_link_id": order_link_id, "raw": result}
 
@@ -2561,7 +2720,22 @@ class NertzMetalEngine:
 
         log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
         previous = load_results_json(log_dir=log_dir)
-        prev_initial = (previous.get("metadata") or {}).get("capital_inicial")
+        prev_meta = previous.get("metadata") or {}
+        prev_initial = prev_meta.get("capital_inicial")
+        session_meta = {
+            k: prev_meta[k]
+            for k in ("reset", "session", "archived_to", "session_started_at")
+            if k in prev_meta
+        }
+        open_trades = sum(
+            1 for t in trades_all
+            if self._normalize_outcome_status(getattr(t, "outcome_status", None)) in {"pending", "partial"}
+            or (
+                self._normalize_outcome_status(getattr(t, "outcome_status", None)) == "filled"
+                and str(getattr(t, "action", "") or "").lower() == "buy"
+            )
+        )
+        trades_total = len(trades_all)
 
         capital_source = "configured_capital"
         capital_actual = float(self.capital)
@@ -2577,10 +2751,18 @@ class NertzMetalEngine:
                 "balance_coin": latest_balance.coin,
             }
 
-        capital_inicial = _resolve_capital_inicial(prev_initial, capital_source, capital_actual)
+        if session_meta.get("session_started_at") and isinstance(prev_initial, (int, float)):
+            capital_inicial = float(prev_initial)
+        elif session_meta.get("reset") or session_meta.get("session"):
+            capital_inicial = float(capital_actual)
+            if not session_meta.get("session_started_at"):
+                session_meta["session_started_at"] = datetime.now(timezone.utc).isoformat()
+        else:
+            capital_inicial = _resolve_capital_inicial(prev_initial, capital_source, capital_actual)
 
         capital_pnl = capital_actual - capital_inicial
 
+        prev_events = previous.get("events")
         results = {
             "metadata": {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -2591,8 +2773,11 @@ class NertzMetalEngine:
                 "capital_pnl": round(capital_pnl, precision),
                 "total_pnl": round(net_profit, precision),
                 "total_trades": total_trades,
+                "open_trades": open_trades,
+                "trades_total": trades_total,
                 "iterations": self.iterations,
                 "running": self.running,
+                **session_meta,
                 **balance_meta,
             },
             "summary": {
@@ -2605,6 +2790,8 @@ class NertzMetalEngine:
             "by_symbol": by_symbol,
             "trades": trades_by_symbol,
         }
+        if isinstance(prev_events, list):
+            results["events"] = prev_events
         if trade_result:
             results["metadata"]["last_trade_timestamp"] = trade_result.timestamp.isoformat()
             outcome_status = self._normalize_outcome_status(getattr(trade_result, "outcome_status", None))
@@ -2666,11 +2853,13 @@ class NertzMetalEngine:
         return self._agent_last_tick_ts
 
 
-# FastAPI
-bot = NertzMetalEngine()
+# FastAPI: defer database reads until the server lifespan starts.
+bot = NertzMetalEngine(load_state=False)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    Base.metadata.create_all(bind=engine, checkfirst=True)
+    bot.load_database_state()
     await bot._save_results(symbol=(bot.symbols[0] if bot.symbols else "BTCUSDT"), trade_result=None)
     try:
         preflight = await bot.preflight()
@@ -2690,11 +2879,19 @@ async def lifespan(_: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["http://127.0.0.1:8081", "http://localhost:8081"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def require_control_token(request: Request, call_next):
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        if not control_token_is_valid(config.CONTROL_API_TOKEN, request.headers.get("X-Control-Token")):
+            return JSONResponse(status_code=403, content={"detail": "control access denied"})
+    return await call_next(request)
 
 ROOT = Path(__file__).resolve().parent.parent
 ROOT_WEB = ROOT / "web_ui"
@@ -3117,6 +3314,7 @@ async def get_candles(symbol: str, limit: int = 5, db: Session = Depends(get_db)
 
 @app.get("/trades/{symbol}")
 async def get_trades(symbol: str, db: Session = Depends(get_db)):
+    bot._load_positions()
     trades = bot.positions.get(symbol, [])
     return {
         "symbol": symbol,
@@ -3127,6 +3325,7 @@ async def get_trades(symbol: str, db: Session = Depends(get_db)):
 
 @app.get("/last_trade/{symbol}")
 async def get_last_trade(symbol: str, db: Session = Depends(get_db)):
+    bot._load_positions()
     trades = bot.positions.get(symbol, [])
     if not trades:
         last = db.query(Trade).filter_by(symbol=symbol).order_by(Trade.timestamp.desc()).first()
@@ -3232,6 +3431,8 @@ async def get_config():
         "orderbook_depth": config.ORDERBOOK_DEPTH,
         "network": config.BYBIT_ENV,
         "live_trading_enabled": bool(getattr(config, "LIVE_TRADING_ENABLED", False)),
+        "native_tpsl_enabled": bool(getattr(config, "NATIVE_TPSL_ENABLED", False)),
+        "tpsl_execution": "virtual_local_monitor",
         "capital_usdt": config.CAPITAL_USDT,
         "risk_factor": config.RISK_FACTOR,
         "min_trade_size": config.MIN_TRADE_SIZE,
@@ -3274,7 +3475,7 @@ async def admin_full_reset(
     db: Session = Depends(get_db),
 ):
     calibrate = bot.force_calibrate_thresholds(db, sample_size=int(sample_size), alpha=float(alpha))
-    env_update = _persist_thresholds_to_env(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
+    env_update = _persist_thresholds_to_env(str(Path(__file__).resolve().parent.parent / ".env"))
 
     cancel_result = None
     if bool(cancel_bybit_orders):
@@ -3386,20 +3587,28 @@ async def get_validation(db: Session = Depends(get_db)):
 
     layer2 = {"ok": bool(market_ok), "by_symbol": market}
 
-    db_pending_trades = (
+    tracked_trades = (
         db.query(Trade)
         .filter(Trade.outcome_status.in_(["pending", "partial", "filled"]))
         .order_by(Trade.timestamp.desc())
         .limit(500)
         .all()
     )
+    pending_orders = [t for t in tracked_trades if t.outcome_status in {"pending", "partial"}]
+    open_positions = [
+        t for t in tracked_trades
+        if t.outcome_status == "filled" and str(t.action or "").lower() == "buy"
+    ]
+    last_metric_snapshot = db.query(MetricSnapshot).order_by(MetricSnapshot.timestamp.desc()).first()
+    metric_snapshot_ts = _to_utc_aware(getattr(last_metric_snapshot, "timestamp", None))
+    metric_snapshot_age = (now - metric_snapshot_ts).total_seconds() if metric_snapshot_ts else None
     tracked_order_ids: set[str] = {
         str(t.order_id)
-        for t in db_pending_trades
+        for t in tracked_trades
         if isinstance(getattr(t, "order_id", None), str) and str(t.order_id).strip()
     }
     tracked_link_ids: set[str] = set()
-    for t in db_pending_trades:
+    for t in tracked_trades:
         raw = getattr(t, "bybit_raw", None)
         if isinstance(raw, dict):
             link = raw.get("order_link_id") or raw.get("orderLinkId")
@@ -3407,10 +3616,13 @@ async def get_validation(db: Session = Depends(get_db)):
                 tracked_link_ids.add(link.strip())
 
     layer3 = {
-        "ok": True,
-        "db_pending_trades": len(db_pending_trades),
+        "ok": bool(metric_snapshot_age is not None and metric_snapshot_age <= 90.0),
+        "db_pending_orders": len(pending_orders),
+        "db_open_positions": len(open_positions),
         "tracked_order_ids": len(tracked_order_ids),
         "tracked_link_ids": len(tracked_link_ids),
+        "metric_snapshot_age_s": metric_snapshot_age,
+        "latest_metric_snapshot_at": metric_snapshot_ts.isoformat() if metric_snapshot_ts else None,
         "now": now.isoformat(),
         "now_s": now_s,
     }
@@ -3499,21 +3711,26 @@ async def get_orders_status(db: Session = Depends(get_db)):
                 continue
         bybit_orders = list(merged.values())
 
-    pending_trades = (
+    tracked_trades = (
         db.query(Trade)
         .filter(Trade.outcome_status.in_(["pending", "partial", "filled"]))
         .order_by(Trade.timestamp.desc())
         .limit(200)
         .all()
     )
+    pending_orders = [t for t in tracked_trades if t.outcome_status in {"pending", "partial"}]
+    open_positions = [
+        t for t in tracked_trades
+        if t.outcome_status == "filled" and str(t.action or "").lower() == "buy"
+    ]
 
     tracked_order_ids: set[str] = {
         str(t.order_id)
-        for t in pending_trades
+        for t in tracked_trades
         if isinstance(getattr(t, "order_id", None), str) and str(t.order_id).strip()
     }
     tracked_link_ids: set[str] = set()
-    for t in pending_trades:
+    for t in tracked_trades:
         raw = getattr(t, "bybit_raw", None)
         if isinstance(raw, dict):
             link = raw.get("order_link_id") or raw.get("orderLinkId")
@@ -3579,7 +3796,9 @@ async def get_orders_status(db: Session = Depends(get_db)):
 
     return {
         "bybit_open_orders": len(bybit_orders),
-        "db_pending_trades": len(pending_trades),
+        "db_pending_orders": len(pending_orders),
+        "db_open_positions": len(open_positions),
+        "db_open_position_ids": [t.trade_id for t in open_positions],
         "linked_open_orders": sum(1 for row in bybit_orders_payload if bool(row.get("tracked_in_db"))),
         "orphan_open_orders": len(orphan_orders_payload),
         "bybit_orders": bybit_orders_payload,
@@ -3609,7 +3828,7 @@ async def get_orders_status(db: Session = Depends(get_db)):
                     and str((t.bybit_raw or {}).get("orderLinkId") or "").strip() in bybit_open_link_ids
                 ),
             }
-            for t in pending_trades
+            for t in pending_orders
         ],
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
@@ -3665,7 +3884,7 @@ async def exchange_open_orders(symbol: str, limit: int = 200):
 
 
 # Ejecución principal
-server = uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=8081))
+server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=config.ENGINE_API_PORT))
 
 
 async def main():

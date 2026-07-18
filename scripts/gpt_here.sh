@@ -5,8 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PATH="${HOME}/.local/node/current/bin:${HOME}/.local/bin:${PATH}"
 export PYTHONPATH="${ROOT}/src${PYTHONPATH:+:$PYTHONPATH}"
 
-# Preferir GPT/OpenAI; no forzar DashScope
-unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY 2>/dev/null || true
+# Preferir GPT/OpenAI y no heredar proveedores ajenos.
+unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY ANTHROPIC_API_KEY XAI_API_KEY 2>/dev/null || true
 
 if [[ -f "$ROOT/.env" ]]; then
   set -a

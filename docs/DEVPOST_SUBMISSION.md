@@ -1,66 +1,128 @@
-# NerTzh — _Metrics_ — Devpost submission assets (guía de entrega)
+# Devpost submission checklist
 
-Este documento contiene la versión final **lista para pegar** en Devpost, la lista de assets que faltan y pasos para generar evidencias (screenshots, video corto, README final). Está escrito en español para la entrega.
+Official deadline: **Tuesday, July 21, 2026 at 5:00 PM PDT**.
 
-## Resumen (para Devpost — copia/pega)
+## Required before submission
 
-NerTzh / _Metrics_ es un motor de métricas y señales para spot Bybit orientado a experimentos de micro-HFT y análisis cuantitativo. Integra:
-- Ingesta de mercado (klines, orderbook, trades) vía API y WebSocket.
-- Persistencia y observabilidad con PostgreSQL y Prometheus (/metrics).
-- Motor de decisiones con métricas compuestas (EGM, ILD, PIO, ROL, OGW) y auto-ajuste de umbrales.
-- Pipeline ML simple (entrenamiento a partir de históricos, predicción de probabilidades).
-- Bridge de contexto para evitar spam de LLMs y una API de chat ligera para revisión de decisiones.
+- [ ] Select **Developer Tools** as the track.
+- [ ] Public repository URL: `https://github.com/NerTzhuLz/NerTzh`.
+- [x] Select and add an open-source license: MIT (`LICENSE`).
+- [ ] Push the curated delivery commit. Do not include local IDE settings, agent memory, system inventories, logs, tokens, or unrelated skills.
+- [ ] Verify `uv sync && cp .env.example .env && make demo` works from a clean checkout.
+- [ ] Before running `make check`, start PostgreSQL with `make db-up`.
+- [ ] Add the primary Codex `/feedback` Session ID to the Devpost form.
+- [ ] Confirm every teammate has accepted the Devpost invitation, if applicable.
+- [x] Produce a 150-second H.264 video with English AAC narration and burned-in subtitles. Public YouTube upload remains a manual Devpost step.
+- [ ] Verify the video with a private/incognito browser window.
 
-Repositorio: https://github.com/… (pon aquí el link final)
-Demo local: ejecuta `make run` y abre `http://127.0.0.1:8081/web/` para ver la UI de entrega.
+## Required video narration
 
-## Qué mostrar en Devpost (Assets)
-- Título y subtítulo claros.
-- Descripción corta (1 párrafo) + lista de features (4–6 viñetas).
-- Screenshots (3):
-  1. Panel principal (UI de entrega) mostrando health + bridge digest.
-  2. Resultados: `logs/results.json` abierto o gráfica de PnL (si la tienes).
-  3. Chat / integración LLM (respuesta ejemplo).
-- Vídeo corto (30–90s): demo local — arranca el motor, muestra health, chat y un par de métricas.
-- README final en repo (sección "How to run" bien detallada).
+The narration must cover:
 
-## Checklist técnico (entrega)
-- [ ] `README.md` actualizado con pasos para ejecutar (venv, .env, make run)
-- [x] Endpoint `/health` responde
-- [x] Endpoint `/agent/context` y `/bridge/status` disponibles
-- [x] `logs/results.json` se genera (ejecuta el motor para producirlo)
-- [x] Web UI en `web_ui/index.html` (esta versión profesional) — sirve con `uvicorn api_app:app --app-dir src --host 0.0.0.0 --port 8081`
-- [ ] Capturas de pantalla (3)
-- [ ] Vídeo corto (30–90s)
+1. What NerTzh does and who it helps.
+2. How the control plane safely exposes metrics and Context Bridge evidence.
+3. How Codex accelerated concrete product, engineering or design decisions.
+4. How GPT-5.6 was used meaningfully in the project.
+5. What the optional engine does and why the judge path does not start it.
 
-## Comandos útiles (para evaluadores)
+## Accurate project description
+
+**Short description**
+
+> NerTzh is a local developer control plane for inspecting Bybit spot metrics, Context Bridge evidence, and protected GPT-5.6/Codex-assisted analysis, with an optional attended demo engine isolated on its own port.
+
+**Technical highlights**
+
+- FastAPI control plane with a responsive local UI.
+- Context Bridge backed by Markdown and DuckDB for low-cost local state.
+- Read-only observability and Bybit tool discovery.
+- Explicit control-token boundary for model and mutating routes.
+- Optional demo trading engine isolated on a separate local port.
+
+Do not claim autonomous multi-agent consensus or a live GPT response unless it is actually demonstrated in the submitted version.
+
+## Copy-ready Devpost fields
+
+Replace bracketed evidence before publishing. Do not fill a claim that cannot
+be demonstrated in the repository, video, or Codex session.
+
+### Title and tagline
+
+**Title:** NerTzh Metrics Control Plane
+
+**Tagline:** An auditable local control plane for market-signal evidence and protected AI analysis.
+
+### What it does
+
+> NerTzh turns persisted market metrics and multi-agent project context into a
+> local, judge-friendly evidence surface. The FastAPI viewer shows the latest
+> saved BTCUSDT signal, its liquidity components, thresholds, historical metric
+> window and Context Bridge digest without starting the trading engine. Optional
+> GPT/Codex analysis is deliberate, protected by a local control token and
+> separated from the read-only viewer.
+
+### How we built it
+
+> We built a FastAPI control plane on port 8081 and kept the optional Bybit demo
+> engine isolated on port 8082. PostgreSQL stores engine data, while the Context
+> Bridge uses DuckDB plus Markdown for local multi-agent memory. The viewer uses
+> native HTML, CSS and SVG with no external fonts, trackers, simulated telemetry
+> or automatic model calls. We added state reconciliation, virtual local TP/SL
+> policy, unit tests and a runbook that makes the demo path reproducible.
+
+### Challenges
+
+> The hard problem was preserving truth across signal generation, exchange fills,
+> database rows and the UI. We found stale state could suppress valid signals and
+> corrected the minimum reconciliation path rather than hiding it with a new
+> strategy layer. We also made the judging surface safe: opening the page cannot
+> start the engine, call Bybit or spend model credits.
+
+### Accomplishments
+
+> We delivered an evidence-first control plane that makes saved signal data,
+> thresholds and project context inspectable from one local page, while retaining
+> a strict boundary around trading and optional model analysis.
+
+### What we learned
+
+> A trading signal, an order and a position are separate states. Presentation
+> becomes trustworthy only when it labels persisted evidence, stale data and
+> unavailable fields honestly instead of simulating a live terminal.
+
+### What's next
+
+> Add explicitly requested read-only aggregate endpoints for engine heartbeat
+> and market snapshots, then expand the viewer only when the data contract and
+> audit trail are in place. Keep execution demo-only and separately operated.
+
+### Codex and GPT-5.6 evidence
+
+> Codex contribution: Codex was used to audit the control-plane architecture,
+> reconcile WebSocket, PostgreSQL and Bybit order state, build the factual
+> dashboard evidence path, and verify the final demo capture. Candidate primary
+> thread ID for `/feedback` verification: `019f7652-a000-7c70-a209-90a068229c39`.
+> Confirm this ID in the Codex `/feedback` panel before submitting.
+>
+> GPT-5.6 contribution: GPT-5.6/Codex-assisted analysis was integrated as an
+> explicit, protected optional route; the video explains that it is not an
+> automatic trading dependency and reports quota limitations truthfully.
+
+## Final checks
+
 ```bash
-# instalar entrono
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# crear .env desde el ejemplo y ajustar BYBIT keys (demo por defecto)
-cp .env.example .env
-# (opcional) editar .env
-
-# ejecutar (API + motor)
-make run
-# o para solo la API (ver la UI nueva)
-uvicorn api_app:app --app-dir src --host 0.0.0.0 --port 8081
+PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
+make db-up
+make check
+make demo
 ```
 
-## Texto sugerido para descripción larga (Devpost)
-NerTzh _Metrics_ es una plataforma experimental para medir y experimentar con señales de mercado en Bybit (spot). Hemos priorizado trazabilidad y reproducibilidad: todas las métricas, decisiones y snapshots se guardan en `logs/results.json` y en PostgreSQL. El proyecto incluye una UI ligera para inspección local, endpoints para observabilidad y una integración de chat que combina el contexto local (bridge) con un backend LLM opcional.
+Open:
 
-### Por qué es interesante
-- Permite experimentar rápidamente con nuevas fórmulas de métricas y ver su efecto histórico.
-- Pipeline ML integrado para bootstrapping desde eventos reales.
-- Arquitectura modular: Bybit REST/WS, bridge (DuckDB), observability y ML separados.
+- `http://127.0.0.1:8081/web/`
+- `http://127.0.0.1:8081/docs`
+- `http://127.0.0.1:8081/health`
 
-## Help/Contacto
-- Repo: (pon link)
-- Demo local: http://127.0.0.1:8081/web/
-- Issues / preguntas: abrir issue en el repo
+The repository must be public with the chosen license, or private and shared with `testing@devpost.com` and `build-week-event@openai.com`.
 
----
+Review this checklist against the official Devpost rules immediately before submitting.

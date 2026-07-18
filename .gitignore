@@ -14,17 +14,14 @@ __pycache__/
 .ruff_cache/
 
 # IDE / other agents (local noise)
-.idea/*
-!.idea/runConfigurations/
-!.idea/runConfigurations/**
-!.idea/dataSources.xml
-!.idea/misc.xml
-!.idea/modules.xml
-!.idea/_Metrics_.iml
+.idea/
+*.iml
 .explyt/
 .cursor/
-.qwen/
-.qwen-config/
+.agents/
+.audits/
+.claude/
+.grok/
 
 # OS
 .DS_Store
@@ -45,10 +42,19 @@ logs/*
 # Secrets / dumps
 *.pem
 auth.json
+backups/
 
 # Context Bridge local store
 data/context_bridge.duckdb
 data/*.duckdb
+data/session_*.json
+data/system_inventory.json
+
+# Agent state and machine inventories stay local; use the bridge CLI to share state.
+context_bridge/*
+!context_bridge/.gitkeep
+docs/SYSTEM_INVENTORY.md
+output/
 
 # Sweep snapshots can be large; keep structure
 logs/runs/**

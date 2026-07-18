@@ -1011,7 +1011,8 @@ def save_results(results: dict, log_dir: str = "logs") -> None:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     existing = json.load(f)
-                if isinstance(existing, dict):
+                # Full PG snapshots include "trades" and own the file; do not merge stale keys.
+                if isinstance(existing, dict) and "trades" not in results:
                     for key in ("events", "last_metrics", "thresholds", "last_balance"):
                         if key in existing and key not in results:
                             results[key] = existing[key]

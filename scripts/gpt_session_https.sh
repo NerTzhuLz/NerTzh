@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sesión ChatGPT WEB → local (estilo Restructured qwen_desktop: sesión web, no Platform $).
+# Sesión ChatGPT/Codex → proyecto local, sin depender de proveedores ajenos.
 #
 # Por defecto usa Codex con auth_mode=chatgpt (plan ChatGPT free/plus).
 # NO uses `login-api` salvo que quieras gastar cuota de platform.openai.com.
@@ -20,8 +20,8 @@ export PYTHONPATH="${ROOT}/src${PYTHONPATH:+:$PYTHONPATH}"
 # Preferir sesión web ChatGPT (no Platform API)
 export GPT_BACKEND="${GPT_BACKEND:-chatgpt}"
 
-# No arrastrar otros proveedores a esta sesión
-unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY 2>/dev/null || true
+# No arrastrar otros proveedores a esta sesión.
+unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY ANTHROPIC_API_KEY XAI_API_KEY 2>/dev/null || true
 
 # Cargar .env PERO no forzar API key sobre Codex: descomenta OPENAI solo si GPT_BACKEND=api
 if [[ -f "$ROOT/.env" ]]; then
@@ -34,7 +34,7 @@ fi
 # Con backend chatgpt: no Platform key ni OPENAI_MODEL de API
 # (Codex hereda env y un OPENAI_MODEL de platform rompe la cuenta ChatGPT)
 if [[ "${GPT_BACKEND}" == "chatgpt" || "${GPT_BACKEND}" == "codex" || "${GPT_BACKEND}" == "web" ]]; then
-  unset OPENAI_API_KEY OPENAI_MODEL OPENAI_BASE_URL 2>/dev/null || true
+  export OPENAI_API_KEY="" OPENAI_MODEL="" OPENAI_BASE_URL="" CODEX_MODEL=""
 fi
 
 PY="${ROOT}/.venv/bin/python"

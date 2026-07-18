@@ -16,22 +16,25 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import Response
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from agent_routes import router as agent_router
+from control_access import control_token_is_valid
+from settings import ConfigSettings
 
 ROOT = Path(__file__).resolve().parent.parent
+settings = ConfigSettings()
 
 app = FastAPI(
     title="NertzMetalEngine API",
     description=(
-        "Bybit spot metrics engine — OpenAI Build Week. "
-        "Observability: Prometheus /metrics. Optional Langfuse. "
-        "ML: sklearn+xgboost. Context Bridge + Bybit MCP."
+        "Judge-facing control plane for the NerTzh Bybit spot metrics engine. "
+        "It exposes local health, Context Bridge, read-only Bybit tools, ML and an "
+        "optional GPT-5.6/Codex chat behind a control token."
     ),
     version="0.2.0",
     contact={"name": "NerTzh", "url": "https://openai.devpost.com/"},
@@ -40,11 +43,19 @@ app = FastAPI(
 # Allow local web UIs (IDE webview / file dev) to call the API during local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["http://127.0.0.1:8081", "http://localhost:8081"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def require_control_token(request: Request, call_next):
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        if not control_token_is_valid(settings.CONTROL_API_TOKEN, request.headers.get("X-Control-Token")):
+            return JSONResponse(status_code=403, content={"detail": "control access denied"})
+    return await call_next(request)
 
 # Serve a minimal web UI from /web for in-IDE web sessions
 ROOT_WEB = ROOT / "web_ui"
@@ -64,7 +75,9 @@ def health() -> Dict[str, Any]:
         "ok": True,
         "service": "nertzh-metrics",
         "env": os.getenv("ENV", os.getenv("BYBIT_ENV", "demo")),
-        "fastapi_cloud": "deploy with `fastapi deploy` (https://fastapicloud.com)",
+        "surface": "demo-control-plane",
+        "web": "/web/",
+        "docs": "/docs",
     }
 
 
@@ -136,6 +149,8 @@ def root() -> Dict[str, str]:
         "message": "NertzMetalEngine",
         "docs": "/docs",
         "health": "/health",
+        "web": "/web/",
+        "agent_context": "/agent/context",
         "prometheus": "/metrics",
-        "deploy": "https://fastapicloud.com — fastapi deploy",
+        "note": "The trading engine is optional and runs separately on ENGINE_API_PORT.",
     }

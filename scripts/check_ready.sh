@@ -84,7 +84,7 @@ fi
 
 echo
 if [[ "$fail" -eq 0 ]]; then
-  echo "RESULT: READY — modelos libres, sin locks"
+  echo "RESULT: READY — demo control plane and optional engine prerequisites available"
   exit 0
 else
   echo "RESULT: $fail issue(s)"

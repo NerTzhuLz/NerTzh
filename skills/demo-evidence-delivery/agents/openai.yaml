@@ -1,0 +1,4 @@
+interface:
+  display_name: "Demo Evidence Delivery"
+  short_description: "Prepare factual Devpost and demo materials"
+  default_prompt: "Use $demo-evidence-delivery to prepare factual Devpost copy and a local demo storyboard."

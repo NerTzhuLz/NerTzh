@@ -30,9 +30,10 @@ PyCharm listo. Abre: $ROOT
 1. Settings → Project → Python Interpreter → Add → Existing
    → $ROOT/.venv/bin/python  (nombre sugerido: Python 3.14 (_Metrics_))
 
-2. Run → Edit Configurations — ya incluidas en .idea/runConfigurations/:
-   - Nertzh Motor (default)     → motor + API :8081
-   - API App (uvicorn)          → solo FastAPI agent/ML
+2. Run → Edit Configurations:
+   - API App (uvicorn)          → judge demo/control plane :8081
+   - Para el motor opcional crea una configuración Python para src/nertzh.py
+     con ENGINE_API_PORT=8082; no reutilices el puerto de la demo.
    - DB Up (Postgres)           → docker metrics-pg :5433
    - Readiness Check            → make check
    - PyCharm Validate           → valida todos los modos

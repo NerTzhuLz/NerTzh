@@ -1,12 +1,9 @@
 """
-gpt_integration.py — Análisis opcional con GPT-5 / OpenAI (reemplazo del hack Qwen).
+gpt_integration.py — Análisis opcional con GPT-5.6 / OpenAI.
 
 Rutas (en orden por defecto — estilo Restructured "web session first"):
 1. Codex CLI con sesión **ChatGPT web** (`codex login` / device-auth) — plan ChatGPT, NO gasta cuota Platform API
 2. API OpenAI solo si `GPT_BACKEND=api` o `prefer="api"` (platform.openai.com — sí gasta $)
-
-Misma idea que Restructured `qwen_desktop` (JWT de la web en Firefox):
-traer la sesión del cliente web al CLI, no la API de pago agotada.
 
 No hardcodea keys ni un solo modelo: OPENAI_MODEL / CODEX_MODEL o default sensible.
 El bot de Bybit NO depende de este módulo.
@@ -28,7 +25,7 @@ from dotenv import load_dotenv
 # API default; Codex CLI sin -m usa el default de la cuenta ChatGPT (p.ej. gpt-5.6-terra).
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 load_dotenv(dotenv_path=os.path.join(PROJECT_ROOT, ".env"), override=False)
-DEFAULT_MODEL = (os.getenv("OPENAI_MODEL") or os.getenv("CODEX_MODEL") or "gpt-5").strip()
+DEFAULT_MODEL = (os.getenv("OPENAI_MODEL") or os.getenv("CODEX_MODEL") or "gpt-5.6").strip()
 API_BASE = (os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1").rstrip("/")
 
 
@@ -214,9 +211,7 @@ class GPTClient:
     def list_models_hint(self) -> List[str]:
         """Pistas de modelos (no catálogo live de la API)."""
         return [
-            "gpt-5",
             "gpt-5.6",
-            "gpt-5.5",
             "o3",
             "o4-mini",
             "(usa OPENAI_MODEL=... o -m en codex)",
@@ -257,10 +252,6 @@ Pasos:
 4. Decisión final (buy/sell/hold) y por qué
 """
     return client.analyze(prompt)
-
-
-# Alias retrocompatibles (nombres que usaba el hack Qwen)
-QwenClient = GPTClient  # type: ignore
 
 
 if __name__ == "__main__":

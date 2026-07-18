@@ -125,9 +125,6 @@ class MetricSnapshot(Base):
 
 class BalanceSnapshot(Base):
     __tablename__ = "balance_snapshots"
-    __table_args__ = (
-        Index("ix_balance_snapshots_timestamp", "timestamp"),
-    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
@@ -140,9 +137,6 @@ class BalanceSnapshot(Base):
 
 class ThresholdSnapshot(Base):
     __tablename__ = "threshold_snapshots"
-    __table_args__ = (
-        Index("ix_threshold_snapshots_timestamp", "timestamp"),
-    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)

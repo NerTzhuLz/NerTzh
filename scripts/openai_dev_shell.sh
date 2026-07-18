@@ -6,9 +6,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-# Solo desactiva en ESTA shell (no hardcodea nada en disco)
+# Solo desactiva en ESTA shell (no hardcodea nada en disco).
 if [[ "${METRICS_KEEP_ALL_KEYS:-}" != "1" ]]; then
-  unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY 2>/dev/null || true
+  unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY ANTHROPIC_API_KEY XAI_API_KEY 2>/dev/null || true
 fi
 
 export PATH="${HOME}/.local/node/current/bin:${HOME}/.local/bin:${PATH}"

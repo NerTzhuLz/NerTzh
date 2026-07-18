@@ -13,6 +13,7 @@ Official deadline: **Tuesday, July 21, 2026 at 5:00 PM PDT**.
 - [ ] Add the primary Codex `/feedback` Session ID to the Devpost form.
 - [ ] Confirm every teammate has accepted the Devpost invitation, if applicable.
 - [x] Produce a 150-second H.264 video with English AAC narration and burned-in subtitles. Public YouTube upload remains a manual Devpost step.
+- Video release artifacts: `https://github.com/NerTzhuLz/NerTzh/releases/tag/v0.1.0-build-week`.
 - [ ] Verify the video with a private/incognito browser window.
 
 ## Required video narration

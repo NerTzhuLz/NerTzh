@@ -83,6 +83,9 @@ This project was extended with Codex and GPT-5.6 during the submission period. B
    unlisted YouTube URL, then test it in a private window.
 4. Confirm the public repository has the committed MIT license.
 
+The rendered Build Week video is published with the release artifacts at
+[`v0.1.0-build-week`](https://github.com/NerTzhuLz/NerTzh/releases/tag/v0.1.0-build-week).
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)

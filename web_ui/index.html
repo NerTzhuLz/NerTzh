@@ -1,148 +1,427 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NerTzh — Demo / Entrega — _Metrics_</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NerTzh local Mission Control for auditable persisted market signal evidence.">
+  <title>NerTzh · Mission Control</title>
   <style>
-    :root{--bg:#0f1724;--card:#0b1220;--accent:#6ee7b7;--muted:#9aa4b2;--surface:#071025}
-    html,body{height:100%;margin:0}
-    body{font-family:Inter,ui-sans-serif,system-ui,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#071028 0%, #031024 100%);color:#e6eef6;padding:1.5rem}
-    .wrap{max-width:1100px;margin:0 auto}
-    header{display:flex;align-items:center;gap:1rem}
-    .brand{font-weight:700;font-size:1.25rem;color:var(--accent)}
-    .subtitle{color:var(--muted);font-size:0.9rem}
-    .grid{display:grid;grid-template-columns:1fr 360px;gap:1rem;margin-top:1rem}
-    .card{background:rgba(255,255,255,0.02);padding:1rem;border-radius:8px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-    .card h3{margin:0 0 .5rem 0;font-size:1rem}
-    pre{white-space:pre-wrap;margin:0;font-family:monospace;font-size:0.9rem;color:#cfeef0}
-    .controls label{display:block;margin-bottom:.5rem}
-    input,textarea,button,select{width:100%;padding:.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
-    textarea{height:5.2rem}
-    .status-grid{display:flex;gap:.6rem;margin-top:.5rem}
-    .status{flex:1;padding:.5rem;border-radius:6px;background:rgba(255,255,255,0.02);text-align:center}
-    a.button{display:inline-block;padding:.45rem .75rem;border-radius:6px;background:var(--accent);color:#042126;text-decoration:none;font-weight:600}
-    footer{color:var(--muted);font-size:0.86rem;margin-top:1rem}
-    @media(max-width:900px){.grid{grid-template-columns:1fr}.card.sidebar{order:-1}}
+    :root {
+      color-scheme: dark;
+      --void: #03060c;
+      --base: #070c14;
+      --raised: #0c1420;
+      --elev: #111d2d;
+      --line: #1d2a3b;
+      --line-hi: #2a4560;
+      --text: #e7f0fb;
+      --muted: #8295ad;
+      --faint: #52647b;
+      --cyan: #3bd2ff;
+      --cyan-dim: #0b5771;
+      --green: #4ce2a5;
+      --green-dim: #135943;
+      --amber: #f6bd55;
+      --red: #ff718d;
+      --red-dim: #763044;
+      --violet: #a995ff;
+      --radius: 10px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--void); }
+    body {
+      min-width: 320px;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 20% -20%, rgba(0, 170, 220, .13), transparent 36rem),
+        radial-gradient(ellipse at 92% 0%, rgba(126, 85, 255, .08), transparent 30rem),
+        var(--void);
+      color: var(--text);
+      font: 14px/1.45 var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    a { color: var(--cyan); }
+    button, a, input, textarea, summary { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 3px;
+    }
+    ::selection { background: rgba(59, 210, 255, .3); }
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--line-hi); }
+
+    .shell { width: min(1600px, calc(100% - 2rem)); margin: 0 auto; padding: .75rem 0 2.5rem; }
+    .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+    .eyebrow, .label { color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .positive { color: var(--green) !important; }
+    .negative { color: var(--red) !important; }
+    .warning { color: var(--amber) !important; }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.35fr) minmax(0, 3fr) auto;
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--line);
+    }
+    .brand, .status-item, .strip-actions { min-height: 52px; background: linear-gradient(180deg, #0d1724, #090f18); }
+    .brand { display: flex; align-items: center; gap: .72rem; padding: .65rem .85rem; }
+    .brand-mark {
+      display: grid; width: 30px; height: 30px; place-items: center;
+      border: 1px solid rgba(59, 210, 255, .7); border-radius: 5px;
+      background: linear-gradient(135deg, rgba(59, 210, 255, .23), rgba(169, 149, 255, .18));
+      color: var(--cyan); font-family: var(--mono); font-weight: 900; box-shadow: 0 0 20px rgba(59, 210, 255, .16);
+    }
+    .brand-name { color: var(--text); font-size: .84rem; font-weight: 900; letter-spacing: .1em; }
+    .brand-name b { color: var(--cyan); }
+    .brand-sub { color: var(--faint); font-size: .62rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .health-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); }
+    .status-item { display: grid; align-content: center; gap: .1rem; padding: .55rem .8rem; min-width: 0; }
+    .status-item strong { overflow: hidden; color: var(--text); font-family: var(--mono); font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+    .status-item small { overflow: hidden; color: var(--faint); font-size: .67rem; text-overflow: ellipsis; white-space: nowrap; }
+    .status-item .label { display: flex; align-items: center; gap: .35rem; font-size: .59rem; }
+    .dot { display: inline-block; width: .44rem; height: .44rem; border-radius: 50%; background: var(--faint); }
+    .dot.ok { background: var(--green); box-shadow: 0 0 9px var(--green); }
+    .dot.bad { background: var(--red); box-shadow: 0 0 9px var(--red); }
+    .strip-actions { display: flex; align-items: center; justify-content: end; gap: .5rem; padding: .6rem .75rem; }
+    .button {
+      display: inline-flex; min-height: 2.15rem; align-items: center; justify-content: center; gap: .4rem;
+      border: 1px solid var(--line-hi); border-radius: 5px; padding: .42rem .68rem;
+      background: var(--elev); color: var(--text); cursor: pointer; font-size: .75rem; font-weight: 800;
+      letter-spacing: .04em; text-decoration: none;
+    }
+    .button:hover { border-color: var(--cyan); background: #12263a; }
+    .button.primary { border-color: rgba(59, 210, 255, .6); background: rgba(59, 210, 255, .13); color: #c9f2ff; }
+    .button:disabled { cursor: wait; opacity: .6; }
+
+    .hero { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; padding: 1.25rem .1rem 1rem; }
+    h1 { margin: .23rem 0 .35rem; font-size: clamp(1.7rem, 3.5vw, 3rem); letter-spacing: -.055em; line-height: 1; }
+    .lede { max-width: 76ch; margin: 0; color: var(--muted); }
+    .hero-meta { display: grid; gap: .15rem; min-width: 14rem; text-align: right; color: var(--muted); font-size: .74rem; }
+    .hero-meta strong { color: var(--cyan); }
+
+    .boundary {
+      display: flex; align-items: flex-start; gap: .6rem; margin-bottom: .85rem;
+      border: 1px solid rgba(76, 226, 165, .3); border-radius: 7px; padding: .65rem .75rem;
+      background: rgba(28, 129, 98, .1); color: #ccefe1; font-size: .79rem;
+    }
+    .boundary b { color: var(--green); }
+
+    .deck { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(310px, .98fr) minmax(280px, .74fr); gap: .7rem; align-items: start; }
+    .column { display: grid; gap: .7rem; min-width: 0; }
+    .panel { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(150deg, rgba(14, 25, 39, .96), rgba(6, 12, 20, .97)); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border-bottom: 1px solid var(--line); padding: .75rem .9rem; background: rgba(15, 27, 43, .72); }
+    .panel-title { display: flex; align-items: center; gap: .5rem; color: var(--text); font-size: .73rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .panel-title::before { width: 3px; height: .9rem; border-radius: 2px; background: var(--cyan); box-shadow: 0 0 8px rgba(59, 210, 255, .7); content: ""; }
+    .panel-title.green::before { background: var(--green); box-shadow: 0 0 8px rgba(76, 226, 165, .7); }
+    .panel-title.amber::before { background: var(--amber); box-shadow: 0 0 8px rgba(246, 189, 85, .7); }
+    .panel-title.violet::before { background: var(--violet); box-shadow: 0 0 8px rgba(169, 149, 255, .7); }
+    .panel-tag { border: 1px solid var(--line); border-radius: 4px; padding: .2rem .42rem; color: var(--muted); font: .65rem var(--mono); letter-spacing: .04em; white-space: nowrap; }
+    .panel-body { padding: .9rem; }
+
+    .market-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; align-items: center; padding: 1rem; border-bottom: 1px solid var(--line); background: radial-gradient(ellipse at 25% 0%, rgba(59, 210, 255, .12), transparent 68%); }
+    .coin { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffbe5a, #d77a12); color: #fff; font-family: var(--mono); font-size: 1.1rem; font-weight: 900; box-shadow: 0 0 18px rgba(255, 165, 52, .3); }
+    .pair { color: var(--text); font-family: var(--mono); font-size: .92rem; font-weight: 900; letter-spacing: .05em; }
+    .pair-sub { margin-top: .1rem; color: var(--faint); font-size: .63rem; letter-spacing: .12em; text-transform: uppercase; }
+    .market-price { margin-top: .32rem; color: var(--text); font: 800 clamp(1.7rem, 3.5vw, 2.35rem)/1 var(--mono); letter-spacing: -.06em; }
+    .market-note { margin-top: .3rem; color: var(--muted); font-size: .72rem; }
+
+    .chart-wrap { position: relative; min-height: 242px; overflow: hidden; background: repeating-linear-gradient(0deg, transparent, transparent 43px, rgba(47, 75, 102, .24) 44px), linear-gradient(90deg, rgba(7, 17, 27, .4), rgba(9, 20, 33, .65)); }
+    .chart-wrap::after { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(3, 6, 12, .55), transparent 12%, transparent 88%, rgba(3, 6, 12, .45)); content: ""; }
+    .chart-topline { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .7rem .85rem 0; color: var(--muted); font-size: .69rem; }
+    #signal-chart { position: relative; z-index: 1; display: block; width: 100%; height: 188px; }
+    .chart-empty { display: grid; min-height: 188px; place-items: center; padding: 1rem; color: var(--muted); text-align: center; }
+    .legend { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: .65rem; padding: 0 .85rem .72rem; color: var(--muted); font: .65rem var(--mono); }
+    .legend i { display: inline-block; width: .45rem; height: .45rem; margin-right: .25rem; border-radius: 50%; background: var(--cyan); }
+    .legend .buy { background: var(--green); }.legend .sell { background: var(--red); }.legend .hold { background: var(--amber); }
+
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; padding: .75rem; }
+    .metric { min-width: 0; border: 1px solid var(--line); border-radius: 6px; padding: .62rem; background: rgba(4, 10, 18, .45); }
+    .metric-top { display: flex; justify-content: space-between; gap: .35rem; color: var(--muted); font-size: .61rem; font-weight: 900; letter-spacing: .1em; }
+    .metric-value { display: block; overflow: hidden; margin-top: .28rem; color: var(--text); font: 800 .97rem var(--mono); text-overflow: ellipsis; }
+    .metric-bar { height: .27rem; margin-top: .55rem; overflow: hidden; border-radius: 99px; background: #172638; }
+    .metric-bar i { display: block; width: 50%; height: 100%; border-radius: inherit; background: var(--cyan); }
+    .metric-note { min-height: .9rem; margin-top: .38rem; color: var(--faint); font-size: .61rem; }
+
+    .decision { padding: 1rem; background: radial-gradient(ellipse at 70% 0%, rgba(169, 149, 255, .1), transparent 60%); }
+    .decision-grid { display: grid; grid-template-columns: minmax(122px, .7fr) minmax(0, 1.3fr); gap: .85rem; align-items: stretch; }
+    .decision-card { display: grid; align-content: center; justify-items: start; min-height: 152px; border: 1px solid var(--line-hi); border-radius: 7px; padding: .9rem; background: rgba(3, 9, 16, .53); }
+    .decision-card strong { margin: .28rem 0; font: 900 clamp(1.55rem, 3vw, 2.2rem) var(--mono); letter-spacing: .03em; }
+    .decision-card .hold { color: var(--amber); }.decision-card .buy { color: var(--green); }.decision-card .sell { color: var(--red); }
+    .decision-card small { color: var(--muted); font-size: .68rem; }
+    .rule-list { display: grid; gap: .42rem; }
+    .rule { display: grid; grid-template-columns: .5rem 1fr; gap: .48rem; align-items: start; border-bottom: 1px dashed var(--line); padding: .4rem 0; color: var(--muted); font-size: .73rem; }
+    .rule:last-child { border-bottom: 0; }
+    .rule .mark { width: .42rem; height: .42rem; margin-top: .27rem; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px rgba(59, 210, 255, .55); }
+    .rule b { color: var(--text); font-family: var(--mono); font-weight: 700; }
+
+    .threshold-grid, .outcome-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+    .key-value { border: 1px solid var(--line); border-radius: 6px; padding: .66rem; background: rgba(4, 10, 18, .4); }
+    .key-value strong { display: block; overflow: hidden; margin-top: .2rem; color: var(--text); font: 800 .9rem var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+    .key-value small { color: var(--faint); font-size: .62rem; }
+
+    .flow { display: grid; gap: .45rem; }
+    .flow-row { display: grid; grid-template-columns: 1.2rem 1fr auto; gap: .55rem; align-items: center; border: 1px solid var(--line); border-radius: 5px; padding: .55rem .62rem; background: rgba(4, 10, 18, .36); }
+    .flow-dot { width: .5rem; height: .5rem; justify-self: center; border-radius: 50%; background: var(--faint); }
+    .flow-dot.ok { background: var(--green); box-shadow: 0 0 9px rgba(76, 226, 165, .7); }
+    .flow-row b { color: var(--text); font-size: .73rem; }
+    .flow-row span { color: var(--muted); font-size: .67rem; }
+    .flow-row code { color: var(--cyan); font: .62rem var(--mono); }
+
+    .boundary-list { display: grid; gap: .58rem; }
+    .boundary-item { display: grid; grid-template-columns: 1.1rem 1fr; gap: .5rem; color: var(--muted); font-size: .74rem; }
+    .boundary-item b { color: var(--green); }
+
+    details { border: 1px solid var(--line); border-radius: 6px; background: rgba(3, 8, 14, .4); }
+    summary { cursor: pointer; padding: .68rem .72rem; color: var(--text); font-size: .73rem; font-weight: 800; }
+    details > div { padding: 0 .72rem .72rem; }
+    pre { max-height: 18rem; overflow: auto; margin: 0; border: 1px solid var(--line); border-radius: 5px; padding: .65rem; background: #02070d; color: #c8d9e9; font: .66rem/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; }
+
+    form { display: grid; gap: .66rem; }
+    label { display: grid; gap: .26rem; color: #dbe8f5; font-size: .74rem; font-weight: 800; }
+    label span { color: var(--muted); font-size: .65rem; font-weight: 500; }
+    input, textarea { width: 100%; border: 1px solid var(--line-hi); border-radius: 5px; padding: .55rem .6rem; background: #060e18; color: var(--text); }
+    textarea { min-height: 5.5rem; resize: vertical; }
+    .chat-status { min-height: 1.15rem; color: var(--muted); font-size: .7rem; }
+    .chat-status.error { color: var(--red); }
+
+    .stream-panel { margin-top: .7rem; }
+    .stream { overflow: auto; max-height: 18rem; }
+    .stream-row { display: grid; grid-template-columns: minmax(120px, .9fr) minmax(85px, .6fr) minmax(78px, .45fr) minmax(110px, .75fr); gap: .75rem; align-items: center; min-width: 610px; border-bottom: 1px solid rgba(29, 42, 59, .7); padding: .58rem .85rem; font-family: var(--mono); font-size: .69rem; }
+    .stream-row:last-child { border-bottom: 0; }
+    .stream-row.header { position: sticky; top: 0; z-index: 1; background: #0d1724; color: var(--muted); font-family: var(--sans); font-size: .61rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+    .stream-row time { color: var(--muted); }.stream-row .signal { font-weight: 800; }.stream-row .signal.buy { color: var(--green); }.stream-row .signal.sell { color: var(--red); }.stream-row .signal.hold { color: var(--amber); }
+    .stream-empty { padding: 1rem; color: var(--muted); text-align: center; }
+    footer { padding: 1.1rem .2rem 0; color: var(--faint); font-size: .69rem; text-align: center; }
+
+    @media (max-width: 1260px) { .deck { grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); }.column.ops { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }.status-strip { grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); }.strip-actions { display: none; } }
+    @media (max-width: 860px) { .shell { width: min(100% - 1rem, 1600px); }.status-strip, .deck, .column.ops { grid-template-columns: 1fr; }.health-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.hero { align-items: start; flex-direction: column; gap: .6rem; }.hero-meta { text-align: left; }.decision-grid { grid-template-columns: 1fr; }.column.ops { grid-column: auto; }.strip-actions { display: flex; }.metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .health-grid, .metrics, .threshold-grid, .outcome-grid { grid-template-columns: 1fr; }.market-hero { grid-template-columns: auto 1fr; }.panel-head { align-items: start; flex-direction: column; }.button { width: 100%; }.strip-actions { justify-content: stretch; }.stream-row { grid-template-columns: 110px 85px 70px 100px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <div class="brand">NerTzh · _Metrics_</div>
-        <div class="subtitle">Bybit spot metrics engine — Demo y entrega (OpenAI Build Week)</div>
+  <main class="shell">
+    <header class="status-strip">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <div><div class="brand-name">NERT<b>ZH</b> // MISSION CONTROL</div><div class="brand-sub">Evidence plane · local-first · demo-safe</div></div>
       </div>
-      <div style="margin-left:auto;text-align:right">
-        <div><a class="button" href="https://devpost.com/nertzhul?ref_content=user-portfolio&ref_feature=portfolio&ref_medium=global-nav" target="_blank">Ver Devpost</a></div>
-        <div style="margin-top:.4rem"><a class="button" href="/web/" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--accent)">Recargar UI</a></div>
-      </div>
+      <section class="health-grid" aria-label="Control plane status">
+        <div class="status-item"><span class="label"><i id="health-dot" class="dot"></i>Control plane</span><strong id="health-value">Checking…</strong><small id="health-detail">Local API</small></div>
+        <div class="status-item"><span class="label">Environment</span><strong id="env-value">—</strong><small id="env-detail">Review before engine use</small></div>
+        <div class="status-item"><span class="label">Persisted window</span><strong id="sample-status">—</strong><small id="sample-detail">No snapshot loaded</small></div>
+        <div class="status-item"><span class="label">Analysis</span><strong>Explicit only</strong><small>Token-gated GPT/Codex</small></div>
+      </section>
+      <div class="strip-actions"><button id="refresh" class="button primary" type="button">Refresh evidence</button><a class="button" href="/docs">API</a></div>
     </header>
 
-    <div class="grid">
-      <main class="card">
-        <h3>Resumen del proyecto</h3>
-        <p style="color:var(--muted)">Este panel muestra el estado del motor, bridge, y endpoints relevantes para la entrega. Incluye controles rápidos para pruebas de chat y entrenamientos ML.</p>
+    <section class="hero">
+      <div><div class="eyebrow">OpenAI Build Week · Developer tools</div><h1>NerTzh Metrics Control Plane</h1><p class="lede">A professional local view of persisted market signals, decision inputs, execution evidence and Context Bridge memory. The viewer never starts the optional trading engine.</p></div>
+      <div class="hero-meta"><span>Last local refresh</span><strong id="updated-at" class="mono">Not refreshed</strong></div>
+    </section>
 
-        <section style="margin-top:1rem">
-          <div class="status-grid">
-            <div class="status" id="s-health">Health<br/><strong>cargando…</strong></div>
-            <div class="status" id="s-bridge">Bridge<br/><strong>cargando…</strong></div>
-            <div class="status" id="s-results">Results<br/><strong>cargando…</strong></div>
-          </div>
-        </section>
+    <section class="boundary" aria-label="Safety boundary"><span aria-hidden="true">◆</span><span><b>Read-only by default.</b> Market values below are persisted local evidence, not a live terminal. Bybit calls, the optional engine and model analysis require deliberate separate actions.</span></section>
 
-        <section style="margin-top:1rem">
-          <h3>Contexto / Últimos eventos</h3>
-          <pre id="ctx">Cargando contexto...</pre>
-        </section>
+    <section class="deck" aria-label="Mission Control dashboard">
+      <section class="column market" aria-label="Persisted market evidence">
+        <article class="panel">
+          <div class="panel-head"><div class="panel-title">Market evidence</div><span id="market-tag" class="panel-tag">BTCUSDT · persisted</span></div>
+          <div class="market-hero"><span class="coin" aria-hidden="true">₿</span><div><div id="pair-value" class="pair">BTCUSDT</div><div class="pair-sub">Saved metric event · not a live ticker</div><div id="market-price" class="market-price">—</div><div id="market-note" class="market-note">No persisted price loaded.</div></div></div>
+          <div class="chart-wrap" aria-label="Persisted Combined signal history"><div class="chart-topline"><span>Combined signal history</span><strong id="chart-caption">No metric window</strong></div><svg id="signal-chart" viewBox="0 0 760 188" role="img" aria-label="Persisted Combined metric history"></svg><div id="chart-empty" class="chart-empty">No local metric window is available. Start the optional engine only when you need a new observation.</div><div class="legend"><span><i></i>combined</span><span><i class="buy"></i>buy zone</span><span><i class="sell"></i>sell zone</span><span><i class="hold"></i>hold / neutral</span></div></div>
+        </article>
 
-        <section style="margin-top:1rem">
-          <h3>Interacción rápida (chat)</h3>
-          <div class="controls">
-            <label>Símbolo <input id="symbol" value="BTCUSDT"></label>
-            <label>Mensaje <textarea id="msg" placeholder="Pregunta al agente sobre el estado / señales..."></textarea></label>
-            <button id="send">Enviar a /agent/chat</button>
-          </div>
-          <pre id="chatlog">Sin entradas.</pre>
-        </section>
+        <article class="panel"><div class="panel-head"><div class="panel-title amber">Microstructure inputs</div><span class="panel-tag">Saved components</span></div><div id="metrics" class="metrics" aria-live="polite"></div></article>
+      </section>
 
-        <section style="margin-top:1rem">
-          <h3>Comandos útiles</h3>
-          <pre>/health  → estado del servicio
-/agent/context → digest + resultados
-/bridge/status → digest completo
-/ml/train (POST) → bootstrap ML desde logs
-Descargar: /logs/results.json</pre>
-        </section>
-      </main>
+      <section class="column intelligence" aria-label="Decision trace">
+        <article class="panel"><div class="panel-head"><div class="panel-title violet">Explainable decision trace</div><span id="decision-tag" class="panel-tag">No signal</span></div><div class="decision"><div class="decision-grid"><section class="decision-card"><span class="label">Persisted decision</span><strong id="decision-value" class="hold">—</strong><small id="decision-time">No metric event loaded</small></section><section id="rule-list" class="rule-list" aria-label="Threshold and component evidence"></section></div></div></article>
+        <article class="panel"><div class="panel-head"><div class="panel-title">Thresholds and outcomes</div><span class="panel-tag">Historical snapshot</span></div><div class="panel-body"><div id="threshold-grid" class="threshold-grid"></div><div style="height:.55rem"></div><div id="outcome-grid" class="outcome-grid"></div></div></article>
+        <article class="panel"><div class="panel-head"><div class="panel-title green">Evidence source</div><span id="bridge-value" class="panel-tag">Loading…</span></div><div class="panel-body"><details><summary>Inspect current Context Bridge digest</summary><div><pre id="context-output">Loading local Context Bridge…</pre></div></details></div></article>
+      </section>
 
-      <aside class="card sidebar">
-        <h3>Checklist de entrega</h3>
-        <ul>
-          <li>Health endpoint disponible ✅</li>
-          <li>Context Bridge actualizado ✅</li>
-          <li>Resultados guardados en `logs/results.json` ✅</li>
-          <li>Documentación /docs y README ✅</li>
-          <li>Web UI (esta página) ✅</li>
-          <li>Revisar: pruebas end-to-end y assets (screenshots) ⬜</li>
-        </ul>
-
-        <h3 style="margin-top:1rem">Links</h3>
-        <p style="font-size:0.95rem"><a href="/docs" style="color:var(--accent)">API Docs</a><br/><a href="/bridge/status" style="color:var(--muted)">Bridge digest</a><br/><a href="/agent/context" style="color:var(--muted)">Agent context</a></p>
-
-        <h3 style="margin-top:1rem">Instrucciones rápidas</h3>
-        <pre>Local (dev):
-make run
-
-uvicorn api_app:app --app-dir src --host 0.0.0.0 --port 8081</pre>
+      <aside class="column ops" aria-label="Operations and protected analysis">
+        <article class="panel"><div class="panel-head"><div class="panel-title green">Control flow</div><span class="panel-tag">No auto-start</span></div><div class="panel-body"><div id="flow" class="flow"></div></div></article>
+        <article class="panel"><div class="panel-head"><div class="panel-title">Operating boundary</div></div><div class="panel-body"><div class="boundary-list"><div class="boundary-item"><b>✓</b><span>Refresh calls only <code>/health</code> and <code>/agent/context</code>.</span></div><div class="boundary-item"><b>✓</b><span>The engine is a separate, attended demo process on <code>:8082</code>.</span></div><div class="boundary-item"><b>✓</b><span>Protected analysis is opt-in and needs a control token.</span></div></div></div></article>
+        <article class="panel"><div class="panel-head"><div class="panel-title violet">Optional GPT-5.6 / Codex analysis</div><span class="panel-tag">Protected POST</span></div><div class="panel-body"><form id="chat-form"><label>Symbol<input id="symbol" name="symbol" value="BTCUSDT" autocomplete="off" maxlength="16" required></label><label>Control token<span>Stored only in this browser session.</span><input id="control-token" name="control-token" type="password" autocomplete="off" placeholder="Paste CONTROL_API_TOKEN"></label><label>Question<textarea id="message" name="message" placeholder="Summarize the persisted signal evidence and the safe next step." required></textarea></label><button id="send" class="button primary" type="submit">Run protected analysis</button><div id="chat-status" class="chat-status" role="status" aria-live="polite"></div></form><details style="margin-top:.65rem"><summary>Analysis response</summary><div><pre id="chat-output">No analysis requested.</pre></div></details></div></article>
       </aside>
-    </div>
+    </section>
 
-    <footer>
-      Panel generado localmente — revisa la entrega en Devpost y completa assets (screenshots, video corto, README final).
-    </footer>
-  </div>
+    <section class="panel stream-panel" aria-label="Persisted metric event stream"><div class="panel-head"><div class="panel-title amber">Persisted metric stream</div><span id="stream-caption" class="panel-tag">No events</span></div><div id="stream" class="stream"></div></section>
+    <footer>Local NerTzh UI · system fonts · SVG evidence chart · no external analytics, fonts, trackers, polling, automatic LLM calls or order placement.</footer>
+  </main>
 
   <script>
-    const elHealth = document.getElementById('s-health');
-    const elBridge = document.getElementById('s-bridge');
-    const elResults = document.getElementById('s-results');
-    const elCtx = document.getElementById('ctx');
-    const chatlog = document.getElementById('chatlog');
-    const send = document.getElementById('send');
-    const msg = document.getElementById('msg');
-    const symbol = document.getElementById('symbol');
+    const byId = (id) => document.getElementById(id);
+    const finite = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
+    const state = { token: sessionStorage.getItem("nertzh-control-token") || "" };
+    const components = [
+      ["ild", "ILD", "Liquidity depth imbalance", 2], ["egm", "EGM", "Edge gradient momentum", 2],
+      ["pio", "PIO", "Price imbalance oscillator", 2], ["rol", "ROL", "Rate of liquidity", 2],
+      ["ogm", "OGM", "Orderbook gap metric", 2], ["combined", "COMBINED", "Composite decision input", 10],
+      ["volatility", "VOL", "Persisted volatility", 1]
+    ];
+    const setText = (id, value) => { byId(id).textContent = value; };
+    const clear = (node) => node.replaceChildren();
+    const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
+    const number = (value, digits = 2) => finite(value) === null ? "—" : finite(value).toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    const price = (value) => finite(value) === null ? "—" : finite(value).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+    const localTime = (value) => value ? new Date(value).toLocaleString() : "No timestamp";
+    const decisionClass = (value) => ["buy", "sell"].includes(String(value).toLowerCase()) ? String(value).toLowerCase() : "hold";
+    const shortError = (value) => String(value || "Unknown error").slice(0, 220);
 
-    async function safeFetch(url, opts){
-      try{ const r = await fetch(url, opts); if(!r.ok) throw new Error(r.statusText); return await r.json() }catch(e){ return {error: String(e)} }
+    async function requestJson(url, options = {}) {
+      const response = await fetch(url, { credentials: "same-origin", ...options });
+      const text = await response.text();
+      let body;
+      try { body = text ? JSON.parse(text) : {}; } catch { body = { raw: text }; }
+      if (!response.ok) throw new Error(`${response.status}: ${shortError(body.detail || body.error || response.statusText)}`);
+      return body;
     }
 
-    async function refresh(){
-      const h = await safeFetch('/health');
-      elHealth.innerHTML = 'Health<br/><strong>' + (h.ok? 'OK' : (h.error||'no')) + '</strong>';
-
-      const ctx = await safeFetch('/agent/context?symbol=' + encodeURIComponent(symbol.value||'BTCUSDT'));
-      if(ctx.error) elBridge.innerHTML = 'Bridge<br/><strong>error</strong>'
-      else elBridge.innerHTML = 'Bridge<br/><strong>ok</strong>';
-      elCtx.textContent = ctx.bridge_digest ? ctx.bridge_digest.slice(0,3000) : (ctx.error||JSON.stringify(ctx));
-
-      const res = await fetch('/logs/results.json').then(r=>r.ok? r.text(): Promise.resolve('{"error":"no results"}')).catch(e=>'{"error":"'+e+'"}');
-      try{ const j = JSON.parse(res); elResults.innerHTML = 'Results<br/><strong>' + (j.summary?.net_profit ?? (j.net_profit??'n/a')) + '</strong>'; } catch(e){ elResults.innerHTML = 'Results<br/><strong>no</strong>' }
+    function setHealth(health) {
+      const healthy = health.ok === true || health.status === "healthy";
+      byId("health-dot").className = `dot ${healthy ? "ok" : "bad"}`;
+      setText("health-value", healthy ? "Healthy" : "Unavailable");
+      setText("health-detail", healthy ? (health.service || "Local FastAPI") : shortError(health.error));
+      const env = String(health.env || health.bybit_env || "unknown").toUpperCase();
+      setText("env-value", env);
+      setText("env-detail", env === "DEMO" ? "Separated demo environment" : "Review before engine use");
     }
 
+    function appendKeyValue(parent, label, value, detail, className = "") {
+      const card = el("div", "key-value");
+      card.append(el("div", "label", label));
+      const strong = el("strong", className, value);
+      card.append(strong, el("small", "", detail));
+      parent.append(card);
+    }
+
+    function renderComponents(metrics) {
+      const root = byId("metrics"); clear(root);
+      components.forEach(([key, name, note, scale]) => {
+        const value = finite(metrics[key]);
+        const signed = value === null ? 0 : Math.max(-1, Math.min(1, value / scale));
+        const card = el("article", "metric");
+        const top = el("div", "metric-top"); top.append(el("span", "", name), el("span", "", value === null ? "—" : number(value, key === "volatility" ? 4 : 2)));
+        const bar = el("div", "metric-bar"); const fill = el("i");
+        fill.style.width = `${50 + signed * 50}%`;
+        fill.style.background = value === null ? "var(--faint)" : signed > .04 ? "var(--green)" : signed < -.04 ? "var(--red)" : "var(--amber)";
+        bar.append(fill); card.append(top, bar, el("div", "metric-note", value === null ? "Unavailable in snapshot" : note)); root.append(card);
+      });
+    }
+
+    function svgNode(name, attributes = {}) { const node = document.createElementNS("http://www.w3.org/2000/svg", name); Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, String(value))); return node; }
+    function renderChart(samples, thresholds) {
+      const svg = byId("signal-chart"), empty = byId("chart-empty"); clear(svg);
+      const points = samples.filter((sample) => finite(sample.metrics && sample.metrics.combined) !== null);
+      if (!points.length) { svg.hidden = true; empty.hidden = false; setText("chart-caption", "No persisted samples"); return; }
+      svg.hidden = false; empty.hidden = true;
+      const width = 760, height = 188, padX = 24, padY = 18;
+      const buy = finite(thresholds.combined_buy_threshold) ?? 4.5, sell = finite(thresholds.combined_sell_threshold) ?? -4.5;
+      const values = points.map((sample) => finite(sample.metrics.combined));
+      const span = Math.max(Math.abs(buy), Math.abs(sell), ...values.map(Math.abs), 1) * 1.16;
+      const x = (index) => padX + (points.length < 2 ? 0 : index / (points.length - 1)) * (width - padX * 2);
+      const y = (value) => padY + ((span - value) / (span * 2)) * (height - padY * 2);
+      [-span, sell, 0, buy, span].forEach((value) => svg.append(svgNode("line", { x1: padX, x2: width - padX, y1: y(value), y2: y(value), stroke: value === 0 ? "rgba(246,189,85,.55)" : "rgba(61,91,118,.46)", "stroke-width": value === 0 ? 1.4 : 1, "stroke-dasharray": value === 0 ? "" : "3 4" })));
+      const area = `M ${x(0)} ${y(0)} L ${points.map((sample, index) => `${x(index)} ${y(finite(sample.metrics.combined))}`).join(" L ")} L ${x(points.length - 1)} ${y(0)} Z`;
+      svg.append(svgNode("path", { d: area, fill: "rgba(59,210,255,.08)" }));
+      svg.append(svgNode("polyline", { points: points.map((sample, index) => `${x(index)},${y(finite(sample.metrics.combined))}`).join(" "), fill: "none", stroke: "#3bd2ff", "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+      points.forEach((sample, index) => { const decision = decisionClass(sample.decision); if (decision === "hold") return; svg.append(svgNode("circle", { cx: x(index), cy: y(finite(sample.metrics.combined)), r: 3.6, fill: decision === "buy" ? "#4ce2a5" : "#ff718d", stroke: "#07101a", "stroke-width": 2 })); });
+      const latest = points[points.length - 1];
+      svg.append(svgNode("circle", { cx: x(points.length - 1), cy: y(finite(latest.metrics.combined)), r: 5.3, fill: latest.decision === "buy" ? "#4ce2a5" : latest.decision === "sell" ? "#ff718d" : "#f6bd55", stroke: "#e7f0fb", "stroke-width": 2 }));
+      setText("chart-caption", `${points.length} samples · ${localTime(latest.timestamp)}`);
+    }
+
+    function renderDecision(latest, thresholds) {
+      const decision = decisionClass(latest.decision), metrics = latest.metrics || {}, combined = finite(metrics.combined);
+      setText("decision-value", String(latest.decision || "hold").toUpperCase()); byId("decision-value").className = decision;
+      setText("decision-time", latest.timestamp ? `Persisted ${localTime(latest.timestamp)}` : "No metric event loaded");
+      setText("decision-tag", decision.toUpperCase());
+      const root = byId("rule-list"); clear(root);
+      const buy = finite(thresholds.combined_buy_threshold), sell = finite(thresholds.combined_sell_threshold);
+      const entries = [
+        ["Persisted decision", String(latest.decision || "hold").toUpperCase()],
+        ["Combined score", combined === null ? "Unavailable" : number(combined)],
+        ["Buy threshold", buy === null ? "Unavailable" : `≥ ${number(buy)}`],
+        ["Sell threshold", sell === null ? "Unavailable" : `≤ ${number(sell)}`],
+        ["PIO / EGM", `${number(metrics.pio)} / ${number(metrics.egm)}`]
+      ];
+      entries.forEach(([label, value]) => { const row = el("div", "rule"); row.append(el("i", "mark")); const text = el("span", ""); text.append(`${label}: `, el("b", "", value)); row.append(text); root.append(row); });
+    }
+
+    function renderFlow(context, samples) {
+      const root = byId("flow"); clear(root);
+      const rows = [
+        ["Control plane", "GET /health", context && !context.error],
+        ["Persisted snapshot", `${samples.length} metric event(s)`, samples.length > 0],
+        ["Context Bridge", context.bridge_digest ? "Local DuckDB + Markdown" : "No digest", Boolean(context.bridge_digest)],
+        ["Optional engine", "Not queried by this viewer", false],
+        ["Protected analysis", "Manual token-gated POST", true]
+      ];
+      rows.forEach(([name, detail, ok]) => { const row = el("div", "flow-row"); row.append(el("i", `flow-dot ${ok ? "ok" : ""}`)); const copy = el("div", ""); copy.append(el("b", "", name), document.createElement("br"), el("span", "", detail)); row.append(copy, el("code", "", ok ? "READY" : "SEPARATE")); root.append(row); });
+    }
+
+    function renderStream(samples) {
+      const root = byId("stream"); clear(root); setText("stream-caption", samples.length ? `${samples.length} saved event(s)` : "No events");
+      if (!samples.length) { root.append(el("div", "stream-empty", "No persisted metric events are available.")); return; }
+      const header = el("div", "stream-row header"); ["Timestamp", "Decision", "Combined", "Persisted price"].forEach((value) => header.append(el("span", "", value))); root.append(header);
+      samples.slice(-12).reverse().forEach((sample) => { const row = el("div", "stream-row"); const time = el("time", "", localTime(sample.timestamp)); const signal = el("span", `signal ${decisionClass(sample.decision)}`, String(sample.decision || "hold").toUpperCase()); row.append(time, signal, el("span", "", number(sample.metrics && sample.metrics.combined)), el("span", "", price(sample.last_price))); root.append(row); });
+    }
+
+    function setSnapshot(context) {
+      const results = context.results || {}, metadata = results.metadata || {}, summary = results.summary || {};
+      const market = context.market || {}, samples = Array.isArray(market.samples) ? market.samples : [];
+      const latest = market.latest || {}, metrics = latest.metrics || {}, thresholds = market.thresholds || latest.thresholds || {};
+      const pnl = finite(summary.net_profit ?? summary.total_pnl ?? metadata.capital_pnl);
+      setText("pair-value", context.symbol || "BTCUSDT"); setText("market-tag", `${context.symbol || "BTCUSDT"} · persisted`);
+      setText("market-price", price(latest.last_price)); setText("market-note", latest.timestamp ? `Saved ${localTime(latest.timestamp)}` : "No persisted price loaded.");
+      setText("sample-status", String(samples.length)); setText("sample-detail", latest.timestamp ? `Latest ${localTime(latest.timestamp)}` : "No metric snapshot");
+      setText("bridge-value", context.error ? "Unavailable" : "Ready · local"); setText("context-output", context.bridge_digest || "No Context Bridge digest available.");
+      renderChart(samples, thresholds); renderComponents(metrics); renderDecision(latest, thresholds); renderFlow(context, samples); renderStream(samples);
+      const thresholdRoot = byId("threshold-grid"), outcomeRoot = byId("outcome-grid"); clear(thresholdRoot); clear(outcomeRoot);
+      appendKeyValue(thresholdRoot, "Buy threshold", number(thresholds.combined_buy_threshold), "Combined entry boundary");
+      appendKeyValue(thresholdRoot, "Sell threshold", number(thresholds.combined_sell_threshold), "Combined exit boundary");
+      appendKeyValue(thresholdRoot, "Volatility", number(metrics.volatility, 4), "Latest saved metric · raw units");
+      appendKeyValue(thresholdRoot, "Metric samples", String(samples.length), "Window exposed by API");
+      appendKeyValue(outcomeRoot, "Net PnL", pnl === null ? "Unavailable" : `${pnl > 0 ? "+" : ""}${number(pnl, 6)} USDT`, "Historical summary only", pnl === null ? "" : pnl >= 0 ? "positive" : "negative");
+      appendKeyValue(outcomeRoot, "Finalized outcomes", String(metadata.total_trades ?? 0), "Snapshot field; not engine liveness");
+      appendKeyValue(outcomeRoot, "Recorded fills", String(metadata.trades_total ?? 0), "Snapshot field");
+      const trade = results.last_trade || {}; appendKeyValue(outcomeRoot, "Last finalized trade", trade.trade_id ? `#${trade.trade_id}` : "Unavailable", trade.trade_id ? String(trade.outcome_status || "unknown") : "No last_trade in snapshot");
+    }
+
+    async function refresh() {
+      const button = byId("refresh"); button.disabled = true; button.textContent = "Refreshing…";
+      try {
+        const symbol = byId("symbol").value.trim().toUpperCase() || "BTCUSDT";
+        const [health, context] = await Promise.allSettled([requestJson("/health"), requestJson("/agent/context?symbol=" + encodeURIComponent(symbol))]);
+        setHealth(health.status === "fulfilled" ? health.value : { error: health.reason.message });
+        setSnapshot(context.status === "fulfilled" ? context.value : { error: context.reason.message, market: { samples: [] } });
+        setText("updated-at", new Date().toLocaleTimeString());
+      } finally { button.disabled = false; button.textContent = "Refresh evidence"; }
+    }
+
+    async function submitChat(event) {
+      event.preventDefault(); const token = byId("control-token").value.trim(), message = byId("message").value.trim();
+      const symbol = byId("symbol").value.trim().toUpperCase() || "BTCUSDT", status = byId("chat-status"), submit = byId("send"); status.className = "chat-status";
+      if (!token || !message) { status.classList.add("error"); status.textContent = !token ? "Enter the local control token before sending a protected request." : "Enter a question first."; return; }
+      sessionStorage.setItem("nertzh-control-token", token); state.token = token; submit.disabled = true; status.textContent = "Requesting optional analysis…"; setText("chat-output", "Waiting for the configured backend…");
+      try { const response = await requestJson("/agent/chat", { method: "POST", headers: { "Content-Type": "application/json", "X-Control-Token": token }, body: JSON.stringify({ message, symbol }) }); status.textContent = response.ok ? `Completed with backend: ${response.backend || "unknown"}` : `LLM unavailable; local fallback from ${response.backend || "unknown"}.`; setText("chat-output", response.reply || JSON.stringify(response, null, 2)); }
+      catch (error) { status.classList.add("error"); status.textContent = "The protected request was not completed."; setText("chat-output", shortError(error.message)); }
+      finally { submit.disabled = false; }
+    }
+
+    byId("control-token").value = state.token;
+    byId("refresh").addEventListener("click", refresh); byId("chat-form").addEventListener("submit", submitChat); byId("symbol").addEventListener("change", refresh);
     refresh();
-    setInterval(refresh, 15000);
-
-    send.addEventListener('click', async (ev)=>{
-      ev.preventDefault();
-      chatlog.textContent = 'Enviando...';
-      const payload = {message: msg.value || 'estado', symbol: symbol.value || 'BTCUSDT'};
-      const r = await safeFetch('/agent/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
-      if(r.error){ chatlog.textContent = 'Error: ' + r.error } else { chatlog.textContent = (r.reply || JSON.stringify(r)).slice(0,8000); }
-      refresh();
-    });
   </script>
 </body>
 </html>
-

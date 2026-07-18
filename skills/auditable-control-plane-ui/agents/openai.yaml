@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auditable Control Plane UI"
+  short_description: "Build evidence-first local market dashboards"
+  default_prompt: "Use $auditable-control-plane-ui to redesign the local evidence viewer without simulated telemetry."

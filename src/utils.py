@@ -937,6 +937,7 @@ def calculate_metrics(candle_data: List[Dict[str, float]], orderbook_data: Dict[
         )
         return {
             "combined": float(combined),
+            "combined_z": float(combined_z),
             "ild": float(ild_z),
             "egm": float(egm_z),
             "rol": float(rol_z),
@@ -954,6 +955,22 @@ def calculate_metrics(candle_data: List[Dict[str, float]], orderbook_data: Dict[
     except Exception as e:
         logger.error(f"Error en calculate_metrics: {e}", exc_info=True)
         return {"combined": 0.0, "ild": 0.0, "egm": 0.0, "rol": 0.0, "pio": 0.0, "ogm": 0.0, "volatility": 0.0}
+
+def calculate_tp_sl(price: float, volatility: float, action: str, tp_factor: float = 1.5, sl_factor: float = 1.0) -> Tuple[float, float]:
+    """Calcula Take Profit y Stop Loss dinámicos basados en volatilidad."""
+    try:
+        price_range = volatility * price
+        if action.lower() == "buy":
+            tp = price + (price_range * tp_factor)
+            sl = price - (price_range * sl_factor)
+        else:
+            tp = price - (price_range * tp_factor)
+            sl = price + (price_range * sl_factor)
+        return round(tp, 2), round(sl, 2)
+    except Exception as e:
+        logger.error(f"❌ Error en calculate_tp_sl: {e}")
+        return 0.0, 0.0
+
 
 def calculate_rolling_volatility(prices: List[float], window: int) -> float:
     """
@@ -994,7 +1011,8 @@ def save_results(results: dict, log_dir: str = "logs") -> None:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     existing = json.load(f)
-                if isinstance(existing, dict):
+                # Full PG snapshots include "trades" and own the file; do not merge stale keys.
+                if isinstance(existing, dict) and "trades" not in results:
                     for key in ("events", "last_metrics", "thresholds", "last_balance"):
                         if key in existing and key not in results:
                             results[key] = existing[key]
@@ -1058,110 +1076,4 @@ def timestamp_to_datetime(timestamp_ms: int) -> datetime:
     return datetime.fromtimestamp(timestamp_ms / 1000, tz=timezone.utc)
 
 
-def calculate_tp_sl(price: float, volatility: float, action: str, tp_factor: float = 1.5, sl_factor: float = 1.0) -> Tuple[float, float]:
-    """Calcula Take Profit y Stop Loss dinámicos basados en volatilidad."""
-    try:
-        price_range = volatility * price
-        if action.lower() == "buy":
-            tp = price + (price_range * tp_factor)
-            sl = price - (price_range * sl_factor)
-        else:  # sell
-            tp = price - (price_range * tp_factor)
-            sl = price + (price_range * sl_factor)
-        return round(tp, 2), round(sl, 2)
-    except Exception as e:
-        logger.error(f"❌ Error en calculate_tp_sl: {e}")
-        return 0.0, 0.0
 
-
-# Clase TpslStrategy
-class BaseTradingStrategy:
-    def __init__(self, connector=None, data_manager=None, **kwargs):
-        self.logger = logging.getLogger("NertzMetalEngine")
-        self.connector = connector
-        self.data_manager = data_manager
-
-
-def evaluate_trend(short_ema: float, mid_ema: float, long_ema: float) -> Tuple[str, str]:
-    """Evalúa la tendencia para decidir la acción de trading."""
-    if short_ema > mid_ema > long_ema:
-        return "BUY", "Cruzamiento alcista de Triple EMA"
-    elif short_ema < mid_ema < long_ema:
-        return "SELL", "Cruzamiento bajista de Triple EMA"
-    return "HOLD", "No hay confirmación clara"
-
-
-class TpslStrategy(BaseTradingStrategy):
-    def __init__(self, connector=None, data_manager=None, short_window=5, mid_window=10, long_window=20,
-                 tp_percentage=1.5, sl_percentage=0.5, combined_buy_threshold=2.0, combined_sell_threshold=-3.0, **kwargs):
-        super().__init__(connector, data_manager, **kwargs)
-        self.short_window = short_window
-        self.mid_window = mid_window
-        self.long_window = long_window
-        self.tp_percentage = tp_percentage  # En porcentaje (ej. 1.5 = 1.5%)
-        self.sl_percentage = sl_percentage  # En porcentaje (ej. 0.75 = 0.75%)
-        self.combined_buy_threshold = combined_buy_threshold
-        self.combined_sell_threshold = combined_sell_threshold
-
-    def calculate_ema(self, prices: List[float], window: int) -> float:
-        """Calcula EMA de manera pura en Python."""
-        if len(prices) < window:
-            return sum(prices[-window:]) / min(len(prices), window)  # SMA si no hay suficientes datos
-        alpha = 2 / (window + 1)
-        ema = prices[-window]  # Primer valor como SMA inicial
-        for price in prices[-window + 1:]:
-            ema = (price * alpha) + (ema * (1 - alpha))
-        return ema
-
-    def generate_signal(self, market_data: Dict, metrics: Dict[str, float]) -> Dict:
-        """Genera señales basadas en Triple EMA, TP/SL y métricas."""
-        if "close_prices" not in market_data or not market_data["close_prices"]:
-            self.logger.warning("⚠️ Faltan datos de 'close_prices' en market_data.")
-            return {"action": "HOLD", "confidence": 0.0, "take_profit": 0.0, "stop_loss": 0.0, "reason": "Sin datos"}
-
-        closing_prices = market_data["close_prices"]
-
-        if len(closing_prices) < self.long_window:
-            self.logger.warning(f"⚠️ No hay suficientes datos (mínimo {self.long_window} precios).")
-            return {"action": "HOLD", "confidence": 0.0, "take_profit": 0.0, "stop_loss": 0.0,
-                    "reason": "Datos insuficientes"}
-
-        short_ema = self.calculate_ema(closing_prices, self.short_window)
-        mid_ema = self.calculate_ema(closing_prices, self.mid_window)
-        long_ema = self.calculate_ema(closing_prices, self.long_window)
-
-        latest_price = closing_prices[-1]
-        action, reason = evaluate_trend(short_ema, mid_ema, long_ema)
-
-        # Suspender ventas cortas hasta una señal bajista fuerte
-        if action == "SELL" and metrics.get("combined", 0.0) > self.combined_sell_threshold:
-            action = "HOLD"
-            reason = "Venta suspendida por combined insuficiente"
-
-        # Validar compras con umbral de combined
-        if action == "BUY" and metrics.get("combined", 0.0) < self.combined_buy_threshold:
-            action = "HOLD"
-            reason = "Compra invalidada por combined insuficiente"
-
-        take_profit, stop_loss = self.calculate_take_profit_stop_loss(latest_price, action, metrics.get("volatility", 0.0))
-
-        return {
-            "action": action,
-            "confidence": 0.9 if action in ["BUY", "SELL"] else 0.5,
-            "take_profit": take_profit,
-            "stop_loss": stop_loss,
-            "reason": reason,
-            "metrics": metrics
-        }
-
-    def calculate_take_profit_stop_loss(self, latest_price: float, action: str, volatility: float) -> Tuple[float, float]:
-        """Calcula el nivel de Take Profit y Stop Loss con ajuste dinámico por volatilidad."""
-        if action == "BUY":
-            take_profit = latest_price * (1 + (self.tp_percentage + (volatility * 10)) / 100)
-            stop_loss = latest_price * (1 - (self.sl_percentage + (volatility * 5)) / 100)
-        elif action == "SELL":
-            take_profit = latest_price * (1 - (self.tp_percentage + (volatility * 10)) / 100)
-            stop_loss = latest_price * (1 + (self.sl_percentage + (volatility * 5)) / 100)
-        else:
-            take_profit = stop_loss = 0.0
-        return round(take_profit, 2), round(stop_loss, 2)

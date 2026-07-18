@@ -9,7 +9,8 @@ description: "Comunicación live con APIs locales y remotas: curl, jq, uvicorn, 
 
 | Puerto | Proceso | Docs |
 |--------|---------|------|
-| **8081** | `nertzh` motor **o** `api_app` | `/docs` si api_app |
+| **8081** | `api_app` demo control plane | `/docs` + `/web/` |
+| **8082** | `nertzh` optional engine (default) | engine API |
 | **5433** | Postgres metrics-pg | JDBC / psql |
 | **9000** | QuestDB (opcional) | web console |
 
@@ -19,7 +20,7 @@ No levantar dos servicios en el mismo puerto.
 
 ```bash
 cd /home/angel/Documentos/_Metrics_
-make api
+make demo
 # http://127.0.0.1:8081/docs
 ```
 

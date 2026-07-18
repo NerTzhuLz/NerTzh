@@ -16,20 +16,25 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import PlainTextResponse, Response
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from agent_routes import router as agent_router
+from control_access import control_token_is_valid
+from settings import ConfigSettings
+
 ROOT = Path(__file__).resolve().parent.parent
+settings = ConfigSettings()
 
 app = FastAPI(
     title="NertzMetalEngine API",
     description=(
-        "Bybit spot metrics engine — OpenAI Build Week. "
-        "Observability: Prometheus /metrics. Optional Langfuse. "
-        "ML: sklearn+xgboost. Context Bridge + Bybit MCP."
+        "Judge-facing control plane for the NerTzh Bybit spot metrics engine. "
+        "It exposes local health, Context Bridge, read-only Bybit tools, ML and an "
+        "optional GPT-5.6/Codex chat behind a control token."
     ),
     version="0.2.0",
     contact={"name": "NerTzh", "url": "https://openai.devpost.com/"},
@@ -38,21 +43,26 @@ app = FastAPI(
 # Allow local web UIs (IDE webview / file dev) to call the API during local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["http://127.0.0.1:8081", "http://localhost:8081"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def require_control_token(request: Request, call_next):
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        if not control_token_is_valid(settings.CONTROL_API_TOKEN, request.headers.get("X-Control-Token")):
+            return JSONResponse(status_code=403, content={"detail": "control access denied"})
+    return await call_next(request)
 
 # Serve a minimal web UI from /web for in-IDE web sessions
 ROOT_WEB = ROOT / "web_ui"
 if ROOT_WEB.exists():
     app.mount("/web", StaticFiles(directory=str(ROOT_WEB), html=True), name="web")
 
-
-class ChatIn(BaseModel):
-    message: str = Field(..., min_length=1)
-    symbol: str = "BTCUSDT"
+app.include_router(agent_router)
 
 
 class TrainIn(BaseModel):
@@ -65,7 +75,9 @@ def health() -> Dict[str, Any]:
         "ok": True,
         "service": "nertzh-metrics",
         "env": os.getenv("ENV", os.getenv("BYBIT_ENV", "demo")),
-        "fastapi_cloud": "deploy with `fastapi deploy` (https://fastapicloud.com)",
+        "surface": "demo-control-plane",
+        "web": "/web/",
+        "docs": "/docs",
     }
 
 
@@ -75,32 +87,6 @@ def prometheus_metrics() -> Response:
 
     body, ctype = prom_metrics_payload()
     return Response(content=body, media_type=ctype)
-
-
-@app.get("/agent/context")
-def agent_context(symbol: str = "BTCUSDT") -> Dict[str, Any]:
-    """Contexto local para agentes (sin saturar LLM APIs)."""
-    from context_bridge import digest, ensure_layout
-
-    ensure_layout()
-    results = ROOT / "logs" / "results.json"
-    summary = {}
-    if results.exists():
-        try:
-            data = json.loads(results.read_text(encoding="utf-8"))
-            summary = {
-                "metadata": data.get("metadata"),
-                "summary": data.get("summary"),
-                "last_trade": data.get("last_trade"),
-            }
-        except Exception as e:
-            summary = {"error": str(e)}
-    return {
-        "symbol": symbol,
-        "bridge_digest": digest()[:4000],
-        "results": summary,
-        "bybit_env": os.getenv("ENV", "demo"),
-    }
 
 
 @app.get("/agent/bybit/tools")
@@ -156,47 +142,6 @@ def ml_predict(features: Dict[str, float]) -> Dict[str, Any]:
     }
 
 
-@app.get("/bridge/status", response_class=PlainTextResponse)
-def bridge_status() -> str:
-    from context_bridge import digest
-
-    return digest()
-
-
-@app.post("/agent/chat")
-def agent_chat(body: ChatIn) -> Dict[str, Any]:
-    """
-    Chat ligero: usa Context Bridge + opcional gpt_integration.
-    No spamea: una sola llamada LLM si hay backend.
-    """
-    from context_bridge import append_conversation, digest
-    from observability import langfuse_span, observe_llm
-
-    append_conversation("user", body.message, source="api", agent="api")
-    context = digest()[:6000]
-    reply = None
-    backend = "none"
-    with langfuse_span("agent_chat", {"symbol": body.symbol}):
-        try:
-            from gpt_integration import GPTClient
-
-            client = GPTClient()
-            backend = client.mode
-            reply = client.chat(
-                f"Symbol={body.symbol}\n\nBridge context:\n{context}\n\nUser: {body.message}\n\n"
-                "Responde en español con: razonamiento breve, código/ejemplos si aplica, decisión."
-            )
-            observe_llm(backend, True)
-        except Exception as e:
-            observe_llm(backend or "none", False)
-            reply = (
-                f"[sin LLM backend: {e}]\n\n"
-                f"Contexto local (bridge):\n{context[:2500]}"
-            )
-    append_conversation("assistant", reply or "", source="api", agent="api")
-    return {"ok": True, "backend": backend, "reply": reply, "symbol": body.symbol}
-
-
 # FastAPI Cloud / agents: root
 @app.get("/")
 def root() -> Dict[str, str]:
@@ -204,6 +149,8 @@ def root() -> Dict[str, str]:
         "message": "NertzMetalEngine",
         "docs": "/docs",
         "health": "/health",
+        "web": "/web/",
+        "agent_context": "/agent/context",
         "prometheus": "/metrics",
-        "deploy": "https://fastapicloud.com — fastapi deploy",
+        "note": "The trading engine is optional and runs separately on ENGINE_API_PORT.",
     }

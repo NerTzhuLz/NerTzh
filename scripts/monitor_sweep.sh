@@ -23,7 +23,7 @@ while true; do
     echo "$line" | python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print(d.get('combo_id'), d.get('status'), d.get('params'))" 2>/dev/null || echo "$line"
   done
   echo
-  echo "=== health :8081 ==="
-  curl -sS -m 2 http://127.0.0.1:8081/health 2>/dev/null || echo "down"
+  echo "=== engine health :${ENGINE_API_PORT:-8082} ==="
+  curl -sS -m 2 "http://127.0.0.1:${ENGINE_API_PORT:-8082}/health" 2>/dev/null || echo "down"
   sleep 3
 done

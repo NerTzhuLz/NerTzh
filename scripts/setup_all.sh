@@ -23,7 +23,7 @@ else
 fi
 
 echo "→ folders"
-mkdir -p logs data assets/branding docs/hackathon
+mkdir -p logs data assets/branding docs
 
 echo "→ hackathon module smoke"
 export PYTHONPATH="${ROOT}/src"
@@ -47,5 +47,6 @@ echo
 echo "Setup finished."
 echo "  Logo (you):   assets/branding/logo.png"
 echo "  Code (Codex): open this folder with GPT-5.6"
-echo "  Run:          make run"
+echo "  Demo:         make demo"
+echo "  Engine:       make run (optional, :8082 by default)"
 echo "  Event:        https://openai.devpost.com/"

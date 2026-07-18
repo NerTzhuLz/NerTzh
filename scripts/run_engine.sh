@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Run NertzMetalEngine (API + bot) on :8081 with project .env only.
+# Run the optional NertzMetalEngine (API + bot) on ENGINE_API_PORT (default :8082).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-# Isolation: do not leak foreign LLM keys into the process
+# Isolation: the engine has no external LLM provider dependency.
 unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY ANTHROPIC_API_KEY XAI_API_KEY 2>/dev/null || true
 
 if [[ ! -f "$ROOT/.env" ]]; then
@@ -30,5 +30,5 @@ else
   PY=python3
 fi
 
-echo "Starting NertzMetalEngine → http://0.0.0.0:8081  (Ctrl+C to stop)"
+echo "Starting NertzMetalEngine on ENGINE_API_PORT (default: http://127.0.0.1:8082; Ctrl+C to stop)"
 exec "$PY" "$ROOT/src/nertzh.py"

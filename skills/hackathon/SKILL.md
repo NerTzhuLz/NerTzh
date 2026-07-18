@@ -31,7 +31,7 @@ export PYTHONPATH=src
 from hackathon import GPTClient, session_status, read_text, write_text, reason
 ```
 
-Instalado en runtime vía `PYTHONPATH=src` (make / scripts). No hardcodear modelos.
+Instalado en runtime vía `PYTHONPATH=src` (make / scripts). Para Build Week, documentar el uso significativo de GPT-5.6 sin exponer credenciales.
 
 ## MCP tools (`metrics-hackathon`)
 
@@ -52,5 +52,5 @@ Sandbox: solo `PROJECT_ROOT`. Bloquea `.env`, `.git`, `.venv`.
 
 ## Docs evento
 
-- `docs/hackathon/OPENAI_BUILD_WEEK.md`
-- `docs/hackathon/STACK_SKILLS_MCP.md`
+- `docs/DEVPOST_SUBMISSION.md`
+- `docs/DEMO_RUNBOOK.md`

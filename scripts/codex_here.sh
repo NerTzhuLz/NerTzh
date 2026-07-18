@@ -10,8 +10,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PATH="${HOME}/.local/node/current/bin:${HOME}/.local/bin:${PATH}"
 
-# Opcional: no arrastrar keys de otros proveedores a la sesión del agente
-unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY 2>/dev/null || true
+# Opcional: no arrastrar keys de otros proveedores a la sesión del agente.
+unset DASHSCOPE_API_KEY BAILIAN_TOKEN_PLAN_API_KEY QWEN_API_KEY ANTHROPIC_API_KEY XAI_API_KEY 2>/dev/null || true
 
 if ! command -v codex >/dev/null 2>&1; then
   echo "codex no está en PATH. Prueba: npm i -g @openai/codex"

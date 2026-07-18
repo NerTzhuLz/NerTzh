@@ -1,7 +1,8 @@
-.PHONY: help setup db db-up db-down shell check run stop isolation logo-dir codex api ml-train bridge-status gpt-session gpt-smoke hackathon-mcp
+.PHONY: help setup db db-up db-down shell check run stop isolation logo-dir codex api demo ml-train bridge-status gpt-session gpt-smoke hackathon-mcp
 
 ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 VENV := $(ROOT).venv/bin
+DEMO_API_PORT ?= 8081
 export PYTHONPATH := $(ROOT)src
 
 help:
@@ -9,8 +10,9 @@ help:
 	@echo "  make setup         - venv + deps (uv)"
 	@echo "  make db-up         - Postgres Docker :5433"
 	@echo "  make check         - readiness"
-	@echo "  make run           - motor nertzh :8081"
-	@echo "  make api           - FastAPI api_app :8081 (agent/ML/prom)"
+	@echo "  make demo          - ruta de demo/jueces: FastAPI + UI :$(DEMO_API_PORT)"
+	@echo "  make api           - alias de make demo"
+	@echo "  make run           - motor nertzh (puerto ENGINE_API_PORT, por defecto :8082)"
 	@echo "  make ml-train      - xgboost from results.json"
 	@echo "  make bridge-status - Context Bridge digest"
 	@echo "  make probe         - latencias REST/WS/MCP"
@@ -56,7 +58,9 @@ codex:
 	@$(ROOT)scripts/codex_here.sh $(ARGS)
 
 api:
-	cd $(ROOT) && PYTHONPATH=src $(VENV)/uvicorn api_app:app --host 0.0.0.0 --port 8081
+	cd $(ROOT) && PYTHONPATH=src $(VENV)/uvicorn api_app:app --host 127.0.0.1 --port $(DEMO_API_PORT)
+
+demo: api
 
 ml-train:
 	cd $(ROOT) && PYTHONPATH=src $(VENV)/python -c "from ml_signals import bootstrap_from_metric_events; import json; from pathlib import Path; e=json.loads(Path('logs/results.json').read_text()).get('events',[]); print(bootstrap_from_metric_events(e))"

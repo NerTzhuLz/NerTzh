@@ -13,7 +13,7 @@ Todo el trabajo de runtime va por **terminal + HTTP/WS**, no por plugins de IDE.
 cd /home/angel/Documentos/_Metrics_
 export PATH="$HOME/.local/node/current/bin:$HOME/.local/bin:$PATH"
 export PYTHONPATH=src
-# opcional shell limpio (sin keys Qwen)
+# opcional shell limpio (sin proveedores ajenos)
 ./scripts/openai_dev_shell.sh
 ```
 
@@ -23,8 +23,8 @@ export PYTHONPATH=src
 |--------|---------|
 | Deps | `make setup` / `uv sync` |
 | Postgres | `make db-up` · `docker start metrics-pg` |
-| Motor trading + WS | `make run` · `./scripts/run_engine.sh` |
-| API agent/ML/prom | `make api` · `uvicorn api_app:app --app-dir src --host 0.0.0.0 --port 8081` |
+| Demo API/UI | `make demo` · `make api` en :8081 |
+| Motor trading + WS | `make run` · `./scripts/run_engine.sh` en :8082 por defecto |
 | Bridge | `./scripts/bridge.py status` · `sync-bot` · `decision` · `paste` |
 | Ready | `make check` · `./scripts/check_ready.sh` |
 | Codex (si hay cuota) | `./scripts/codex_here.sh` |
@@ -35,7 +35,7 @@ export PYTHONPATH=src
 curl -sS http://127.0.0.1:8081/health | jq .
 curl -sS http://127.0.0.1:8081/metrics | head
 docker exec metrics-pg pg_isready -U metrics -d metrics_db
-ss -lntp | grep -E '8081|5433'
+ss -lntp | grep -E '8081|8082|5433'
 tail -f logs/results.json   # o less
 ```
 
@@ -53,4 +53,4 @@ env | cut -d= -f1 | grep -E 'BYBIT|DATABASE|ENV|LANGFUSE|OPENAI' | sort
 1. Preferir **demo** salvo orden humana de mainnet.
 2. No pegar API keys en chat/logs/commits.
 3. Tras cambios de runtime: `bridge.py decision` + `sync-bot`.
-4. Si el motor y `make api` pelean el puerto 8081: un solo proceso en 8081 (motor incluye uvicorn en nertzh; api_app es el surface agent).
+4. La UI/API usa 8081; el motor usa `ENGINE_API_PORT` (8082 por defecto). No cambies ambos a un mismo puerto.

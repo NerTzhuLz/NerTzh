@@ -17,13 +17,13 @@ description: "Operar FastAPI en consola: uvicorn, lifespan, CORS, /docs, deploy 
 ```bash
 cd /home/angel/Documentos/_Metrics_
 export PYTHONPATH=src
-.venv/bin/uvicorn api_app:app --host 0.0.0.0 --port 8081 --reload
+.venv/bin/uvicorn api_app:app --host 127.0.0.1 --port 8081 --reload
 ```
 
 ## Producción local
 
 ```bash
-.venv/bin/uvicorn api_app:app --host 0.0.0.0 --port 8081 --workers 1
+.venv/bin/uvicorn api_app:app --host 127.0.0.1 --port 8081 --workers 1
 ```
 
 (WS del motor no se multiplica con workers a ciegas.)

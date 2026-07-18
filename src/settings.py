@@ -41,8 +41,17 @@ class ConfigSettings:
                 "wss://stream.bybit.com/v5/public/spot",  # Siempre mainnet para streams públicos
             )
             self.LIVE_TRADING_ENABLED = self._get_env_bool(
-                "LIVE_TRADING_ENABLED", default=True
+                "LIVE_TRADING_ENABLED", default=False
             )
+            # Los niveles TP/SL se monitorean localmente para no dejar órdenes
+            # condicionales huérfanas en el exchange.
+            self.NATIVE_TPSL_ENABLED = self._get_env_bool(
+                "NATIVE_TPSL_ENABLED", default=False
+            )
+            self.CONTROL_API_TOKEN = self._get_env("CONTROL_API_TOKEN")
+            self.ENGINE_API_PORT = self._get_env_int("ENGINE_API_PORT", default=8082, positive=True)
+            if not 1 <= self.ENGINE_API_PORT <= 65535:
+                raise ValueError("ENGINE_API_PORT must be between 1 and 65535")
             self.BYBIT_WS_PRIVATE_URL = self._get_env(
                 "BYBIT_WS_PRIVATE_URL",
                 "wss://stream-demo.bybit.com/v5/private"
@@ -96,6 +105,9 @@ class ConfigSettings:
             self.ORDERBOOK_PCT_BAND = self._get_env_clamped_float("ORDERBOOK_PCT_BAND", default=0.015, min_value=0.0, max_value=0.25)
             self.ILD_TARGET_MOVE = self._get_env_clamped_float("ILD_TARGET_MOVE", default=0.002, min_value=0.0001, max_value=0.05)
             self.METRICS_WINDOW_MINUTES = self._get_env_clamped_float("METRICS_WINDOW_MINUTES", default=15.0, min_value=1.0, max_value=120.0)
+            self.MARKET_PERSIST_INTERVAL_SECONDS = self._get_env_clamped_float(
+                "MARKET_PERSIST_INTERVAL_SECONDS", default=2.0, min_value=0.25, max_value=60.0
+            )
             self.AUTO_TUNE_THRESHOLDS = self._get_env_bool("AUTO_TUNE_THRESHOLDS", default=False)
             self.FORMULAS = self._get_env_json_dict("FORMULAS_JSON", default={})
             self.ML_ENABLED = self._get_env_bool("ML_ENABLED", default=False)

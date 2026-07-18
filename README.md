@@ -1,175 +1,102 @@
-# NertzMetalEngine — _Metrics_
+# NerTzh Metrics Control Plane
 
-Sistema de trading algorítmico para Bybit (spot) basado en métricas de orderbook + velas + liquidez.
+NerTzh is a local control plane for inspecting Bybit spot market metrics, a Context Bridge snapshot, and optional GPT-5.6/Codex-assisted analysis. It is built for the **Developer Tools** track of OpenAI Build Week.
 
-## 🎯 Devpost — OpenAI Build Week
+The project keeps the judge-facing API separate from the optional trading engine. The default configuration is **Bybit demo**. No LLM request or trade is made simply by opening the UI.
 
-Participa en **[OpenAI Build Week](https://openai.devpost.com/)** con **Codex** y los **modelos que quieras** de tu plan (sin hardcode de modelo en este repo).
+## What judges can run
 
-| | |
-|--|--|
-| 🌐 Evento | https://openai.devpost.com/ |
-| ⏰ Deadline | **Tue Jul 21, 2026 @ 5:00 PM PT** |
-| 💳 Créditos Codex | Pestaña Resources (fechas oficiales) |
-| 🤖 Modelos | **Libres** — elige en Codex TUI / VS Code / `-m` |
-| 🔓 Locks | **Ninguno** (no hay `AGENT_LOCK`) |
+```bash
+git clone https://github.com/NerTzhuLz/NerTzh.git
+cd NerTzh
+uv sync
+cp .env.example .env
+make demo
+```
 
-**📋 Devpost — Elige tu entrada:**
-- 🚀 **`docs/hackathon/DEVPOST_INDEX.md`** ← **ÍNDICE MAESTRO** (empezar aquí)
-- ⚡ **`docs/hackathon/DEVPOST_COPY_PASTE.md`** ← Copy-paste ready (5 min)
-- 📝 **`docs/hackathon/DEVPOST_PRESENTATION.md`** ← Presentación completa
-- ✅ **`docs/hackathon/DEVPOST_READY.md`** ← Checklist final
+Open <http://127.0.0.1:8081/web/>.
 
-### 🤖 Agentes + Integración GPT-5
+The demo surface provides:
 
-| Archivo | Descripción | Estado |
-|---------|-------------|--------|
-| **`src/hackathon/agents.py`** | NertzAgent + AgentOrchestrator (GPT-5 + function calling) | ✅ |
-| **`src/gpt_integration.py`** | GPT-5 client + Codex CLI support | ✅ |
-| **`src/api_app.py`** | FastAPI con `/agent/chat` endpoint | ✅ |
-| **`web_ui/index.html`** | Web UI para interacción con agente en vivo | ✅ |
-| **`docs/hackathon/OPENAI_INTEGRATION.md`** | 📖 Guía técnica completa (setup, uso, troubleshooting) | ✅ |
-| **`docs/hackathon/DEVPOST_PRESENTATION.md`** | 📊 Presentación limpia para Devpost (copy-paste ready) | ✅ |
+- `GET /health` — local API status and environment.
+- `GET /agent/context` — local Context Bridge and the last persisted snapshot.
+- `GET /metrics` — Prometheus metrics.
+- `GET /agent/bybit/tools` — discoverable read-only Bybit tools.
+- `POST /agent/chat` — optional GPT-5.6/Codex-assisted analysis, protected by `CONTROL_API_TOKEN`.
 
-### 📚 Documentación Adicional
+The demo API does not start the trading engine. To use the protected chat form, set a random `CONTROL_API_TOKEN` in `.env`, then paste it into the browser session when prompted. The token is never written by the UI.
 
-| Archivo | Para qué | Necesario |
-|---------|----------|-----------|
-| `docs/hackathon/QUICKSTART.md` | Inicio rápido en 5 minutos | 📌 Sí |
-| `docs/hackathon/ENTREGA_FINAL.md` | Checklist pre-submission Devpost | 📌 Sí |
-| `docs/hackathon/SUBMISSION_CHECKLIST.md` | Form fields + video plan | 📌 Sí |
-| `AGENTS.md` | Notas de contexto (sin candados) | Optional |
-| `docs/hackathon/BACKLOG.md` | Ideas P0–P2 (roadmap) | Optional |
-| `docs/hackathon/CODEX_CONSOLA.md` | Cómo lanzar Codex en terminal | Optional |
-| `assets/branding/` | **Tu logo aquí** | 📌 Branding |
+## Running the optional engine
 
-### Context Bridge (multiagente, sin saturar APIs)
+The engine is intentionally separate from the judge demo:
+
+```bash
+# Docker Desktop is disabled at login on this workstation: start it deliberately.
+systemctl --user start docker-desktop.service
+docker ps -a --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
+docker compose up -d --wait postgres
+make run
+```
+
+`make run` starts `src/nertzh.py` and its bot loop in the attended terminal; it
+is not a boot-time service. It runs only on localhost at `ENGINE_API_PORT`
+(default `8082`) and uses `ENV=demo` by default. When
+`LIVE_TRADING_ENABLED=true`, it can send orders to the Bybit **demo**
+environment. Do not set `ENV=mainnet` unless you explicitly intend to use live
+funds.
+
+## Verification
+
+```bash
+PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
+# Start Docker Desktop manually first when it is disabled at login.
+docker compose up -d --wait postgres
+make check
+```
+
+The unit suite and judge-facing UI do not need PostgreSQL. `make check` validates the optional engine prerequisites, so run `make db-up` before it.
+
+## Architecture
 
 ```text
-ChatGPT ──paste──► context_bridge/*.md|json ──► DuckDB
-                         ▲
-              PyCharm / Codex / Grok leen aquí
+Bybit REST / WebSocket ──> optional engine (src/nertzh.py, :8082)
+                                 │
+                                 ├── PostgreSQL metrics snapshots
+                                 └── metrics and execution logic
+
+Context Bridge (Markdown + DuckDB) ──> demo API (src/api_app.py, :8081)
+                                         ├── local UI (/web/)
+                                         ├── read-only tools and metrics
+                                         └── GPTClient (optional, protected)
 ```
 
-```bash
-./scripts/bridge.py status
-./scripts/bridge.py sync-bot
-```
+The project uses one GPT implementation: `src/gpt_integration.py`. It can use an authenticated Codex session or the OpenAI API only when explicitly configured. The trading loop does not require an LLM.
 
-Ver `context_bridge/` y `skills/context-bridge/SKILL.md`.  
-Memoria de agentes en **DuckDB** (no SQLite). Trading en **Postgres**.
+## OpenAI Build Week evidence
 
-### DevOps — Inicio rápido 🚀🔧
+This project was extended with Codex and GPT-5.6 during the submission period. Before submission, complete the evidence items in [docs/DEVPOST_SUBMISSION.md](docs/DEVPOST_SUBMISSION.md):
 
-Pequeña guía limpia para operaciones y arranque:
+1. Verify the candidate Codex `/feedback` Session ID recorded in
+   `docs/DEVPOST_SUBMISSION.md`.
+2. Explain the concrete GPT-5.6 and Codex contribution in the Devpost description and video.
+3. Upload the final 150-second video with English narration to a public or
+   unlisted YouTube URL, then test it in a private window.
+4. Confirm the public repository has the committed MIT license.
 
-```bash
-# Ir al repo
-cd /home/angel/Documentos/_Metrics_
+## Documentation
 
-# Requisitos: Docker, Make, Python, .env configurado
-make setup          # instalar dependencias y crear .env si falta
-make db-up          # levantar Postgres (metrics-pg :5433)
-make check          # checks de readiness
-make run            # iniciar motor + API en :8081
-```
+- [Architecture](docs/ARCHITECTURE.md)
+- [Demo runbook](docs/DEMO_RUNBOOK.md)
+- [DevOps runbook](docs/ops/DEVOPS_RUNBOOK.md)
+- [Devpost submission checklist](docs/DEVPOST_SUBMISSION.md)
+- [Operations readiness](docs/ops/READY.md)
 
-- Logs: consultar `logs/` y `logs/runs/*.log` 📄
-- Bridge (memoria/agentes): `./scripts/bridge.py status` / `./scripts/bridge.py sync-bot`
-- Nota: `ENV=demo` por defecto; pasar a `mainnet` solo si lo pides explícitamente ⚠️
+## Security and scope
 
-| Tú diseñas | Agente programa |
-|------------|-----------------|
-| `assets/branding/logo.png` | código / API / métricas |
-
-`.env`: Bybit + DB. No hace falta hardcodear keys de LLM en el bot.
-
-## Arquitectura
-
-```
-src/
-├── nertzh.py           # Motor principal (WebSocket, trades, ciclo de decisión)
-├── bybit_v5.py         # Cliente HTTP Bybit V5
-├── models.py           # ORM PostgreSQL
-├── settings.py         # Config .env
-├── utils.py            # Métricas ILD/EGM/PIO/ROL/OGM/combined
-├── gpt_integration.py  # Opcional: GPT-5 (API o Codex CLI)
-└── qwen_integration.py # Shim legacy → reexporta gpt_integration
-```
-
-### Hack LLM (antes Qwen → ahora GPT-5) + módulo hackathon
-
-```bash
-# Sesión HTTPS (API OpenAI y/o Codex)
-./scripts/gpt_session_https.sh          # ensure
-./scripts/gpt_session_https.sh login    # pipe OPENAI_API_KEY → codex
-./scripts/gpt_session_https.sh device   # OAuth device HTTPS
-make gpt-session
-
-# Módulo instalado en el proyecto (PYTHONPATH=src)
-.venv/bin/python -c "from hackathon import GPTClient, session_status; print(session_status())"
-
-# A) API OpenAI
-export OPENAI_API_KEY=sk-...
-export GPT_BACKEND=api
-export OPENAI_MODEL=gpt-5.6
-.venv/bin/python -c "from gpt_integration import GPTClient; print(GPTClient().chat('hola'))"
-
-# B) Sin key: Codex CLI (Build Week / ChatGPT)
-export GPT_BACKEND=chatgpt
-export CODEX_MODEL=gpt-5.6         # requiere que tu cuenta Codex tenga acceso
-codex login
-.venv/bin/python -c "from gpt_integration import analyze_market_metrics; print(analyze_market_metrics({'combined': 7.2, 'pio': 1.1}))"
-```
-
-MCP `metrics-hackathon` (leer/editar/crear archivos + reason): ver `skills/hackathon/SKILL.md` y `.vscode/mcp.json`.
-
-## Métricas
-
-| Sigla | Nombre |
-|-------|--------|
-| ILD | Imbalance Liquidity Depth |
-| EGM | Edge Gradient Momentum |
-| PIO | Price Imbalance Oscillator |
-| ROL | Rate of Liquidity |
-| OGM | Orderbook Gap Metric |
-| Combined | Señal compuesta (ver código / README técnico en backlog) |
-
-## ⚙️ Configuración (.env)
-
-```bash
-# OpenAI / Codex — Build Week (elige uno)
-# API Platform
-GPT_BACKEND=api
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-5.6
-
-# Codex / ChatGPT
-GPT_BACKEND=chatgpt
-CODEX_MODEL=gpt-5.6             # requiere acceso de la cuenta Codex
-
-# Bybit
-BYBIT_API_KEY=...              # Spot API key
-BYBIT_API_SECRET=...           # Spot API secret
-
-# Sistema
-ENV=demo                        # demo | mainnet (default: demo)
-SYMBOL=BTCUSDT                 # Símbolo de trading
-DATABASE_URL=postgresql://...  # Postgres connection
-
-# Ver .env.example para valores completos
-```
-
-**Nota:** Sin `OPENAI_API_KEY`, el bot usa Codex CLI (requiere `codex login`). No hace falta hardcodear keys de LLM en el código.
-
-## 📊 Estado Actual
-
-| Componente | Estado | Nota |
-|------------|--------|------|
-| 🗄️ PostgreSQL | ✅ Running | Docker `metrics-pg` :5433 |
-| 🤖 GPT-5 Integration | ✅ Ready | API + Codex CLI support |
-| 🌐 Web UI | ✅ Responsive | http://127.0.0.1:8081/web/ |
-| 🎯 Trading Engine | ✅ Demo mode | ENV=demo (safe) |
-| 📖 Documentación | ✅ Complete | Devpost + Setup + API docs |
-
-**Siguiente:** Grabar video demo (< 3 min) → Enviar a Devpost (deadline Jul 21)
+- `.env` is local and ignored by Git. Never commit API keys or a control token.
+- POST, PUT, PATCH and DELETE routes require `X-Control-Token`.
+- The UI makes only local GET requests until a user submits the protected chat form.
+- The project has no non-OpenAI LLM runtime dependency.
+- `metrics-pg` uses `restart: unless-stopped`: if Docker Desktop is started
+  later, inspect `docker ps -a` because the database container may resume. It
+  never starts the engine by itself.

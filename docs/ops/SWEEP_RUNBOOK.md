@@ -37,7 +37,7 @@ logs/runs/<run_id>/<combo_id>/
 
 ```bash
 # terminal 2
-watch -n 2 'tail -5 logs/runs/*/index.jsonl 2>/dev/null; curl -s localhost:8081/health'
+watch -n 2 'tail -5 logs/runs/*/index.jsonl 2>/dev/null; curl -s localhost:${ENGINE_API_PORT:-8082}/health'
 # o
 ./scripts/monitor_sweep.sh <run_id>
 ```

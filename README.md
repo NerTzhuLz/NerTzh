@@ -4,6 +4,18 @@ NerTzh is a local control plane for inspecting Bybit spot market metrics, a Cont
 
 The project keeps the judge-facing API separate from the optional trading engine. The default configuration is **Bybit demo**. No LLM request or trade is made simply by opening the UI.
 
+## Developer profile
+
+**AngeL / NerTzhuLz** builds evidence-first developer tools at the intersection of real-time systems, automation and community operations. The public work visible across the project history covers:
+
+- FastAPI and Python services with PostgreSQL state and operational runbooks.
+- Bybit market-data, order-reconciliation and metrics research in demo mode.
+- Discord and community automation projects dating back to 2020.
+- Local agent tooling, Context Bridge workflows and protected GPT-5.6/Codex-assisted development.
+- Leadership and operations in Latin gaming communities, documented publicly only at an aggregate level and without member or financial data.
+
+The current portfolio is intentionally curated: this repository is the flagship control-plane project; older experiments and backups remain separate until their licenses, dependencies, secrets and reproducibility are reviewed.
+
 ## What judges can run
 
 ```bash
@@ -33,7 +45,7 @@ The engine is intentionally separate from the judge demo:
 ```bash
 # Docker Desktop is disabled at login on this workstation: start it deliberately.
 systemctl --user start docker-desktop.service
-docker ps -a --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'
+docker ps -a --format '{{.Names}}\\t{{.Status}}\\t{{.Ports}}'
 docker compose up -d --wait postgres
 make run
 ```
